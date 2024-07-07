@@ -1,6 +1,7 @@
 use bevy::log::Level;
 use bevy::log::LogPlugin;
 use bevy::prelude::*;
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use shieldtank::prelude::*;
 
@@ -10,14 +11,14 @@ fn main() {
             DefaultPlugins
                 .set(LogPlugin {
                     level: Level::WARN,
-                    filter: "covey_of_worlds=debug,example=trace".into(),
+                    filter: "shieldtank=trace,example=trace".into(),
                     ..default()
                 })
                 .set(ImagePlugin::default_nearest()),
             // CoveyOfWorldsPlugin,
             ShieldTankPlugin,
         ))
-        // .add_plugins(WorldInspectorPlugin::default())
+        .add_plugins(WorldInspectorPlugin::default())
         .add_systems(Startup, startup)
         .add_systems(Update, update)
         .run();

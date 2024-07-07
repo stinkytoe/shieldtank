@@ -5,6 +5,8 @@ mod iid;
 mod ldtk;
 mod plugin;
 
+pub(crate) mod util;
+
 pub mod system_params;
 
 pub mod prelude {

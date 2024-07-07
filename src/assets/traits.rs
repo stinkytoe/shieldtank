@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use thiserror::Error;
 
-use crate::iid::Iid;
+use crate::iid::{Iid, IidSet};
 
 #[derive(Debug, Error)]
 pub enum LdtkAssetError<A>
@@ -23,7 +23,7 @@ where
     Self: Asset + Sized,
 {
     fn iid(&self) -> Iid;
-    fn project(&self) -> Entity;
+    fn children(&self) -> &IidSet;
 
     // fn spawn(&self, commands: &Commands);
 
@@ -46,9 +46,9 @@ where
                 //
                 // commands.spawn((handle, SpatialBundle::default()));
                 // }
-                AssetEvent::Added { id } => {}
+                AssetEvent::Added { id: _ } => {}
                 AssetEvent::Modified { id: _ } => {}
-                AssetEvent::Removed { id } => {}
+                AssetEvent::Removed { id: _ } => {}
                 // AssetEvent::Unused { id } => {}
                 _ => {}
             }

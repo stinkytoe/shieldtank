@@ -1,5 +1,6 @@
 use bevy::reflect::Reflect;
 use bevy::utils::{HashMap, HashSet};
+use std::fmt::Debug;
 use std::fmt::Display;
 use std::num::ParseIntError;
 use std::str::FromStr;
@@ -15,7 +16,7 @@ pub(crate) enum IidError {
     FormatError(String),
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug, Hash, Reflect)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Reflect)]
 pub(crate) struct Iid {
     value: u128,
 }
@@ -66,6 +67,13 @@ impl Display for Iid {
             &s[20..32]
         );
         write!(f, "{}", s)
+    }
+}
+
+impl Debug for Iid {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // f.debug_struct("Iid").field("value", &self.value).finish()
+        write!(f, "\"{}\"", self)
     }
 }
 

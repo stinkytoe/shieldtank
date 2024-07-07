@@ -1,16 +1,32 @@
+use std::str::FromStr;
+
 use bevy::prelude::*;
 use thiserror::Error;
 
 use crate::assets::traits::LdtkAsset;
-use crate::iid::Iid;
+use crate::iid::{Iid, IidError, IidSet};
+use crate::ldtk;
 
 #[derive(Debug, Error)]
-pub enum LdtkEntityError {}
+pub enum LdtkEntityError {
+    #[error(transparent)]
+    IidError(#[from] IidError),
+}
 
 #[derive(Asset, Debug, Reflect)]
 pub struct LdtkEntity {
     iid: Iid,
-    project: Entity,
+    children: IidSet,
+}
+
+impl LdtkEntity {
+    pub(crate) fn new(value: &ldtk::EntityInstance) -> Result<Self, LdtkEntityError> {
+        let iid = Iid::from_str(&value.iid)?;
+
+        let children = IidSet::default();
+
+        Ok(Self { iid, children })
+    }
 }
 
 impl LdtkAsset for LdtkEntity {
@@ -18,7 +34,7 @@ impl LdtkAsset for LdtkEntity {
         self.iid
     }
 
-    fn project(&self) -> Entity {
-        self.project
+    fn children(&self) -> &IidSet {
+        &self.children
     }
 }

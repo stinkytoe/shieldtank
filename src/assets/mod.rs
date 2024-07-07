@@ -1,5 +1,4 @@
-mod entity;
-
+pub(crate) mod entity;
 pub(crate) mod layer;
 pub(crate) mod level;
 pub(crate) mod project;
