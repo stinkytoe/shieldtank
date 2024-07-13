@@ -29,16 +29,30 @@ impl LdtkLayerComponent {
     }
 }
 
-impl LdtkComponent<LdtkLayer> for LdtkLayerComponent {
+impl LdtkComponent<LdtkLayer, ()> for LdtkLayerComponent {
     fn iid(&self) -> Iid {
         self.iid
     }
 
-    fn ldtk_asset_event_system(
-        events: EventReader<crate::assets::event::LdtkAssetEvent<LdtkLayer>>,
-        query: Query<(Entity, &Self)>,
-        assets: Res<Assets<LdtkLayer>>,
-    ) {
-        todo!()
+    fn project_entity(&self) -> Entity {
+        self.project_entity
+    }
+
+    fn asset_handle_from_project(
+        project: &crate::prelude::LdtkProject,
+        iid: Iid,
+    ) -> Option<Handle<LdtkLayer>> {
+        project.layers.get(&iid).cloned()
+    }
+
+    fn on_spawn(
+        commands: &mut Commands,
+        entity: Entity,
+        project: &crate::prelude::LdtkProject,
+        asset: &LdtkLayer,
+        component: &Self,
+        component_set_query: &Query<()>,
+    ) -> Result<(), super::traits::LdtkComponentError<LdtkLayer>> {
+        Ok(())
     }
 }

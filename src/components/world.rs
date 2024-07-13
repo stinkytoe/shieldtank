@@ -1,8 +1,6 @@
-use bevy::ecs::component::StorageType;
 use bevy::prelude::*;
 use thiserror::Error;
 
-use crate::assets::event::LdtkAssetEvent;
 use crate::assets::traits::LdtkAsset;
 use crate::assets::world::LdtkWorld;
 use crate::iid::Iid;
@@ -34,18 +32,30 @@ impl LdtkWorldComponent {
     }
 }
 
-impl LdtkComponent<LdtkWorld> for LdtkWorldComponent {
-    fn ldtk_asset_event_system(
-        mut events: EventReader<LdtkAssetEvent<LdtkWorld>>,
-        query: Query<(Entity, &Self)>,
-        assets: Res<Assets<LdtkWorld>>,
-    ) {
-        for event in events.read() {
-            debug!("LdtkAssetEvent<LdtkWorld>: {event:?}");
-        }
-    }
-
+impl LdtkComponent<LdtkWorld, ()> for LdtkWorldComponent {
     fn iid(&self) -> Iid {
         self.iid
+    }
+
+    fn project_entity(&self) -> Entity {
+        self.project_entity
+    }
+
+    fn asset_handle_from_project(
+        project: &crate::prelude::LdtkProject,
+        iid: Iid,
+    ) -> Option<Handle<LdtkWorld>> {
+        project.worlds.get(&iid).cloned()
+    }
+
+    fn on_spawn(
+        commands: &mut Commands,
+        entity: Entity,
+        project: &crate::prelude::LdtkProject,
+        asset: &LdtkWorld,
+        component: &Self,
+        component_set_query: &Query<()>,
+    ) -> Result<(), super::traits::LdtkComponentError<LdtkWorld>> {
+        Ok(())
     }
 }

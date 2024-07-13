@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy::reflect::Map;
 use serde::Deserialize;
 use serde::Serialize;
 use thiserror::Error;
@@ -19,7 +18,6 @@ use crate::components::level::LdtkLevelComponentError;
 use crate::components::traits::LdtkComponent;
 use crate::components::world::LdtkWorldComponent;
 use crate::components::world::LdtkWorldComponentError;
-use crate::iid::Iid;
 use crate::iid::IidMap;
 
 #[derive(Debug, Error)]
@@ -214,7 +212,7 @@ fn project_children(
                                         .ok_or(LdtkProjectError::Stub)?;
 
                                     let entity_entity = if let Some((entity_entity, _)) =
-                                        layer_query.iter().find(|(_, inner_component)| {
+                                        entity_query.iter().find(|(_, inner_component)| {
                                             layer_asset.iid() == inner_component.iid()
                                         }) {
                                         entity_entity

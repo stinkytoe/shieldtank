@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, reflect::Map};
 use thiserror::Error;
 
 use crate::{
@@ -29,16 +29,30 @@ impl LdtkEntityComponent {
     }
 }
 
-impl LdtkComponent<LdtkEntity> for LdtkEntityComponent {
+impl LdtkComponent<LdtkEntity, ()> for LdtkEntityComponent {
     fn iid(&self) -> Iid {
         self.iid
     }
 
-    fn ldtk_asset_event_system(
-        events: EventReader<crate::assets::event::LdtkAssetEvent<LdtkEntity>>,
-        query: Query<(Entity, &Self)>,
-        assets: Res<Assets<LdtkEntity>>,
-    ) {
-        todo!()
+    fn project_entity(&self) -> Entity {
+        self.project_entity
+    }
+
+    fn asset_handle_from_project(
+        project: &crate::prelude::LdtkProject,
+        iid: Iid,
+    ) -> Option<Handle<LdtkEntity>> {
+        project.entities.get(&iid).cloned()
+    }
+
+    fn on_spawn(
+        commands: &mut Commands,
+        entity: Entity,
+        project: &crate::prelude::LdtkProject,
+        asset: &LdtkEntity,
+        component: &Self,
+        component_set_query: &Query<()>,
+    ) -> Result<(), super::traits::LdtkComponentError<LdtkEntity>> {
+        Ok(())
     }
 }

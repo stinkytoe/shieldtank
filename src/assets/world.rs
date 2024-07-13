@@ -1,7 +1,5 @@
-use std::str::FromStr;
-
 use bevy::prelude::*;
-use bevy::utils::HashSet;
+use std::str::FromStr;
 use thiserror::Error;
 
 use crate::assets::traits::LdtkAsset;
