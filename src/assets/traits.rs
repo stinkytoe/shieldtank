@@ -25,9 +25,7 @@ where
     fn iid(&self) -> Iid;
     fn children(&self) -> &IidSet;
 
-    // fn spawn(&self, commands: &Commands);
-
-    fn asset_response_system(
+    fn asset_event_system(
         mut commands: Commands,
         mut asset_events: EventReader<AssetEvent<Self>>,
         mut assets: ResMut<Assets<Self>>,
@@ -35,22 +33,21 @@ where
     ) -> Result<(), LdtkAssetError<Self>> {
         for event in asset_events.read() {
             match event {
-                // AssetEvent::LoadedWithDependencies { id } => {
-                // let handle = assets
-                //     .get_strong_handle(*id)
-                //     .ok_or(LdtkAssetError::GetStrongHandleFailed(*id))?;
-                // let asset = assets.get(&handle).ok_or(LdtkAssetError::BadAssetId(*id))?;
-                // let project = projects
-                //     .get(asset.project_iid())
-                //     .ok_or(LdtkAssetError::BadProjectIid(asset.project_iid()))?;
-                //
-                // commands.spawn((handle, SpatialBundle::default()));
-                // }
-                AssetEvent::Added { id: _ } => {}
-                AssetEvent::Modified { id: _ } => {}
-                AssetEvent::Removed { id: _ } => {}
-                // AssetEvent::Unused { id } => {}
-                _ => {}
+                AssetEvent::Added { id } => {
+                    trace!("LdtkAsset Added: {id:?}")
+                }
+                AssetEvent::Modified { id } => {
+                    trace!("LdtkAsset Modified: {id:?}")
+                }
+                AssetEvent::Removed { id } => {
+                    trace!("LdtkAsset Removed: {id:?}")
+                }
+                AssetEvent::Unused { id } => {
+                    trace!("LdtkAsset Unused: {id:?}")
+                }
+                AssetEvent::LoadedWithDependencies { id } => {
+                    trace!("LdtkAsset LoadedWithDependencies: {id:?}")
+                }
             }
         }
 
