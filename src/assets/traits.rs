@@ -1,6 +1,8 @@
 use bevy::prelude::*;
+use std::fmt::Debug;
 use thiserror::Error;
 
+use crate::assets::event::LdkAssetEvent;
 use crate::assets::project::LdtkProject;
 use crate::iid::Iid;
 use crate::iid::IidSet;
@@ -18,7 +20,7 @@ where
 
 pub trait LdtkAsset
 where
-    Self: Asset + Sized,
+    Self: Asset + Debug + Sized,
 {
     fn iid(&self) -> Iid;
     fn children(&self) -> &IidSet;
@@ -29,7 +31,6 @@ where
         commands: &mut Commands,
         project_asset: &LdtkProject,
         iids: &IidSet,
-        assets: &Assets<Self>,
         entities_query: &Query<(Entity, &Handle<Self>)>,
     ) -> Result<Vec<(Entity, Handle<Self>)>, LdtkAssetError<Self>> {
         let loaded_entities = iids
@@ -80,5 +81,11 @@ where
 
             Ok(())
         })
+    }
+
+    fn ldtk_asset_event_system(mut events: EventReader<LdkAssetEvent<Self>>) {
+        for event in events.read() {
+            trace!("LdtkAssetEvent: {event:?}");
+        }
     }
 }

@@ -1,11 +1,8 @@
-// use bevy::prelude::*;
-//
-// use super::traits::LdtkAsset;
+use bevy::prelude::*;
 
-// #[derive(Event, Debug)]
-// pub(crate) enum LdtkAssetEvent<A>
-// where
-//     A: LdtkAsset + Sized,
-// {
-//     _Spawned { id: AssetId<A> },
-// }
+use crate::assets::traits::LdtkAsset;
+
+#[derive(Debug, Event)]
+pub(crate) enum LdkAssetEvent<A: LdtkAsset> {
+    Modified { entity: Entity, handle: Handle<A> },
+}

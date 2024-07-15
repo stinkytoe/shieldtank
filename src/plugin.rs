@@ -3,9 +3,11 @@ use bevy::utils::error;
 
 use crate::asset_loader::LdtkProjectLoader;
 use crate::assets::entity::LdtkEntity;
+use crate::assets::event::LdkAssetEvent;
 use crate::assets::layer::LdtkLayer;
 use crate::assets::level::LdtkLevel;
 use crate::assets::project::LdtkProject;
+use crate::assets::traits::LdtkAsset;
 use crate::assets::world::LdtkWorld;
 
 pub struct ShieldTankPlugin;
@@ -18,6 +20,10 @@ impl Plugin for ShieldTankPlugin {
             .init_asset::<LdtkLevel>()
             .init_asset::<LdtkLayer>()
             .init_asset::<LdtkEntity>()
+            .add_event::<LdkAssetEvent<LdtkWorld>>()
+            .add_event::<LdkAssetEvent<LdtkLevel>>()
+            .add_event::<LdkAssetEvent<LdtkLayer>>()
+            .add_event::<LdkAssetEvent<LdtkEntity>>()
             .register_asset_reflect::<LdtkProject>()
             .register_asset_reflect::<LdtkWorld>()
             .register_asset_reflect::<LdtkLevel>()
@@ -27,8 +33,11 @@ impl Plugin for ShieldTankPlugin {
             .add_systems(
                 Update,
                 (
-                    //
                     LdtkProject::asset_event_system.map(error),
+                    LdtkWorld::ldtk_asset_event_system,
+                    LdtkLevel::ldtk_asset_event_system,
+                    LdtkLayer::ldtk_asset_event_system,
+                    LdtkEntity::ldtk_asset_event_system,
                 ),
             );
     }
