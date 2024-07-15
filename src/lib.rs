@@ -1,8 +1,9 @@
 mod asset_loader;
 mod assets;
-mod ldtk;
 mod plugin;
+mod reexports;
 
+pub(crate) mod ldtk;
 pub(crate) mod util;
 
 pub mod iid;
@@ -13,4 +14,5 @@ pub mod prelude {
     pub use crate::iid::Iid;
     pub use crate::iid::IidError;
     pub use crate::plugin::ShieldTankPlugin;
+    // pub use crate::reexports::world_layout::WorldLayout;
 }

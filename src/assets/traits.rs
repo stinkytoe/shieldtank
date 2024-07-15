@@ -25,6 +25,10 @@ where
     fn iid(&self) -> Iid;
     fn children(&self) -> &IidSet;
     fn identifier(&self) -> &str;
+    fn location(&self) -> Vec3 {
+        Vec3::ZERO
+    }
+
     fn asset_handle_from_project(project: &LdtkProject, iid: Iid) -> Option<Handle<Self>>;
 
     // #[allow(clippy::type_complexity)]
@@ -94,9 +98,10 @@ where
             let LdkAssetEvent::<Self>::Modified { entity, handle } = event;
 
             let asset = assets.get(handle.id()).unwrap();
-            commands
-                .entity(*entity)
-                .insert(Name::new(asset.identifier().to_string()));
+            commands.entity(*entity).insert((
+                Name::new(asset.identifier().to_string()),
+                Transform::from_translation(asset.location()),
+            ));
         }
     }
 }

@@ -29,6 +29,8 @@ impl Plugin for ShieldTankPlugin {
             .register_asset_reflect::<LdtkLevel>()
             .register_asset_reflect::<LdtkLayer>()
             .register_asset_reflect::<LdtkEntity>()
+            .register_type::<Image>()
+            .register_type::<Handle<Image>>()
             .init_asset_loader::<LdtkProjectLoader>()
             .add_systems(
                 Update,
@@ -36,6 +38,7 @@ impl Plugin for ShieldTankPlugin {
                     LdtkProject::asset_event_system.map(error),
                     LdtkWorld::ldtk_asset_event_system,
                     LdtkLevel::ldtk_asset_event_system,
+                    LdtkLevel::level_background_system.map(error),
                     LdtkLayer::ldtk_asset_event_system,
                     LdtkEntity::ldtk_asset_event_system,
                 ),

@@ -1,6 +1,7 @@
 use bevy::asset::AssetLoader;
 use bevy::asset::AsyncReadExt;
 use bevy::asset::ReadAssetBytesError;
+use bevy::ecs::identifier::error;
 use bevy::prelude::*;
 use bevy::tasks::block_on;
 use std::path::Path;
@@ -21,7 +22,9 @@ use crate::assets::world::LdtkWorldError;
 use crate::iid::Iid;
 use crate::iid::IidError;
 use crate::ldtk;
+use crate::util::bevy_color_from_ldtk;
 use crate::util::ldtk_path_to_bevy_path;
+use crate::util::ColorParseError;
 
 #[derive(Debug, Error)]
 pub(crate) enum LdtkProjectLoaderError {
@@ -43,6 +46,8 @@ pub(crate) enum LdtkProjectLoaderError {
     LdtkLayerError(#[from] LdtkLayerError),
     #[error(transparent)]
     LdtkEntityError(#[from] LdtkEntityError),
+    #[error(transparent)]
+    ColorParseError(#[from] ColorParseError),
     #[error("field is None in non-multi world project! field: {0}")]
     FieldIsNone(String),
     #[error("failed to get project directory!")]
@@ -149,7 +154,12 @@ impl AssetLoader for LdtkProjectLoader {
                 .map(|value| {
                     let label = value.iid.clone();
                     let iid = Iid::from_str(&value.iid)?;
-                    let asset = LdtkLevel::new(value)?;
+                    let asset = LdtkLevel::new(
+                        value,
+                        settings.level_separation,
+                        load_context,
+                        &project_directory,
+                    )?;
                     trace!("level sub asset: {asset:?}");
                     let handle = load_context.add_labeled_asset(label, asset);
                     Ok((iid, handle))
@@ -186,6 +196,8 @@ impl AssetLoader for LdtkProjectLoader {
                 levels,
                 layers,
                 entities,
+                bg_color: bevy_color_from_ldtk(&value.bg_color)?,
+                json_version: value.json_version.clone(),
             })
         })
     }

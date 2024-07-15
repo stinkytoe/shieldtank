@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use serde::Deserialize;
 use serde::Serialize;
+use std::fmt::Debug;
 use thiserror::Error;
 
 use crate::assets::entity::LdtkEntity;
@@ -37,8 +38,20 @@ pub enum LdtkProjectError {
     BadLayerHandle(Handle<LdtkLayer>),
 }
 
-#[derive(Clone, Debug, Deserialize, Reflect, Serialize, Default)]
-pub struct LdtkProjectSettings {}
+#[derive(Clone, Debug, Deserialize, Reflect, Serialize)]
+pub struct LdtkProjectSettings {
+    pub level_separation: f32,
+    pub layer_separation: f32,
+}
+
+impl Default for LdtkProjectSettings {
+    fn default() -> Self {
+        Self {
+            level_separation: 1.0,
+            layer_separation: 0.1,
+        }
+    }
+}
 
 #[derive(Debug, Asset, Reflect)]
 pub struct LdtkProject {
@@ -47,6 +60,15 @@ pub struct LdtkProject {
     pub(crate) levels: IidMap<Handle<LdtkLevel>>,
     pub(crate) layers: IidMap<Handle<LdtkLayer>>,
     pub(crate) entities: IidMap<Handle<LdtkEntity>>,
+    // LDtk exports
+    pub(crate) bg_color: Color,
+    // TODO: defs
+    // NOTE: external_levels ignored
+    pub(crate) json_version: String,
+    // TODO: TOC
+    // NOTE: world_grid_height, world_grid_width, and world_layout
+    //      are exported to the LdtkWorld struct, even for
+    //      non-multiworld projects.
 }
 
 impl LdtkProject {
@@ -139,6 +161,13 @@ fn handle_loaded_with_dependencies(
     let project_asset = projects
         .get(project_handle)
         .ok_or(LdtkProjectError::BadProjectHandle)?;
+
+    commands.entity(project_entity).insert(Name::new(
+        project_handle
+            .path()
+            .map(|path| path.to_string())
+            .unwrap_or("LdtkProject".to_string()),
+    ));
 
     let world_iids: IidSet = project_asset.worlds.keys().copied().collect();
 

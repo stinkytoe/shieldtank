@@ -1,4 +1,6 @@
+use bevy::math::I64Vec2;
 use bevy::prelude::*;
+use ldtk::WorldLayout;
 use std::str::FromStr;
 use thiserror::Error;
 
@@ -12,14 +14,19 @@ use crate::ldtk;
 pub enum LdtkWorldError {
     #[error(transparent)]
     IidError(#[from] IidError),
+    #[error("missing worldLayout? {0}")]
+    MissingWorldLayout(Iid),
 }
 
 #[derive(Asset, Debug, Reflect)]
 pub struct LdtkWorld {
+    // NOTE: Internal fields
     iid: Iid,
-    children: IidSet,
-    //
     identifier: String,
+    children: IidSet,
+    // NOTE: LDtk exports
+    world_grid_size: I64Vec2, // world_grid_width, world_grid_height
+    world_layout: WorldLayout,
 }
 
 impl LdtkWorld {
@@ -34,8 +41,13 @@ impl LdtkWorld {
 
         Ok(Self {
             iid,
-            children,
             identifier: value.identifier.clone(),
+            children,
+            world_grid_size: (value.world_grid_width, value.world_grid_height).into(),
+            world_layout: value
+                .world_layout
+                .clone()
+                .ok_or(LdtkWorldError::MissingWorldLayout(iid))?,
         })
     }
 }
