@@ -18,6 +18,8 @@ pub enum LdtkWorldError {
 pub struct LdtkWorld {
     iid: Iid,
     children: IidSet,
+    //
+    identifier: String,
 }
 
 impl LdtkWorld {
@@ -30,7 +32,11 @@ impl LdtkWorld {
             .map(|child| Iid::from_str(&child.iid))
             .collect::<Result<_, _>>()?;
 
-        Ok(Self { iid, children })
+        Ok(Self {
+            iid,
+            children,
+            identifier: value.identifier.clone(),
+        })
     }
 }
 
