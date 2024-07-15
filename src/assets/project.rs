@@ -7,33 +7,32 @@ use crate::assets::entity::LdtkEntity;
 use crate::assets::layer::LdtkLayer;
 use crate::assets::level::LdtkLevel;
 use crate::assets::traits::LdtkAsset;
+use crate::assets::traits::LdtkAssetError;
 use crate::assets::world::LdtkWorld;
 use crate::assets::world::LdtkWorldError;
-use crate::components::entity::LdtkEntityComponent;
-use crate::components::entity::LdtkEntityComponentError;
-use crate::components::layer::LdtkLayerComponent;
-use crate::components::layer::LdtkLayerComponentError;
-use crate::components::level::LdtkLevelComponent;
-use crate::components::level::LdtkLevelComponentError;
-use crate::components::traits::LdtkComponent;
-use crate::components::world::LdtkWorldComponent;
-use crate::components::world::LdtkWorldComponentError;
 use crate::iid::IidMap;
+use crate::iid::IidSet;
 
 #[derive(Debug, Error)]
 pub enum LdtkProjectError {
     #[error(transparent)]
     LdtkWorldError(#[from] LdtkWorldError),
     #[error(transparent)]
-    LdtkWorldComponentError(#[from] LdtkWorldComponentError),
+    LdtkAssetWorldError(#[from] LdtkAssetError<LdtkWorld>),
     #[error(transparent)]
-    LdtkLevelComponentError(#[from] LdtkLevelComponentError),
+    LdtkAssetLevelError(#[from] LdtkAssetError<LdtkLevel>),
     #[error(transparent)]
-    LdtkLayerComponentError(#[from] LdtkLayerComponentError),
+    LdtkAssetLayerError(#[from] LdtkAssetError<LdtkLayer>),
     #[error(transparent)]
-    LdtkEntityComponentError(#[from] LdtkEntityComponentError),
-    #[error("Stub")]
-    Stub,
+    LdtkAssetEntityError(#[from] LdtkAssetError<LdtkEntity>),
+    #[error("Bad project handle?")]
+    BadProjectHandle,
+    #[error("Bad world handle?")]
+    BadWorldHandle(Handle<LdtkWorld>),
+    #[error("Bad level handle?")]
+    BadLevelHandle(Handle<LdtkLevel>),
+    #[error("Bad layer handle?")]
+    BadLayerHandle(Handle<LdtkLayer>),
 }
 
 #[derive(Clone, Debug, Deserialize, Reflect, Serialize, Default)]
@@ -55,41 +54,19 @@ impl LdtkProject {
         mut asset_events: EventReader<AssetEvent<LdtkProject>>,
         projects: Res<Assets<LdtkProject>>,
         project_query: Query<(Entity, &Handle<LdtkProject>)>,
-        worlds: Res<Assets<LdtkWorld>>,
-        world_query: Query<(Entity, &LdtkWorldComponent)>,
-        levels: Res<Assets<LdtkLevel>>,
-        level_query: Query<(Entity, &LdtkLevelComponent)>,
-        layers: Res<Assets<LdtkLayer>>,
-        layer_query: Query<(Entity, &LdtkLayerComponent)>,
-        entities: Res<Assets<LdtkEntity>>,
-        entity_query: Query<(Entity, &LdtkEntityComponent)>,
+        world_assets: Res<Assets<LdtkWorld>>,
+        level_assets: Res<Assets<LdtkLevel>>,
+        layer_assets: Res<Assets<LdtkLayer>>,
+        entity_assets: Res<Assets<LdtkEntity>>,
+        world_query: Query<(Entity, &Handle<LdtkWorld>)>,
+        level_query: Query<(Entity, &Handle<LdtkLevel>)>,
+        layer_query: Query<(Entity, &Handle<LdtkLayer>)>,
+        entity_query: Query<(Entity, &Handle<LdtkEntity>)>,
     ) -> Result<(), LdtkProjectError> {
         for asset_event in asset_events.read() {
             match asset_event {
                 AssetEvent::Added { id } => {
                     trace!("LdtkProject Added: {id:?}");
-                    let Some((project_entity, project_handle)) =
-                        project_query.iter().find(|(_, handle)| handle.id() == *id)
-                    else {
-                        return Err(LdtkProjectError::Stub);
-                    };
-
-                    let project_asset =
-                        projects.get(project_handle).ok_or(LdtkProjectError::Stub)?;
-
-                    project_children(
-                        &mut commands,
-                        &worlds,
-                        &world_query,
-                        &levels,
-                        &level_query,
-                        &layers,
-                        &layer_query,
-                        &entities,
-                        &entity_query,
-                        project_asset,
-                        project_entity,
-                    )?;
                 }
                 AssetEvent::Modified { id } => {
                     trace!("LdtkProject Modified: {id:?}");
@@ -102,6 +79,20 @@ impl LdtkProject {
                 }
                 AssetEvent::LoadedWithDependencies { id } => {
                     trace!("LdtkProject LoadedWithDependencies: {id:?}");
+                    handle_loaded_with_dependencies(
+                        *id,
+                        &mut commands,
+                        &projects,
+                        &project_query,
+                        &world_assets,
+                        &level_assets,
+                        &layer_assets,
+                        &entity_assets,
+                        &world_query,
+                        &level_query,
+                        &layer_query,
+                        &entity_query,
+                    )?;
                 }
             }
         }
@@ -111,157 +102,134 @@ impl LdtkProject {
 }
 
 #[allow(clippy::too_many_arguments)]
-fn project_children(
+fn handle_loaded_with_dependencies(
+    id: AssetId<LdtkProject>,
     commands: &mut Commands,
-    worlds: &Assets<LdtkWorld>,
-    world_query: &Query<(Entity, &LdtkWorldComponent)>,
-    levels: &Assets<LdtkLevel>,
-    level_query: &Query<(Entity, &LdtkLevelComponent)>,
-    layers: &Assets<LdtkLayer>,
-    layer_query: &Query<(Entity, &LdtkLayerComponent)>,
-    entities: &Assets<LdtkEntity>,
-    entity_query: &Query<(Entity, &LdtkEntityComponent)>,
-    project_asset: &LdtkProject,
-    project_entity: Entity,
+    projects: &Assets<LdtkProject>,
+    project_query: &Query<(Entity, &Handle<LdtkProject>)>,
+    world_assets: &Assets<LdtkWorld>,
+    level_assets: &Assets<LdtkLevel>,
+    layer_assets: &Assets<LdtkLayer>,
+    entity_assets: &Assets<LdtkEntity>,
+    world_query: &Query<(Entity, &Handle<LdtkWorld>)>,
+    level_query: &Query<(Entity, &Handle<LdtkLevel>)>,
+    layer_query: &Query<(Entity, &Handle<LdtkLayer>)>,
+    entity_query: &Query<(Entity, &Handle<LdtkEntity>)>,
 ) -> Result<(), LdtkProjectError> {
-    project_asset
-        .worlds
-        .values()
-        .map(|world_handle| -> Result<Entity, LdtkProjectError> {
-            let world_asset = worlds.get(world_handle).ok_or(LdtkProjectError::Stub)?;
+    let Some((project_entity, project_handle)) =
+        project_query.iter().find(|(_, handle)| handle.id() == id)
+    else {
+        return Err(LdtkProjectError::BadProjectHandle);
+    };
 
-            let world_entity = if let Some((world_entity, _)) = world_query
-                .iter()
-                .find(|(_, inner_handle)| world_asset.iid() == inner_handle.iid())
-            {
-                world_entity
-            } else {
-                trace!("spawning LdtkWorldComponent: {}", world_asset.iid());
-                commands
-                    .spawn((
-                        LdtkWorldComponent::new(world_asset, project_entity)?,
-                        SpatialBundle::default(),
-                    ))
-                    .id()
-            };
+    let project_asset = projects
+        .get(project_handle)
+        .ok_or(LdtkProjectError::BadProjectHandle)?;
 
-            world_asset
-                .children()
-                .iter()
-                .map(|level_iid| -> Result<Entity, LdtkProjectError> {
-                    let level_handle = project_asset
-                        .levels
-                        .get(level_iid)
-                        .ok_or(LdtkProjectError::Stub)?;
+    let world_iids: IidSet = project_asset.worlds.keys().copied().collect();
 
-                    let level_asset = levels.get(level_handle).ok_or(LdtkProjectError::Stub)?;
+    let worlds = LdtkWorld::collect_entities(
+        commands,
+        project_asset,
+        &world_iids,
+        world_assets,
+        world_query,
+    )?;
 
-                    let level_entity = if let Some((level_entity, _)) = level_query
-                        .iter()
-                        .find(|(_, inner_handle)| level_asset.iid() == inner_handle.iid())
-                    {
-                        level_entity
-                    } else {
-                        trace!("spawning LdtkLevelComponent: {}", level_asset.iid());
-                        commands
-                            .spawn((
-                                LdtkLevelComponent::new(level_asset, project_entity)?,
-                                SpatialBundle::default(),
-                            ))
-                            .id()
-                    };
+    worlds.iter().try_for_each(
+        |(world_entity, world_handle)| -> Result<(), LdtkProjectError> {
+            commands.entity(project_entity).add_child(*world_entity);
 
-                    level_asset
-                        .children()
-                        .iter()
-                        .map(|layer_iid| -> Result<Entity, LdtkProjectError> {
-                            let layer_handle = project_asset
-                                .layers
-                                .get(layer_iid)
-                                .ok_or(LdtkProjectError::Stub)?;
+            let world_asset = world_assets
+                .get(world_handle.id())
+                .ok_or(LdtkProjectError::BadWorldHandle(world_handle.clone()))?;
 
-                            let layer_asset =
-                                layers.get(layer_handle).ok_or(LdtkProjectError::Stub)?;
+            let level_iids = world_asset.children();
 
-                            let layer_entity = if let Some((layer_entity, _)) =
-                                layer_query.iter().find(|(_, inner_component)| {
-                                    layer_asset.iid() == inner_component.iid()
-                                }) {
-                                layer_entity
-                            } else {
-                                trace!("spawning LdtkLayerComponent: {}", layer_asset.iid());
-                                commands
-                                    .spawn((
-                                        LdtkLayerComponent::new(layer_asset, project_entity)?,
-                                        SpatialBundle::default(),
-                                    ))
-                                    .id()
-                            };
+            let levels = LdtkLevel::collect_entities(
+                commands,
+                project_asset,
+                level_iids,
+                level_assets,
+                level_query,
+            )?;
 
-                            layer_asset
-                                .children()
-                                .iter()
-                                .map(|entity_iid| -> Result<Entity, LdtkProjectError> {
-                                    let entity_handle = project_asset
-                                        .entities
-                                        .get(entity_iid)
-                                        .ok_or(LdtkProjectError::Stub)?;
+            levels.iter().try_for_each(
+                |(level_entity, level_handle)| -> Result<(), LdtkProjectError> {
+                    commands.entity(*world_entity).add_child(*level_entity);
 
-                                    let entity_asset = entities
-                                        .get(entity_handle)
-                                        .ok_or(LdtkProjectError::Stub)?;
+                    let level_asset = level_assets
+                        .get(level_handle.id())
+                        .ok_or(LdtkProjectError::BadLevelHandle(level_handle.clone()))?;
 
-                                    let entity_entity = if let Some((entity_entity, _)) =
-                                        entity_query.iter().find(|(_, inner_component)| {
-                                            layer_asset.iid() == inner_component.iid()
-                                        }) {
-                                        entity_entity
-                                    } else {
-                                        trace!(
-                                            "spawning LdtkEntityComponent: {}",
-                                            entity_asset.iid()
-                                        );
-                                        commands
-                                            .spawn((
-                                                LdtkEntityComponent::new(
-                                                    entity_asset,
-                                                    project_entity,
-                                                )?,
-                                                SpatialBundle::default(),
-                                            ))
-                                            .id()
-                                    };
+                    let layer_iids = level_asset.children();
 
-                                    Ok(entity_entity)
-                                })
-                                .collect::<Result<Vec<Entity>, LdtkProjectError>>()?
-                                .iter()
-                                .for_each(|&entity_entity| {
-                                    commands.entity(layer_entity).add_child(entity_entity);
-                                });
+                    let layers = LdtkLayer::collect_entities(
+                        commands,
+                        project_asset,
+                        layer_iids,
+                        layer_assets,
+                        layer_query,
+                    )?;
 
-                            Ok(layer_entity)
-                        })
-                        .collect::<Result<Vec<Entity>, LdtkProjectError>>()?
-                        .iter()
-                        .for_each(|&layer_entity| {
-                            commands.entity(level_entity).add_child(layer_entity);
-                        });
+                    layers.iter().try_for_each(
+                        |(layer_entity, layer_handle)| -> Result<(), LdtkProjectError> {
+                            commands.entity(*level_entity).add_child(*layer_entity);
 
-                    Ok(level_entity)
-                })
-                .collect::<Result<Vec<Entity>, LdtkProjectError>>()?
-                .iter()
-                .for_each(|&level_entity| {
-                    commands.entity(world_entity).add_child(level_entity);
-                });
+                            let layer_asset = layer_assets
+                                .get(layer_handle.id())
+                                .ok_or(LdtkProjectError::BadLayerHandle(layer_handle.clone()))?;
 
-            Ok(world_entity)
-        })
-        .collect::<Result<Vec<Entity>, LdtkProjectError>>()?
-        .iter()
-        .for_each(|&world_entity| {
-            commands.entity(project_entity).add_child(world_entity);
-        });
+                            let entity_iids = layer_asset.children();
+
+                            let entities = LdtkEntity::collect_entities(
+                                commands,
+                                project_asset,
+                                entity_iids,
+                                entity_assets,
+                                entity_query,
+                            )?;
+
+                            entities.iter().try_for_each(
+                                |(entity_entity, _)| -> Result<(), LdtkProjectError> {
+                                    commands.entity(*layer_entity).add_child(*entity_entity);
+                                    Ok(())
+                                },
+                            )
+                        },
+                    )
+                },
+            )
+        },
+    )?;
+
+    LdtkWorld::despawn_orphaned_entities(
+        commands,
+        world_assets,
+        project_asset.worlds.keys().copied().collect(),
+        world_query.iter(),
+    )?;
+
+    LdtkLevel::despawn_orphaned_entities(
+        commands,
+        level_assets,
+        project_asset.levels.keys().copied().collect(),
+        level_query.iter(),
+    )?;
+
+    LdtkLayer::despawn_orphaned_entities(
+        commands,
+        layer_assets,
+        project_asset.layers.keys().copied().collect(),
+        layer_query.iter(),
+    )?;
+
+    LdtkEntity::despawn_orphaned_entities(
+        commands,
+        entity_assets,
+        project_asset.entities.keys().copied().collect(),
+        entity_query.iter(),
+    )?;
+
     Ok(())
 }

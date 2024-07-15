@@ -1,11 +1,10 @@
-use std::path::Path;
-use std::str::FromStr;
-
 use bevy::asset::AssetLoader;
 use bevy::asset::AsyncReadExt;
 use bevy::asset::ReadAssetBytesError;
 use bevy::prelude::*;
 use bevy::tasks::block_on;
+use std::path::Path;
+use std::str::FromStr;
 use thiserror::Error;
 
 use crate::assets::entity::LdtkEntity;
@@ -139,7 +138,7 @@ impl AssetLoader for LdtkProjectLoader {
                     let label = value.iid.clone();
                     let iid = Iid::from_str(&value.iid)?;
                     let asset = LdtkWorld::new(value)?;
-                    trace!("world sub asset: {asset:#?}");
+                    trace!("world sub asset: {asset:?}");
                     let handle = load_context.add_labeled_asset(label, asset);
                     Ok((iid, handle))
                 })
@@ -151,7 +150,7 @@ impl AssetLoader for LdtkProjectLoader {
                     let label = value.iid.clone();
                     let iid = Iid::from_str(&value.iid)?;
                     let asset = LdtkLevel::new(value)?;
-                    trace!("level sub asset: {asset:#?}");
+                    trace!("level sub asset: {asset:?}");
                     let handle = load_context.add_labeled_asset(label, asset);
                     Ok((iid, handle))
                 })
@@ -163,7 +162,7 @@ impl AssetLoader for LdtkProjectLoader {
                     let label = value.iid.clone();
                     let iid = Iid::from_str(&value.iid)?;
                     let asset = LdtkLayer::new(value)?;
-                    trace!("layer sub asset: {asset:#?}");
+                    trace!("layer sub asset: {asset:?}");
                     let handle = load_context.add_labeled_asset(label, asset);
                     Ok((iid, handle))
                 })
@@ -175,7 +174,7 @@ impl AssetLoader for LdtkProjectLoader {
                     let label = value.iid.clone();
                     let iid = Iid::from_str(&value.iid)?;
                     let asset = LdtkEntity::new(value)?;
-                    trace!("entity sub asset: {asset:#?}");
+                    trace!("entity sub asset: {asset:?}");
                     let handle = load_context.add_labeled_asset(label, asset);
                     Ok((iid, handle))
                 })

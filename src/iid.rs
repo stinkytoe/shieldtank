@@ -1,15 +1,14 @@
 use bevy::reflect::Reflect;
-use bevy::utils::{HashMap, HashSet};
+use bevy::utils::HashMap;
+use bevy::utils::HashSet;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::num::ParseIntError;
 use std::str::FromStr;
 use thiserror::Error;
 
-// e41ad760-25d0-11ef-bd94-e3313b674128
-
 #[derive(Debug, Error)]
-pub(crate) enum IidError {
+pub enum IidError {
     #[error(transparent)]
     ParseIntError(#[from] ParseIntError),
     #[error("Format error on input: {0}")]
@@ -17,12 +16,12 @@ pub(crate) enum IidError {
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Reflect)]
-pub(crate) struct Iid {
+pub struct Iid {
     value: u128,
 }
 
 impl Iid {
-    pub(crate) fn as_u128(&self) -> u128 {
+    pub fn as_u128(&self) -> u128 {
         self.value
     }
 }

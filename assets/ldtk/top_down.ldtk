@@ -11,7 +11,7 @@
 	"iid": "d5ab0640-8990-11ee-a83b-7da29036a93f",
 	"jsonVersion": "1.5.3",
 	"appBuildId": 473703,
-	"nextUid": 936,
+	"nextUid": 955,
 	"identifierStyle": "Capitalize",
 	"toc": [],
 	"worldLayout": "Free",
@@ -2201,23 +2201,7 @@
 					"entityInstances": [
 						{
 							"__identifier": "Thief",
-							"__grid": [5,11],
-							"__pivot": [0.5,0.5],
-							"__tags": [],
-							"__tile": { "tilesetUid": 303, "x": 8, "y": 8, "w": 16, "h": 16 },
-							"__smartColor": "#D77643",
-							"iid": "add49da0-8990-11ee-a89b-6b5df8d8b196",
-							"width": 16,
-							"height": 16,
-							"defUid": 302,
-							"px": [88,184],
-							"fieldInstances": [],
-							"__worldX": -168,
-							"__worldY": 56
-						},
-						{
-							"__identifier": "Thief",
-							"__grid": [8,11],
+							"__grid": [9,10],
 							"__pivot": [0.5,0.5],
 							"__tags": [],
 							"__tile": { "tilesetUid": 303, "x": 8, "y": 8, "w": 16, "h": 16 },
@@ -2226,14 +2210,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 302,
-							"px": [136,184],
+							"px": [152,168],
 							"fieldInstances": [],
-							"__worldX": -120,
-							"__worldY": 56
+							"__worldX": -104,
+							"__worldY": 40
 						},
 						{
 							"__identifier": "Axe_Man",
-							"__grid": [6,8],
+							"__grid": [7,7],
 							"__pivot": [0.5,0.5],
 							"__tags": ["player"],
 							"__tile": { "tilesetUid": 288, "x": 8, "y": 8, "w": 16, "h": 16 },
@@ -2242,13 +2226,29 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 287,
-							"px": [104,136],
+							"px": [120,120],
 							"fieldInstances": [
 								{ "__identifier": "Swing", "__type": "Tile", "__value": { "tilesetUid": 288, "x": 24, "y": 56, "w": 48, "h": 32 }, "__tile": null, "defUid": 329, "realEditorValues": [] },
 								{ "__identifier": "Swing2", "__type": "Array<Tile>", "__value": [], "__tile": null, "defUid": 332, "realEditorValues": [] }
 							],
-							"__worldX": -152,
-							"__worldY": 8
+							"__worldX": -136,
+							"__worldY": -8
+						},
+						{
+							"__identifier": "Thief",
+							"__grid": [5,11],
+							"__pivot": [0.5,0.5],
+							"__tags": [],
+							"__tile": { "tilesetUid": 303, "x": 8, "y": 8, "w": 16, "h": 16 },
+							"__smartColor": "#D77643",
+							"iid": "cf8f0880-25d0-11ef-b73d-a7ec9155ad0a",
+							"width": 16,
+							"height": 16,
+							"defUid": 302,
+							"px": [88,184],
+							"fieldInstances": [],
+							"__worldX": -168,
+							"__worldY": 56
 						}
 					]
 				},

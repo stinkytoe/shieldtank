@@ -1,10 +1,11 @@
-use std::str::FromStr;
-
 use bevy::prelude::*;
+use std::str::FromStr;
 use thiserror::Error;
 
 use crate::assets::traits::LdtkAsset;
-use crate::iid::{Iid, IidError, IidSet};
+use crate::iid::Iid;
+use crate::iid::IidError;
+use crate::iid::IidSet;
 use crate::ldtk;
 
 #[derive(Debug, Error)]
@@ -41,5 +42,12 @@ impl LdtkAsset for LdtkLevel {
 
     fn children(&self) -> &IidSet {
         &self.children
+    }
+
+    fn asset_handle_from_project(
+        project: &crate::prelude::LdtkProject,
+        iid: Iid,
+    ) -> Option<Handle<Self>> {
+        project.levels.get(&iid).cloned()
     }
 }

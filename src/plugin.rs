@@ -6,13 +6,7 @@ use crate::assets::entity::LdtkEntity;
 use crate::assets::layer::LdtkLayer;
 use crate::assets::level::LdtkLevel;
 use crate::assets::project::LdtkProject;
-use crate::assets::traits::LdtkAsset;
 use crate::assets::world::LdtkWorld;
-use crate::components::entity::LdtkEntityComponent;
-use crate::components::layer::LdtkLayerComponent;
-use crate::components::level::LdtkLevelComponent;
-use crate::components::traits::LdtkComponent;
-use crate::components::world::LdtkWorldComponent;
 
 pub struct ShieldTankPlugin;
 
@@ -30,19 +24,11 @@ impl Plugin for ShieldTankPlugin {
             .register_asset_reflect::<LdtkLayer>()
             .register_asset_reflect::<LdtkEntity>()
             .init_asset_loader::<LdtkProjectLoader>()
-            // .add_event::<LdtkAssetEvent<LdtkWorld>>()
             .add_systems(
                 Update,
                 (
+                    //
                     LdtkProject::asset_event_system.map(error),
-                    LdtkWorld::asset_event_system.map(error),
-                    LdtkLevel::asset_event_system.map(error),
-                    LdtkLayer::asset_event_system.map(error),
-                    LdtkEntity::asset_event_system.map(error),
-                    LdtkWorldComponent::ldtk_asset_event_system.map(error),
-                    LdtkLevelComponent::ldtk_asset_event_system.map(error),
-                    LdtkLayerComponent::ldtk_asset_event_system.map(error),
-                    LdtkEntityComponent::ldtk_asset_event_system.map(error),
                 ),
             );
     }
