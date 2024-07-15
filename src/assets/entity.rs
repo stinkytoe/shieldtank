@@ -19,6 +19,7 @@ pub enum LdtkEntityError {
 pub struct LdtkEntity {
     iid: Iid,
     children: IidSet,
+    identifier: String,
 }
 
 impl LdtkEntity {
@@ -27,7 +28,11 @@ impl LdtkEntity {
 
         let children = IidSet::default();
 
-        Ok(Self { iid, children })
+        Ok(Self {
+            iid,
+            children,
+            identifier: value.identifier.clone(),
+        })
     }
 }
 
@@ -38,6 +43,10 @@ impl LdtkAsset for LdtkEntity {
 
     fn children(&self) -> &IidSet {
         &self.children
+    }
+
+    fn identifier(&self) -> &str {
+        &self.identifier
     }
 
     fn asset_handle_from_project(

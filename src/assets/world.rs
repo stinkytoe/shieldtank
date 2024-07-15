@@ -49,6 +49,10 @@ impl LdtkAsset for LdtkWorld {
         &self.children
     }
 
+    fn identifier(&self) -> &str {
+        &self.identifier
+    }
+
     fn asset_handle_from_project(
         project: &crate::prelude::LdtkProject,
         iid: Iid,

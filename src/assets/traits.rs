@@ -24,6 +24,7 @@ where
 {
     fn iid(&self) -> Iid;
     fn children(&self) -> &IidSet;
+    fn identifier(&self) -> &str;
     fn asset_handle_from_project(project: &LdtkProject, iid: Iid) -> Option<Handle<Self>>;
 
     // #[allow(clippy::type_complexity)]
@@ -83,9 +84,19 @@ where
         })
     }
 
-    fn ldtk_asset_event_system(mut events: EventReader<LdkAssetEvent<Self>>) {
+    fn ldtk_asset_event_system(
+        mut commands: Commands,
+        mut events: EventReader<LdkAssetEvent<Self>>,
+        assets: Res<Assets<Self>>,
+    ) {
         for event in events.read() {
             trace!("LdtkAssetEvent: {event:?}");
+            let LdkAssetEvent::<Self>::Modified { entity, handle } = event;
+
+            let asset = assets.get(handle.id()).unwrap();
+            commands
+                .entity(*entity)
+                .insert(Name::new(asset.identifier().to_string()));
         }
     }
 }

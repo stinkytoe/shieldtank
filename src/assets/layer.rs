@@ -18,6 +18,7 @@ pub enum LdtkLayerError {
 pub struct LdtkLayer {
     iid: Iid,
     children: IidSet,
+    identifier: String,
 }
 
 impl LdtkLayer {
@@ -30,7 +31,11 @@ impl LdtkLayer {
             .map(|child| Iid::from_str(&child.iid))
             .collect::<Result<_, _>>()?;
 
-        Ok(Self { iid, children })
+        Ok(Self {
+            iid,
+            children,
+            identifier: value.identifier.clone(),
+        })
     }
 }
 
@@ -41,6 +46,10 @@ impl LdtkAsset for LdtkLayer {
 
     fn children(&self) -> &IidSet {
         &self.children
+    }
+
+    fn identifier(&self) -> &str {
+        &self.identifier
     }
 
     fn asset_handle_from_project(
