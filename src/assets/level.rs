@@ -209,11 +209,9 @@ impl LdtkLevel {
                     *p = image::Rgba(color);
                 }
 
-                let dynamic_image = image::DynamicImage::from(scaled);
-
                 overlay(
                     &mut background_color,
-                    &dynamic_image,
+                    &scaled,
                     bg_pos.top_left.x as i64,
                     bg_pos.top_left.y as i64,
                 );

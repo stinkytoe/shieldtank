@@ -1,7 +1,6 @@
 use bevy::asset::AssetLoader;
 use bevy::asset::AsyncReadExt;
 use bevy::asset::ReadAssetBytesError;
-use bevy::ecs::identifier::error;
 use bevy::prelude::*;
 use bevy::tasks::block_on;
 use std::path::Path;
@@ -168,10 +167,18 @@ impl AssetLoader for LdtkProjectLoader {
 
             let layers = layer_values
                 .iter()
-                .map(|value| {
+                .rev()
+                .enumerate()
+                .map(|(index, value)| {
                     let label = value.iid.clone();
                     let iid = Iid::from_str(&value.iid)?;
-                    let asset = LdtkLayer::new(value)?;
+                    let asset = LdtkLayer::new(
+                        value,
+                        index,
+                        settings.layer_separation,
+                        load_context,
+                        &project_directory,
+                    )?;
                     trace!("layer sub asset: {asset:?}");
                     let handle = load_context.add_labeled_asset(label, asset);
                     Ok((iid, handle))
