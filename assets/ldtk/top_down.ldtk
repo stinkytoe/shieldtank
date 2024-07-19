@@ -1833,7 +1833,7 @@
 			"showName": true,
 			"tilesetId": 288,
 			"tileRenderMode": "FullSizeUncropped",
-			"tileRect": { "tilesetUid": 288, "x": 8, "y": 8, "w": 16, "h": 16 },
+			"tileRect": { "tilesetUid": 288, "x": 0, "y": 32, "w": 32, "h": 32 },
 			"uiTileRect": null,
 			"nineSliceBorders": [],
 			"maxCount": 1,
@@ -2217,22 +2217,22 @@
 						},
 						{
 							"__identifier": "Axe_Man",
-							"__grid": [7,7],
+							"__grid": [7,8],
 							"__pivot": [0.5,0.5],
 							"__tags": ["player"],
-							"__tile": { "tilesetUid": 288, "x": 8, "y": 8, "w": 16, "h": 16 },
+							"__tile": { "tilesetUid": 288, "x": 0, "y": 32, "w": 32, "h": 32 },
 							"__smartColor": "#BE4A2F",
 							"iid": "e41ad760-25d0-11ef-bd94-e3313b674128",
 							"width": 16,
 							"height": 16,
 							"defUid": 287,
-							"px": [120,120],
+							"px": [120,136],
 							"fieldInstances": [
 								{ "__identifier": "Swing", "__type": "Tile", "__value": { "tilesetUid": 288, "x": 24, "y": 56, "w": 48, "h": 32 }, "__tile": null, "defUid": 329, "realEditorValues": [] },
 								{ "__identifier": "Swing2", "__type": "Array<Tile>", "__value": [], "__tile": null, "defUid": 332, "realEditorValues": [] }
 							],
 							"__worldX": -136,
-							"__worldY": -8
+							"__worldY": 8
 						},
 						{
 							"__identifier": "Thief",

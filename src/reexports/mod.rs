@@ -1,6 +1,9 @@
+pub(crate) mod enum_tag_value;
 pub(crate) mod field_instance;
 pub(crate) mod level_background_position;
 pub(crate) mod neighbour;
+pub(crate) mod tile_custom_metadata;
 pub(crate) mod tile_instance;
+pub(crate) mod tileset_definition;
 pub(crate) mod tileset_rectangle;
 pub(crate) mod world_layout;

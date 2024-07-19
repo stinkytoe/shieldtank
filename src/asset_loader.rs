@@ -3,6 +3,7 @@ use bevy::asset::AsyncReadExt;
 use bevy::asset::ReadAssetBytesError;
 use bevy::prelude::*;
 use bevy::tasks::block_on;
+use bevy::utils::HashMap;
 use std::path::Path;
 use std::str::FromStr;
 use thiserror::Error;
@@ -21,6 +22,7 @@ use crate::assets::world::LdtkWorldError;
 use crate::iid::Iid;
 use crate::iid::IidError;
 use crate::ldtk;
+use crate::reexports::tileset_definition::TilesetDefinition;
 use crate::util::bevy_color_from_ldtk;
 use crate::util::ldtk_path_to_bevy_path;
 use crate::util::ColorParseError;
@@ -79,6 +81,8 @@ impl AssetLoader for LdtkProjectLoader {
                 reader.read_to_end(&mut bytes).await?;
                 serde_json::from_slice(&bytes)?
             };
+
+            let project_iid = Iid::from_str(&value.iid)?;
 
             let world_values = if value.worlds.is_empty() {
                 vec![ldtk::World {
@@ -190,19 +194,44 @@ impl AssetLoader for LdtkProjectLoader {
                 .map(|value| {
                     let label = value.iid.clone();
                     let iid = Iid::from_str(&value.iid)?;
-                    let asset = LdtkEntity::new(value)?;
+                    let asset = LdtkEntity::new(value, project_iid)?;
                     trace!("entity sub asset: {asset:?}");
                     let handle = load_context.add_labeled_asset(label, asset);
                     Ok((iid, handle))
                 })
                 .collect::<Result<_, LdtkProjectLoaderError>>()?;
 
+            let tileset_defs: HashMap<i64, TilesetDefinition> = value
+                .defs
+                .tilesets
+                .iter()
+                .map(TilesetDefinition::new)
+                .map(|tile| (tile.uid, tile))
+                .collect();
+
+            let tilesets = tileset_defs
+                .values()
+                .filter_map(|tile_def| tile_def.rel_path.as_ref())
+                .map(|rel_path| {
+                    (
+                        rel_path.clone(),
+                        load_context.load(ldtk_path_to_bevy_path(
+                            &project_directory,
+                            Path::new(&rel_path),
+                        )),
+                    )
+                })
+                .collect();
+
             Ok(LdtkProject {
+                iid: project_iid,
                 settings: settings.clone(),
                 worlds,
                 levels,
                 layers,
                 entities,
+                tileset_defs,
+                tilesets,
                 bg_color: bevy_color_from_ldtk(&value.bg_color)?,
                 json_version: value.json_version.clone(),
             })

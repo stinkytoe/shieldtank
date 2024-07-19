@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy::utils::HashMap;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt::Debug;
@@ -13,6 +14,8 @@ use crate::assets::world::LdtkWorld;
 use crate::assets::world::LdtkWorldError;
 use crate::iid::IidMap;
 use crate::iid::IidSet;
+use crate::prelude::Iid;
+use crate::reexports::tileset_definition::TilesetDefinition;
 
 use super::event::LdkAssetEvent;
 
@@ -55,11 +58,14 @@ impl Default for LdtkProjectSettings {
 
 #[derive(Debug, Asset, Reflect)]
 pub struct LdtkProject {
+    pub(crate) iid: Iid,
     pub(crate) settings: LdtkProjectSettings,
     pub(crate) worlds: IidMap<Handle<LdtkWorld>>,
     pub(crate) levels: IidMap<Handle<LdtkLevel>>,
     pub(crate) layers: IidMap<Handle<LdtkLayer>>,
     pub(crate) entities: IidMap<Handle<LdtkEntity>>,
+    pub(crate) tileset_defs: HashMap<i64, TilesetDefinition>,
+    pub(crate) tilesets: HashMap<String, Handle<Image>>,
     // LDtk exports
     pub(crate) bg_color: Color,
     // TODO: defs
