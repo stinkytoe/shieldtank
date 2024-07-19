@@ -120,7 +120,7 @@ impl LdtkEntity {
 
             if let Some(tile) = entity_asset.tile.as_ref() {
                 let project_asset = project_commands
-                    .get_by_iid(entity_asset.project_iid)
+                    .get(entity_asset.project_iid)
                     .ok_or(LdtkEntityError::BadProjectIid(entity_asset.project_iid))?;
 
                 let tileset_definition = project_asset

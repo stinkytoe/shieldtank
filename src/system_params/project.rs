@@ -18,12 +18,10 @@ pub struct LdtkProjectCommands<'w, 's> {
 }
 
 impl<'w> LdtkProjectCommands<'w, '_> {
-    pub(crate) fn get_by_iid(&self, iid: Iid) -> Option<&LdtkProject> {
+    pub fn get(&self, iid: Iid) -> Option<&LdtkProject> {
         self.project_assets
             .iter()
             .find(|(_, project_asset)| project_asset.iid == iid)
             .map(|(_, project_asset)| project_asset)
     }
-
-    // pub(crate) fn get_by_entity(entity: Entity) ->
 }
