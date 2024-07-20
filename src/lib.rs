@@ -20,6 +20,6 @@ pub mod prelude {
     pub use crate::system_params::entity::query::LdtkEntityQuery;
     pub use crate::system_params::entity::query::LdtkEntityQueryError;
     pub use crate::system_params::entity::query::LdtkEntityQueryEx;
-    pub use crate::system_params::project::LdtkProjectCommandsError;
     pub use crate::system_params::project::LdtkProjectQuery;
+    pub use crate::system_params::project::LdtkProjectQueryError;
 }
