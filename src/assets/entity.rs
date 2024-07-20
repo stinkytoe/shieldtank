@@ -21,7 +21,7 @@ use crate::util::AnchorIntoError;
 use crate::util::ColorParseError;
 
 #[derive(Debug, Error)]
-pub enum LdtkEntityError {
+pub enum LdtkEntityAssetError {
     #[error(transparent)]
     IidError(#[from] IidError),
     #[error(transparent)]
@@ -35,7 +35,7 @@ pub enum LdtkEntityError {
     #[error("One world coord is Some(...) and the other is None!")]
     WorldCoordMixedOption,
     #[error("bad handle? {0:?}")]
-    BadHandle(Handle<LdtkEntity>),
+    BadHandle(Handle<LdtkEntityAsset>),
     #[error("bad project iid? {0:?}")]
     BadProjectIid(Iid),
     #[error("bad tileset_definition uid? {0:?}")]
@@ -47,7 +47,7 @@ pub enum LdtkEntityError {
 }
 
 #[derive(Asset, Debug, Reflect)]
-pub struct LdtkEntity {
+pub struct LdtkEntityAsset {
     // NOTE: Internal fields
     pub(crate) iid: Iid,
     pub(crate) children: IidSet,
@@ -66,11 +66,11 @@ pub struct LdtkEntity {
     pub(crate) location: I64Vec2,
 }
 
-impl LdtkEntity {
+impl LdtkEntityAsset {
     pub(crate) fn new(
         value: &ldtk::EntityInstance,
         project_iid: Iid,
-    ) -> Result<Self, LdtkEntityError> {
+    ) -> Result<Self, LdtkEntityAssetError> {
         let iid = Iid::from_str(&value.iid)?;
 
         let children = IidSet::default();
@@ -89,7 +89,7 @@ impl LdtkEntity {
                 (None, None) => None,
                 (Some(world_x), Some(world_y)) => Some((world_x, world_y).into()),
                 _ => {
-                    return Err(LdtkEntityError::WorldCoordMixedOption);
+                    return Err(LdtkEntityAssetError::WorldCoordMixedOption);
                 }
             },
             def_uid: value.def_uid,
@@ -107,36 +107,36 @@ impl LdtkEntity {
     pub(crate) fn entity_tile_system(
         mut commands: Commands,
         project_commands: LdtkProjectCommands,
-        mut events: EventReader<LdkAssetEvent<LdtkEntity>>,
-        mut query: Query<Option<&mut Sprite>, With<Handle<LdtkEntity>>>,
-        entity_assets: Res<Assets<LdtkEntity>>,
-    ) -> Result<(), LdtkEntityError> {
-        for LdkAssetEvent::<LdtkEntity>::Modified { entity, handle } in events.read() {
+        mut events: EventReader<LdkAssetEvent<LdtkEntityAsset>>,
+        mut query: Query<Option<&mut Sprite>, With<Handle<LdtkEntityAsset>>>,
+        entity_assets: Res<Assets<LdtkEntityAsset>>,
+    ) -> Result<(), LdtkEntityAssetError> {
+        for LdkAssetEvent::<LdtkEntityAsset>::Modified { entity, handle } in events.read() {
             trace!("entity_tile_system: {entity:?}");
 
             let entity_asset = entity_assets
                 .get(handle.id())
-                .ok_or(LdtkEntityError::BadHandle(handle.clone()))?;
+                .ok_or(LdtkEntityAssetError::BadHandle(handle.clone()))?;
 
             if let Some(tile) = entity_asset.tile.as_ref() {
-                let project_asset = project_commands
-                    .get(entity_asset.project_iid)
-                    .ok_or(LdtkEntityError::BadProjectIid(entity_asset.project_iid))?;
+                let project_asset = project_commands.get(entity_asset.project_iid).ok_or(
+                    LdtkEntityAssetError::BadProjectIid(entity_asset.project_iid),
+                )?;
 
                 let tileset_definition = project_asset
                     .tileset_defs
                     .get(&tile.tileset_uid)
-                    .ok_or(LdtkEntityError::BadTilesetDefUid(tile.tileset_uid))?;
+                    .ok_or(LdtkEntityAssetError::BadTilesetDefUid(tile.tileset_uid))?;
 
                 let rel_path = tileset_definition
                     .rel_path
                     .as_ref()
-                    .ok_or(LdtkEntityError::RelPathIsNone)?;
+                    .ok_or(LdtkEntityAssetError::RelPathIsNone)?;
 
                 let tile_handle = project_asset
                     .tilesets
                     .get(rel_path)
-                    .ok_or(LdtkEntityError::BadRelPath(rel_path.clone()))?;
+                    .ok_or(LdtkEntityAssetError::BadRelPath(rel_path.clone()))?;
 
                 let custom_size = Some(tile.size);
                 let rect = Some(Rect::from_corners(tile.location, tile.location + tile.size));
@@ -169,7 +169,7 @@ impl LdtkEntity {
     }
 }
 
-impl LdtkAsset for LdtkEntity {
+impl LdtkAsset for LdtkEntityAsset {
     fn iid(&self) -> crate::iid::Iid {
         self.iid
     }

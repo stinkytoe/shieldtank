@@ -11,7 +11,7 @@ use crate::iid::IidSet;
 use crate::ldtk;
 
 #[derive(Debug, Error)]
-pub enum LdtkWorldError {
+pub enum LdtkWorldAssetError {
     #[error(transparent)]
     IidError(#[from] IidError),
     #[error("missing worldLayout? {0}")]
@@ -19,7 +19,7 @@ pub enum LdtkWorldError {
 }
 
 #[derive(Asset, Debug, Reflect)]
-pub struct LdtkWorld {
+pub struct LdtkWorldAsset {
     // NOTE: Internal fields
     iid: Iid,
     identifier: String,
@@ -29,8 +29,8 @@ pub struct LdtkWorld {
     world_layout: WorldLayout,
 }
 
-impl LdtkWorld {
-    pub(crate) fn new(value: &ldtk::World) -> Result<Self, LdtkWorldError> {
+impl LdtkWorldAsset {
+    pub(crate) fn new(value: &ldtk::World) -> Result<Self, LdtkWorldAssetError> {
         let iid = Iid::from_str(&value.iid)?;
 
         let children = value
@@ -47,12 +47,12 @@ impl LdtkWorld {
             world_layout: value
                 .world_layout
                 .clone()
-                .ok_or(LdtkWorldError::MissingWorldLayout(iid))?,
+                .ok_or(LdtkWorldAssetError::MissingWorldLayout(iid))?,
         })
     }
 }
 
-impl LdtkAsset for LdtkWorld {
+impl LdtkAsset for LdtkWorldAsset {
     fn iid(&self) -> crate::iid::Iid {
         self.iid
     }

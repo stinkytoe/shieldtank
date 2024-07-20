@@ -26,7 +26,7 @@ use crate::reexports::tile_instance::TileInstance;
 use crate::util::ldtk_path_to_bevy_path;
 
 #[derive(Debug, Error)]
-pub enum LdtkLayerError {
+pub enum LdtkLayerAssetError {
     #[error(transparent)]
     IidError(#[from] IidError),
     #[error(transparent)]
@@ -42,11 +42,11 @@ pub enum LdtkLayerError {
     #[error("Tiles Layer should only have grid tiles!")]
     TilesWithAutoLayerOrEntities(Iid),
     #[error("bad handle? {0:?}")]
-    BadHandle(Handle<LdtkLayer>),
+    BadHandle(Handle<LdtkLayerAsset>),
 }
 
 #[derive(Clone, Copy, Debug, Reflect)]
-pub enum LayerType {
+pub enum LdtkLayerType {
     IntGrid,
     Entities,
     Tiles,
@@ -54,20 +54,20 @@ pub enum LayerType {
 }
 
 #[allow(clippy::result_large_err)]
-impl LayerType {
-    pub fn new(ldtk_type: &str) -> Result<LayerType, LdtkLayerError> {
+impl LdtkLayerType {
+    pub fn new(ldtk_type: &str) -> Result<LdtkLayerType, LdtkLayerAssetError> {
         Ok(match ldtk_type {
-            "IntGrid" => LayerType::IntGrid,
-            "Entities" => LayerType::Entities,
-            "Tiles" => LayerType::Tiles,
-            "AutoLayer" => LayerType::Autolayer,
-            _ => return Err(LdtkLayerError::UnknownLayerType(ldtk_type.to_string())),
+            "IntGrid" => LdtkLayerType::IntGrid,
+            "Entities" => LdtkLayerType::Entities,
+            "Tiles" => LdtkLayerType::Tiles,
+            "AutoLayer" => LdtkLayerType::Autolayer,
+            _ => return Err(LdtkLayerAssetError::UnknownLayerType(ldtk_type.to_string())),
         })
     }
 }
 
 #[derive(Asset, Debug, Reflect)]
-pub struct LdtkLayer {
+pub struct LdtkLayerAsset {
     // NOTE: Internal fields
     pub(crate) iid: Iid,
     pub(crate) children: IidSet,
@@ -76,18 +76,19 @@ pub struct LdtkLayer {
     pub(crate) layer_separation: f32,
     pub(crate) layer_image: Option<(Mesh2dHandle, Handle<ColorMaterial>)>,
     // NOTE: LDtk exports
+    pub(crate) grid_size: i64,
     pub(crate) px_total_offset: I64Vec2,
     pub(crate) tileset_def_uid: Option<i64>,
-    pub(crate) layer_type: LayerType,
+    pub(crate) layer_type: LdtkLayerType,
     #[reflect(ignore)]
-    pub(crate) int_grid_csv: Vec<i64>,
+    pub(crate) _int_grid_csv: Vec<i64>,
     pub(crate) layer_def_uid: i64,
     pub(crate) level_id: i64,
     pub(crate) override_tileset_uid: Option<i64>,
     pub(crate) location: I64Vec2,
 }
 
-impl LdtkLayer {
+impl LdtkLayerAsset {
     #[allow(clippy::result_large_err)]
     pub(crate) fn new(
         value: &ldtk::LayerInstance,
@@ -95,8 +96,8 @@ impl LdtkLayer {
         layer_separation: f32,
         load_context: &mut LoadContext,
         base_directory: &Path,
-    ) -> Result<Self, LdtkLayerError> {
-        let layer_type = LayerType::new(&value.layer_instance_type)?;
+    ) -> Result<Self, LdtkLayerAssetError> {
+        let layer_type = LdtkLayerType::new(&value.layer_instance_type)?;
 
         let iid = Iid::from_str(&value.iid)?;
 
@@ -106,7 +107,7 @@ impl LdtkLayer {
             value.grid_tiles.len(),
             value.entity_instances.len(),
         ) {
-            (LayerType::IntGrid | LayerType::Autolayer, _, 0, 0) => (
+            (LdtkLayerType::IntGrid | LdtkLayerType::Autolayer, _, 0, 0) => (
                 IidSet::default(),
                 value
                     .auto_layer_tiles
@@ -114,11 +115,11 @@ impl LdtkLayer {
                     .map(TileInstance::new)
                     .collect(),
             ),
-            (LayerType::Tiles, 0, _, 0) => (
+            (LdtkLayerType::Tiles, 0, _, 0) => (
                 IidSet::default(),
                 value.grid_tiles.iter().map(TileInstance::new).collect(),
             ),
-            (LayerType::Entities, 0, 0, _) => (
+            (LdtkLayerType::Entities, 0, 0, _) => (
                 value
                     .entity_instances
                     .iter()
@@ -126,19 +127,19 @@ impl LdtkLayer {
                     .collect::<Result<_, _>>()?,
                 Vec::default(),
             ),
-            (LayerType::IntGrid | LayerType::Autolayer, _, _, _) => {
-                return Err(LdtkLayerError::IntGridWithEntitiesOrGridTiles(iid))
+            (LdtkLayerType::IntGrid | LdtkLayerType::Autolayer, _, _, _) => {
+                return Err(LdtkLayerAssetError::IntGridWithEntitiesOrGridTiles(iid))
             }
-            (LayerType::Tiles, _, _, _) => {
-                return Err(LdtkLayerError::TilesWithAutoLayerOrEntities(iid))
+            (LdtkLayerType::Tiles, _, _, _) => {
+                return Err(LdtkLayerAssetError::TilesWithAutoLayerOrEntities(iid))
             }
-            (LayerType::Entities, _, _, _) => {
-                return Err(LdtkLayerError::EntityLayerWithTiles(iid))
+            (LdtkLayerType::Entities, _, _, _) => {
+                return Err(LdtkLayerAssetError::EntityLayerWithTiles(iid))
             }
         };
 
-        let grid_size = (value.c_wid, value.c_hei).into();
-        let grid_cell_size = value.grid_size;
+        let grid_cell = (value.c_wid, value.c_hei).into();
+        let grid_size = value.grid_size;
         let opacity = value.opacity;
         let tileset_rel_path = value.tileset_rel_path.clone();
 
@@ -149,8 +150,8 @@ impl LdtkLayer {
             index,
             layer_separation,
             layer_image: Self::create_layer_image(
+                grid_cell,
                 grid_size,
-                grid_cell_size,
                 opacity,
                 tiles,
                 tileset_rel_path,
@@ -158,10 +159,11 @@ impl LdtkLayer {
                 base_directory,
                 iid,
             )?,
+            grid_size,
             px_total_offset: (value.px_total_offset_x, -value.px_total_offset_y).into(),
             tileset_def_uid: value.tileset_def_uid,
             layer_type,
-            int_grid_csv: value.int_grid_csv.clone(),
+            _int_grid_csv: value.int_grid_csv.clone(),
             layer_def_uid: value.layer_def_uid,
             level_id: value.level_id,
             override_tileset_uid: value.override_tileset_uid,
@@ -172,13 +174,13 @@ impl LdtkLayer {
     #[allow(clippy::result_large_err)]
     pub(crate) fn layer_image_system(
         mut commands: Commands,
-        mut events: EventReader<LdkAssetEvent<LdtkLayer>>,
-        layer_assets: Res<Assets<LdtkLayer>>,
-    ) -> Result<(), LdtkLayerError> {
-        for LdkAssetEvent::<LdtkLayer>::Modified { entity, handle } in events.read() {
+        mut events: EventReader<LdkAssetEvent<LdtkLayerAsset>>,
+        layer_assets: Res<Assets<LdtkLayerAsset>>,
+    ) -> Result<(), LdtkLayerAssetError> {
+        for LdkAssetEvent::<LdtkLayerAsset>::Modified { entity, handle } in events.read() {
             let layer_asset = layer_assets
                 .get(handle)
-                .ok_or(LdtkLayerError::BadHandle(handle.clone()))?;
+                .ok_or(LdtkLayerAssetError::BadHandle(handle.clone()))?;
 
             if let Some((mesh, material)) = &layer_asset.layer_image {
                 commands
@@ -206,7 +208,7 @@ impl LdtkLayer {
         load_context: &mut LoadContext,
         base_directory: &Path,
         iid: Iid,
-    ) -> Result<Option<(Mesh2dHandle, Handle<ColorMaterial>)>, LdtkLayerError> {
+    ) -> Result<Option<(Mesh2dHandle, Handle<ColorMaterial>)>, LdtkLayerAssetError> {
         Ok(match tileset_rel_path {
             Some(tileset_rel_path) => {
                 let tileset: Image = block_on(async {
@@ -257,7 +259,7 @@ impl LdtkLayer {
         canvas_size: UVec2,
         tile_size: UVec2,
         tiles: &[TileInstance],
-    ) -> Result<Image, LdtkLayerError> {
+    ) -> Result<Image, LdtkLayerAssetError> {
         let tileset = tileset.clone().try_into_dynamic()?;
 
         let mut dynamic_image = DynamicImage::new(canvas_size.x, canvas_size.y, ColorType::Rgba8);
@@ -311,7 +313,7 @@ impl LdtkLayer {
     }
 }
 
-impl LdtkAsset for LdtkLayer {
+impl LdtkAsset for LdtkLayerAsset {
     fn iid(&self) -> crate::iid::Iid {
         self.iid
     }

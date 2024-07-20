@@ -34,7 +34,7 @@ use super::event::LdkAssetEvent;
 
 #[allow(clippy::enum_variant_names)]
 #[derive(Debug, Error)]
-pub enum LdtkLevelError {
+pub enum LdtkLevelAssetError {
     #[error(transparent)]
     IidError(#[from] IidError),
     #[error(transparent)]
@@ -52,11 +52,11 @@ pub enum LdtkLevelError {
     #[error("level contains Some(bg_pos), but bg_rel_path is None")]
     BgRelPathIsNone,
     #[error("bad handle? {0:?}")]
-    BadHandle(Handle<LdtkLevel>),
+    BadHandle(Handle<LdtkLevelAsset>),
 }
 
 #[derive(Asset, Debug, Reflect)]
-pub struct LdtkLevel {
+pub struct LdtkLevelAsset {
     // NOTE: Internal fields
     pub(crate) iid: Iid,
     pub(crate) identifier: String,
@@ -72,13 +72,13 @@ pub struct LdtkLevel {
 }
 
 #[allow(clippy::result_large_err)]
-impl LdtkLevel {
+impl LdtkLevelAsset {
     pub(crate) fn new(
         value: &ldtk::Level,
         level_separation: f32,
         load_context: &mut LoadContext,
         base_directory: &Path,
-    ) -> Result<Self, LdtkLevelError> {
+    ) -> Result<Self, LdtkLevelAssetError> {
         let iid = Iid::from_str(&value.iid)?;
 
         let children = value
@@ -122,13 +122,13 @@ impl LdtkLevel {
 
     pub(crate) fn level_background_system(
         mut commands: Commands,
-        mut events: EventReader<LdkAssetEvent<LdtkLevel>>,
-        level_assets: Res<Assets<LdtkLevel>>,
-    ) -> Result<(), LdtkLevelError> {
+        mut events: EventReader<LdkAssetEvent<LdtkLevelAsset>>,
+        level_assets: Res<Assets<LdtkLevelAsset>>,
+    ) -> Result<(), LdtkLevelAssetError> {
         for LdkAssetEvent::<Self>::Modified { entity, handle } in events.read() {
             let level_asset = level_assets
                 .get(handle)
-                .ok_or(LdtkLevelError::BadHandle(handle.clone()))?;
+                .ok_or(LdtkLevelAssetError::BadHandle(handle.clone()))?;
 
             commands.entity(*entity).insert((
                 level_asset.bg_image.clone(),
@@ -151,10 +151,10 @@ impl LdtkLevel {
         iid: Iid,
         base_directory: &Path,
         // asset_label: &str,
-    ) -> Result<Handle<Image>, LdtkLevelError> {
+    ) -> Result<Handle<Image>, LdtkLevelAssetError> {
         Ok(match (bg_pos.as_ref(), bg_rel_path.as_ref()) {
-            (None, Some(_)) => return Err(LdtkLevelError::BgPosIsNone),
-            (Some(_), None) => return Err(LdtkLevelError::BgRelPathIsNone),
+            (None, Some(_)) => return Err(LdtkLevelAssetError::BgPosIsNone),
+            (Some(_), None) => return Err(LdtkLevelAssetError::BgRelPathIsNone),
             (None, None) => {
                 let color = Srgba::from(bg_color).to_u8_array();
 
@@ -229,7 +229,7 @@ impl LdtkLevel {
     }
 }
 
-impl LdtkAsset for LdtkLevel {
+impl LdtkAsset for LdtkLevelAsset {
     fn iid(&self) -> crate::iid::Iid {
         self.iid
     }
