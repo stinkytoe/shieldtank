@@ -32,3 +32,9 @@ impl<'w> LdtkEntity<'w> {
         Self { entity, asset }
     }
 }
+
+impl<'w> From<(Entity, &'w LdtkEntityAsset)> for LdtkEntity<'w> {
+    fn from((entity, asset): (Entity, &'w LdtkEntityAsset)) -> Self {
+        Self::new(entity, asset)
+    }
+}

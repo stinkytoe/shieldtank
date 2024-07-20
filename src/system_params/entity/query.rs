@@ -36,15 +36,10 @@ impl<'w, 's> LdtkEntityQuery<'w, 's> {
     }
 
     pub fn iter(&self) -> impl Iterator<Item = LdtkEntity<'_>> {
-        self.entity_query
-            .iter()
-            // TODO: Is this safe/sane to .filter_map(..) here?
-            .filter_map(|(entity, handle)| {
-                Some(LdtkEntity::new(
-                    entity,
-                    self.entity_assets.get(handle.id())?,
-                ))
-            })
+        self.entity_query.iter().filter_map(|(entity, handle)| {
+            // FIXME: Is this safe/sane to .filter_map(..) here?
+            Some((entity, self.entity_assets.get(handle.id())?).into())
+        })
     }
 
     pub fn get_single_with_identifier(
@@ -70,9 +65,9 @@ impl<'w, 's> LdtkEntityQuery<'w, 's> {
 
     pub fn get_layer(
         &self,
-        entity_pair: &LdtkEntity<'_>,
+        ldtk_entity: &LdtkEntity<'_>,
     ) -> Result<&LdtkLayerAsset, LdtkEntityQueryError> {
-        let entity = entity_pair.ecs_entity();
+        let entity = ldtk_entity.ecs_entity();
         let layer_entity = self.parent_query.get(entity)?.get();
         let layer_handle = self.layer_query.get(layer_entity)?;
         let layer_asset = self
@@ -82,16 +77,16 @@ impl<'w, 's> LdtkEntityQuery<'w, 's> {
         Ok(layer_asset)
     }
 
-    pub fn grid(&self, entity_pair: &LdtkEntity<'_>) -> IVec2 {
-        let entity = entity_pair.ecs_entity();
-        let asset = entity_pair.asset();
+    pub fn grid(&self, ldtk_entity: &LdtkEntity<'_>) -> IVec2 {
+        let entity = ldtk_entity.ecs_entity();
+        let asset = ldtk_entity.asset();
         let translation = self
             .transform_query
             .get(entity)
             .expect("an entity with Handle<LdtkEntity> component")
             .translation
             .truncate();
-        let layer_asset = self.get_layer(entity_pair).expect("a layer asset");
+        let layer_asset = self.get_layer(ldtk_entity).expect("a layer asset");
 
         let anchor_vec = asset.anchor.as_vec();
         let focus = Vec2::new(1.0, -1.0) * (translation - anchor_vec);
