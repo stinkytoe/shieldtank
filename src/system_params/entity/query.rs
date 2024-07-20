@@ -109,6 +109,10 @@ where
     fn with_identifier(self, identifier: &str) -> impl Iterator<Item = LdtkEntity<'w>> {
         self.filter(move |ldtk_entity| ldtk_entity.asset.identifier == identifier)
     }
+
+    fn with_tag(self, tag: &str) -> impl Iterator<Item = LdtkEntity<'w>> {
+        self.filter(move |ldtk_entity| ldtk_entity.has_tag(tag))
+    }
 }
 
 impl<'w, I> LdtkEntityQueryEx<'w> for I where I: Iterator<Item = LdtkEntity<'w>> {}

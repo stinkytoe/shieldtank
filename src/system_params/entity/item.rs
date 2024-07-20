@@ -16,6 +16,10 @@ impl<'w> LdtkEntity<'w> {
             .find(|field_instance| field_instance.identifier == identifier)
     }
 
+    pub fn has_tag(&self, tag: &str) -> bool {
+        self.asset.tags.iter().any(|inner_tag| inner_tag == tag)
+    }
+
     pub fn ecs_entity(&self) -> Entity {
         self.entity
     }
@@ -23,6 +27,7 @@ impl<'w> LdtkEntity<'w> {
     pub fn asset(&self) -> &LdtkEntityAsset {
         self.asset
     }
+
     pub(crate) fn new(entity: Entity, asset: &'w LdtkEntityAsset) -> Self {
         Self { entity, asset }
     }
