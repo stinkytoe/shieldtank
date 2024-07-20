@@ -9,7 +9,7 @@ use crate::reexports::tile_custom_metadata::TileCustomMetadata;
 pub struct TilesetDefinition {
     pub(crate) grid_size: I64Vec2,
     pub(crate) custom_data: Vec<TileCustomMetadata>,
-    // embedAtlas not currently supported!
+    // FIXME: embedAtlas not currently supported!
     pub(crate) enum_tags: Vec<EnumTagValue>,
     pub(crate) identifier: String,
     pub(crate) padding: i64,
