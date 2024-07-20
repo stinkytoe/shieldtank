@@ -16,6 +16,7 @@ use std::path::Path;
 use std::str::FromStr;
 use thiserror::Error;
 
+use crate::assets::event::LdkAssetEvent;
 use crate::assets::traits::LdtkAsset;
 use crate::iid::Iid;
 use crate::iid::IidError;
@@ -29,8 +30,6 @@ use crate::reexports::neighbour::NeighbourError;
 use crate::util::bevy_color_from_ldtk;
 use crate::util::ldtk_path_to_bevy_path;
 use crate::util::ColorParseError;
-
-use super::event::LdkAssetEvent;
 
 #[allow(clippy::enum_variant_names)]
 #[derive(Debug, Error)]

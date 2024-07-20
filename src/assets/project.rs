@@ -6,6 +6,7 @@ use std::fmt::Debug;
 use thiserror::Error;
 
 use crate::assets::entity::LdtkEntityAsset;
+use crate::assets::event::LdkAssetEvent;
 use crate::assets::layer::LdtkLayerAsset;
 use crate::assets::level::LdtkLevelAsset;
 use crate::assets::traits::LdtkAsset;
@@ -16,8 +17,6 @@ use crate::iid::IidMap;
 use crate::iid::IidSet;
 use crate::prelude::Iid;
 use crate::reexports::tileset_definition::TilesetDefinition;
-
-use super::event::LdkAssetEvent;
 
 #[derive(Debug, Error)]
 pub enum LdtkProjectError {
