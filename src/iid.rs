@@ -21,8 +21,21 @@ pub struct Iid {
 }
 
 impl Iid {
+    #[allow(clippy::new_without_default)]
+    pub fn new() -> Self {
+        Self {
+            value: rand::random(),
+        }
+    }
+
     pub fn as_u128(&self) -> u128 {
         self.value
+    }
+}
+
+impl From<Iid> for u128 {
+    fn from(value: Iid) -> Self {
+        value.as_u128()
     }
 }
 
