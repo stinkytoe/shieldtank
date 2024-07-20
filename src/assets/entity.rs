@@ -14,7 +14,7 @@ use crate::ldtk;
 use crate::reexports::field_instance::FieldInstance;
 use crate::reexports::field_instance::FieldInstanceError;
 use crate::reexports::tileset_rectangle::TilesetRectangle;
-use crate::system_params::project::LdtkProjectCommands;
+use crate::system_params::project::LdtkProjectQuery;
 use crate::util::bevy_anchor_from_ldtk;
 use crate::util::bevy_color_from_ldtk;
 use crate::util::AnchorIntoError;
@@ -106,7 +106,7 @@ impl LdtkEntityAsset {
     #[allow(clippy::type_complexity)]
     pub(crate) fn entity_tile_system(
         mut commands: Commands,
-        project_commands: LdtkProjectCommands,
+        project_commands: LdtkProjectQuery,
         mut events: EventReader<LdkAssetEvent<LdtkEntityAsset>>,
         mut query: Query<Option<&mut Sprite>, With<Handle<LdtkEntityAsset>>>,
         entity_assets: Res<Assets<LdtkEntityAsset>>,

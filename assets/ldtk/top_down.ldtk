@@ -2216,6 +2216,22 @@
 							"__worldY": 40
 						},
 						{
+							"__identifier": "Thief",
+							"__grid": [5,11],
+							"__pivot": [0.5,0.5],
+							"__tags": [],
+							"__tile": { "tilesetUid": 303, "x": 8, "y": 8, "w": 16, "h": 16 },
+							"__smartColor": "#D77643",
+							"iid": "cf8f0880-25d0-11ef-b73d-a7ec9155ad0a",
+							"width": 16,
+							"height": 16,
+							"defUid": 302,
+							"px": [88,184],
+							"fieldInstances": [],
+							"__worldX": -168,
+							"__worldY": 56
+						},
+						{
 							"__identifier": "Axe_Man",
 							"__grid": [7,8],
 							"__pivot": [0.5,0.5],
@@ -2233,22 +2249,6 @@
 							],
 							"__worldX": -136,
 							"__worldY": 8
-						},
-						{
-							"__identifier": "Thief",
-							"__grid": [5,11],
-							"__pivot": [0.5,0.5],
-							"__tags": [],
-							"__tile": { "tilesetUid": 303, "x": 8, "y": 8, "w": 16, "h": 16 },
-							"__smartColor": "#D77643",
-							"iid": "cf8f0880-25d0-11ef-b73d-a7ec9155ad0a",
-							"width": 16,
-							"height": 16,
-							"defUid": 302,
-							"px": [88,184],
-							"fieldInstances": [],
-							"__worldX": -168,
-							"__worldY": 56
 						}
 					]
 				},

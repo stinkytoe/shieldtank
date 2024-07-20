@@ -5,13 +5,13 @@ use serde::Serialize;
 use std::fmt::Debug;
 use thiserror::Error;
 
-use crate::assets::entity::LdtkEntity;
-use crate::assets::layer::LdtkLayer;
-use crate::assets::level::LdtkLevel;
+use crate::assets::entity::LdtkEntityAsset;
+use crate::assets::layer::LdtkLayerAsset;
+use crate::assets::level::LdtkLevelAsset;
 use crate::assets::traits::LdtkAsset;
 use crate::assets::traits::LdtkAssetError;
-use crate::assets::world::LdtkWorld;
-use crate::assets::world::LdtkWorldError;
+use crate::assets::world::LdtkWorldAsset;
+use crate::assets::world::LdtkWorldAssetError;
 use crate::iid::IidMap;
 use crate::iid::IidSet;
 use crate::prelude::Iid;
@@ -22,23 +22,23 @@ use super::event::LdkAssetEvent;
 #[derive(Debug, Error)]
 pub enum LdtkProjectError {
     #[error(transparent)]
-    LdtkWorldError(#[from] LdtkWorldError),
+    LdtkWorldError(#[from] LdtkWorldAssetError),
     #[error(transparent)]
-    LdtkAssetWorldError(#[from] LdtkAssetError<LdtkWorld>),
+    LdtkAssetWorldError(#[from] LdtkAssetError<LdtkWorldAsset>),
     #[error(transparent)]
-    LdtkAssetLevelError(#[from] LdtkAssetError<LdtkLevel>),
+    LdtkAssetLevelError(#[from] LdtkAssetError<LdtkLevelAsset>),
     #[error(transparent)]
-    LdtkAssetLayerError(#[from] LdtkAssetError<LdtkLayer>),
+    LdtkAssetLayerError(#[from] LdtkAssetError<LdtkLayerAsset>),
     #[error(transparent)]
-    LdtkAssetEntityError(#[from] LdtkAssetError<LdtkEntity>),
+    LdtkAssetEntityError(#[from] LdtkAssetError<LdtkEntityAsset>),
     #[error("Bad project handle?")]
     BadProjectHandle,
     #[error("Bad world handle?")]
-    BadWorldHandle(Handle<LdtkWorld>),
+    BadWorldHandle(Handle<LdtkWorldAsset>),
     #[error("Bad level handle?")]
-    BadLevelHandle(Handle<LdtkLevel>),
+    BadLevelHandle(Handle<LdtkLevelAsset>),
     #[error("Bad layer handle?")]
-    BadLayerHandle(Handle<LdtkLayer>),
+    BadLayerHandle(Handle<LdtkLayerAsset>),
 }
 
 #[derive(Clone, Debug, Deserialize, Reflect, Serialize)]
@@ -60,10 +60,10 @@ impl Default for LdtkProjectSettings {
 pub struct LdtkProject {
     pub(crate) iid: Iid,
     pub(crate) settings: LdtkProjectSettings,
-    pub(crate) worlds: IidMap<Handle<LdtkWorld>>,
-    pub(crate) levels: IidMap<Handle<LdtkLevel>>,
-    pub(crate) layers: IidMap<Handle<LdtkLayer>>,
-    pub(crate) entities: IidMap<Handle<LdtkEntity>>,
+    pub(crate) worlds: IidMap<Handle<LdtkWorldAsset>>,
+    pub(crate) levels: IidMap<Handle<LdtkLevelAsset>>,
+    pub(crate) layers: IidMap<Handle<LdtkLayerAsset>>,
+    pub(crate) entities: IidMap<Handle<LdtkEntityAsset>>,
     pub(crate) tileset_defs: HashMap<i64, TilesetDefinition>,
     pub(crate) tilesets: HashMap<String, Handle<Image>>,
     // LDtk exports
@@ -82,20 +82,20 @@ impl LdtkProject {
     pub(crate) fn asset_event_system(
         mut commands: Commands,
         mut asset_events: EventReader<AssetEvent<LdtkProject>>,
-        mut ldtk_world_events: EventWriter<LdkAssetEvent<LdtkWorld>>,
-        mut ldtk_level_events: EventWriter<LdkAssetEvent<LdtkLevel>>,
-        mut ldtk_layer_events: EventWriter<LdkAssetEvent<LdtkLayer>>,
-        mut ldtk_entity_events: EventWriter<LdkAssetEvent<LdtkEntity>>,
+        mut ldtk_world_events: EventWriter<LdkAssetEvent<LdtkWorldAsset>>,
+        mut ldtk_level_events: EventWriter<LdkAssetEvent<LdtkLevelAsset>>,
+        mut ldtk_layer_events: EventWriter<LdkAssetEvent<LdtkLayerAsset>>,
+        mut ldtk_entity_events: EventWriter<LdkAssetEvent<LdtkEntityAsset>>,
         projects: Res<Assets<LdtkProject>>,
         project_query: Query<(Entity, &Handle<LdtkProject>)>,
-        world_assets: Res<Assets<LdtkWorld>>,
-        level_assets: Res<Assets<LdtkLevel>>,
-        layer_assets: Res<Assets<LdtkLayer>>,
-        entity_assets: Res<Assets<LdtkEntity>>,
-        world_query: Query<(Entity, &Handle<LdtkWorld>)>,
-        level_query: Query<(Entity, &Handle<LdtkLevel>)>,
-        layer_query: Query<(Entity, &Handle<LdtkLayer>)>,
-        entity_query: Query<(Entity, &Handle<LdtkEntity>)>,
+        world_assets: Res<Assets<LdtkWorldAsset>>,
+        level_assets: Res<Assets<LdtkLevelAsset>>,
+        layer_assets: Res<Assets<LdtkLayerAsset>>,
+        entity_assets: Res<Assets<LdtkEntityAsset>>,
+        world_query: Query<(Entity, &Handle<LdtkWorldAsset>)>,
+        level_query: Query<(Entity, &Handle<LdtkLevelAsset>)>,
+        layer_query: Query<(Entity, &Handle<LdtkLayerAsset>)>,
+        entity_query: Query<(Entity, &Handle<LdtkEntityAsset>)>,
     ) -> Result<(), LdtkProjectError> {
         for asset_event in asset_events.read() {
             match asset_event {
@@ -145,18 +145,18 @@ fn handle_loaded_with_dependencies(
     commands: &mut Commands,
     projects: &Assets<LdtkProject>,
     project_query: &Query<(Entity, &Handle<LdtkProject>)>,
-    world_events: &mut EventWriter<LdkAssetEvent<LdtkWorld>>,
-    level_events: &mut EventWriter<LdkAssetEvent<LdtkLevel>>,
-    layer_events: &mut EventWriter<LdkAssetEvent<LdtkLayer>>,
-    entity_events: &mut EventWriter<LdkAssetEvent<LdtkEntity>>,
-    world_assets: &Assets<LdtkWorld>,
-    level_assets: &Assets<LdtkLevel>,
-    layer_assets: &Assets<LdtkLayer>,
-    entity_assets: &Assets<LdtkEntity>,
-    world_query: &Query<(Entity, &Handle<LdtkWorld>)>,
-    level_query: &Query<(Entity, &Handle<LdtkLevel>)>,
-    layer_query: &Query<(Entity, &Handle<LdtkLayer>)>,
-    entity_query: &Query<(Entity, &Handle<LdtkEntity>)>,
+    world_events: &mut EventWriter<LdkAssetEvent<LdtkWorldAsset>>,
+    level_events: &mut EventWriter<LdkAssetEvent<LdtkLevelAsset>>,
+    layer_events: &mut EventWriter<LdkAssetEvent<LdtkLayerAsset>>,
+    entity_events: &mut EventWriter<LdkAssetEvent<LdtkEntityAsset>>,
+    world_assets: &Assets<LdtkWorldAsset>,
+    level_assets: &Assets<LdtkLevelAsset>,
+    layer_assets: &Assets<LdtkLayerAsset>,
+    entity_assets: &Assets<LdtkEntityAsset>,
+    world_query: &Query<(Entity, &Handle<LdtkWorldAsset>)>,
+    level_query: &Query<(Entity, &Handle<LdtkLevelAsset>)>,
+    layer_query: &Query<(Entity, &Handle<LdtkLayerAsset>)>,
+    entity_query: &Query<(Entity, &Handle<LdtkEntityAsset>)>,
 ) -> Result<(), LdtkProjectError> {
     let Some((project_entity, project_handle)) =
         project_query.iter().find(|(_, handle)| handle.id() == id)
@@ -177,12 +177,13 @@ fn handle_loaded_with_dependencies(
 
     let world_iids: IidSet = project_asset.worlds.keys().copied().collect();
 
-    let worlds = LdtkWorld::collect_entities(commands, project_asset, &world_iids, world_query)?;
+    let worlds =
+        LdtkWorldAsset::collect_entities(commands, project_asset, &world_iids, world_query)?;
 
     worlds.iter().try_for_each(
         |(world_entity, world_handle)| -> Result<(), LdtkProjectError> {
             commands.entity(project_entity).add_child(*world_entity);
-            world_events.send(LdkAssetEvent::<LdtkWorld>::Modified {
+            world_events.send(LdkAssetEvent::<LdtkWorldAsset>::Modified {
                 entity: *world_entity,
                 handle: world_handle.clone(),
             });
@@ -194,12 +195,12 @@ fn handle_loaded_with_dependencies(
             let level_iids = world_asset.children();
 
             let levels =
-                LdtkLevel::collect_entities(commands, project_asset, level_iids, level_query)?;
+                LdtkLevelAsset::collect_entities(commands, project_asset, level_iids, level_query)?;
 
             levels.iter().try_for_each(
                 |(level_entity, level_handle)| -> Result<(), LdtkProjectError> {
                     commands.entity(*world_entity).add_child(*level_entity);
-                    level_events.send(LdkAssetEvent::<LdtkLevel>::Modified {
+                    level_events.send(LdkAssetEvent::<LdtkLevelAsset>::Modified {
                         entity: *level_entity,
                         handle: level_handle.clone(),
                     });
@@ -210,7 +211,7 @@ fn handle_loaded_with_dependencies(
 
                     let layer_iids = level_asset.children();
 
-                    let layers = LdtkLayer::collect_entities(
+                    let layers = LdtkLayerAsset::collect_entities(
                         commands,
                         project_asset,
                         layer_iids,
@@ -220,7 +221,7 @@ fn handle_loaded_with_dependencies(
                     layers.iter().try_for_each(
                         |(layer_entity, layer_handle)| -> Result<(), LdtkProjectError> {
                             commands.entity(*level_entity).add_child(*layer_entity);
-                            layer_events.send(LdkAssetEvent::<LdtkLayer>::Modified {
+                            layer_events.send(LdkAssetEvent::<LdtkLayerAsset>::Modified {
                                 entity: *layer_entity,
                                 handle: layer_handle.clone(),
                             });
@@ -231,7 +232,7 @@ fn handle_loaded_with_dependencies(
 
                             let entity_iids = layer_asset.children();
 
-                            let entities = LdtkEntity::collect_entities(
+                            let entities = LdtkEntityAsset::collect_entities(
                                 commands,
                                 project_asset,
                                 entity_iids,
@@ -241,10 +242,12 @@ fn handle_loaded_with_dependencies(
                             entities.iter().try_for_each(
                                 |(entity_entity, entity_handle)| -> Result<(), LdtkProjectError> {
                                     commands.entity(*layer_entity).add_child(*entity_entity);
-                                    entity_events.send(LdkAssetEvent::<LdtkEntity>::Modified {
-                                        entity: *entity_entity,
-                                        handle: entity_handle.clone(),
-                                    });
+                                    entity_events.send(
+                                        LdkAssetEvent::<LdtkEntityAsset>::Modified {
+                                            entity: *entity_entity,
+                                            handle: entity_handle.clone(),
+                                        },
+                                    );
 
                                     Ok(())
                                 },
@@ -256,28 +259,28 @@ fn handle_loaded_with_dependencies(
         },
     )?;
 
-    LdtkWorld::despawn_orphaned_entities(
+    LdtkWorldAsset::despawn_orphaned_entities(
         commands,
         world_assets,
         project_asset.worlds.keys().copied().collect(),
         world_query.iter(),
     )?;
 
-    LdtkLevel::despawn_orphaned_entities(
+    LdtkLevelAsset::despawn_orphaned_entities(
         commands,
         level_assets,
         project_asset.levels.keys().copied().collect(),
         level_query.iter(),
     )?;
 
-    LdtkLayer::despawn_orphaned_entities(
+    LdtkLayerAsset::despawn_orphaned_entities(
         commands,
         layer_assets,
         project_asset.layers.keys().copied().collect(),
         layer_query.iter(),
     )?;
 
-    LdtkEntity::despawn_orphaned_entities(
+    LdtkEntityAsset::despawn_orphaned_entities(
         commands,
         entity_assets,
         project_asset.entities.keys().copied().collect(),

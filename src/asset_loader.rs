@@ -8,17 +8,17 @@ use std::path::Path;
 use std::str::FromStr;
 use thiserror::Error;
 
-use crate::assets::entity::LdtkEntity;
-use crate::assets::entity::LdtkEntityError;
-use crate::assets::layer::LdtkLayer;
-use crate::assets::layer::LdtkLayerError;
-use crate::assets::level::LdtkLevel;
-use crate::assets::level::LdtkLevelError;
+use crate::assets::entity::LdtkEntityAsset;
+use crate::assets::entity::LdtkEntityAssetError;
+use crate::assets::layer::LdtkLayerAsset;
+use crate::assets::layer::LdtkLayerAssetError;
+use crate::assets::level::LdtkLevelAsset;
+use crate::assets::level::LdtkLevelAssetError;
 use crate::assets::project::LdtkProject;
 use crate::assets::project::LdtkProjectError;
 use crate::assets::project::LdtkProjectSettings;
-use crate::assets::world::LdtkWorld;
-use crate::assets::world::LdtkWorldError;
+use crate::assets::world::LdtkWorldAsset;
+use crate::assets::world::LdtkWorldAssetError;
 use crate::iid::Iid;
 use crate::iid::IidError;
 use crate::ldtk;
@@ -40,13 +40,13 @@ pub(crate) enum LdtkProjectLoaderError {
     #[error(transparent)]
     IidError(#[from] IidError),
     #[error(transparent)]
-    LdtkWorldError(#[from] LdtkWorldError),
+    LdtkWorldError(#[from] LdtkWorldAssetError),
     #[error(transparent)]
-    LdtkLevelError(#[from] LdtkLevelError),
+    LdtkLevelError(#[from] LdtkLevelAssetError),
     #[error(transparent)]
-    LdtkLayerError(#[from] LdtkLayerError),
+    LdtkLayerError(#[from] LdtkLayerAssetError),
     #[error(transparent)]
-    LdtkEntityError(#[from] LdtkEntityError),
+    LdtkEntityError(#[from] LdtkEntityAssetError),
     #[error(transparent)]
     ColorParseError(#[from] ColorParseError),
     #[error("field is None in non-multi world project! field: {0}")]
@@ -145,7 +145,7 @@ impl AssetLoader for LdtkProjectLoader {
                 .map(|value| {
                     let label = value.iid.clone();
                     let iid = Iid::from_str(&value.iid)?;
-                    let asset = LdtkWorld::new(value)?;
+                    let asset = LdtkWorldAsset::new(value)?;
                     trace!("world sub asset: {asset:?}");
                     let handle = load_context.add_labeled_asset(label, asset);
                     Ok((iid, handle))
@@ -157,7 +157,7 @@ impl AssetLoader for LdtkProjectLoader {
                 .map(|value| {
                     let label = value.iid.clone();
                     let iid = Iid::from_str(&value.iid)?;
-                    let asset = LdtkLevel::new(
+                    let asset = LdtkLevelAsset::new(
                         value,
                         settings.level_separation,
                         load_context,
@@ -176,7 +176,7 @@ impl AssetLoader for LdtkProjectLoader {
                 .map(|(index, value)| {
                     let label = value.iid.clone();
                     let iid = Iid::from_str(&value.iid)?;
-                    let asset = LdtkLayer::new(
+                    let asset = LdtkLayerAsset::new(
                         value,
                         index,
                         settings.layer_separation,
@@ -194,7 +194,7 @@ impl AssetLoader for LdtkProjectLoader {
                 .map(|value| {
                     let label = value.iid.clone();
                     let iid = Iid::from_str(&value.iid)?;
-                    let asset = LdtkEntity::new(value, project_iid)?;
+                    let asset = LdtkEntityAsset::new(value, project_iid)?;
                     trace!("entity sub asset: {asset:?}");
                     let handle = load_context.add_labeled_asset(label, asset);
                     Ok((iid, handle))

@@ -5,6 +5,13 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use shieldtank::prelude::*;
 
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default, States)]
+enum GameState {
+    #[default]
+    Loading,
+    Playing,
+}
+
 fn main() {
     App::new()
         .add_plugins((
@@ -18,17 +25,15 @@ fn main() {
             // CoveyOfWorldsPlugin,
             ShieldTankPlugin,
         ))
+        .init_state::<GameState>()
         .add_plugins(WorldInspectorPlugin::default())
         .add_systems(Startup, startup)
-        .add_systems(Update, update)
+        .add_systems(Update, loading.run_if(in_state(GameState::Loading)))
+        .add_systems(Update, update.run_if(in_state(GameState::Playing)))
         .run();
 }
 
-fn startup(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    // mut project_commands: LdtkProjectCommands,
-) {
+fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn(Camera2dBundle {
         transform: Transform {
             // good scale for a 1920x1080 canvas/window
@@ -44,4 +49,30 @@ fn startup(
     ));
 }
 
-fn update() {}
+fn loading(project_commands: LdtkProjectQuery, mut next_state: ResMut<NextState<GameState>>) {
+    if project_commands.all_projects_loaded() {
+        next_state.set(GameState::Playing);
+    }
+}
+
+fn update(
+    mut ldtk_entity_commands: LdtkEntityCommands,
+    ldtk_entity_query: LdtkEntityQuery,
+    keys: Res<ButtonInput<KeyCode>>,
+) {
+    let player = ldtk_entity_query.single_with_identifier("Axe_Man");
+
+    if keys.just_pressed(KeyCode::Space) {
+        debug!("space pressed!");
+        let swing_tile = player
+            .get_field_instance("Swing")
+            .expect("the swing tile field instance")
+            .as_tile()
+            .expect("the swing tile");
+
+        ldtk_entity_commands.set_tile(&player, swing_tile);
+
+        let grid = ldtk_entity_query.grid(&player);
+        debug!("{grid:?}");
+    }
+}
