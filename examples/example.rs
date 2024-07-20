@@ -22,7 +22,6 @@ fn main() {
                     ..default()
                 })
                 .set(ImagePlugin::default_nearest()),
-            // CoveyOfWorldsPlugin,
             ShieldTankPlugin,
         ))
         .init_state::<GameState>()
