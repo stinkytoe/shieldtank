@@ -18,8 +18,12 @@ pub mod prelude {
     pub use crate::system_params::entity::commands::LdtkEntityCommandsError;
     pub use crate::system_params::entity::item::LdtkEntity;
     pub use crate::system_params::entity::query::LdtkEntityQuery;
-    pub use crate::system_params::entity::query::LdtkEntityQueryError;
-    pub use crate::system_params::entity::query::LdtkEntityQueryEx;
+    // pub use crate::system_params::entity::query::LdtkEntityQueryError;
+    // pub use crate::system_params::entity::query::LdtkEntityQueryEx;
     pub use crate::system_params::project::LdtkProjectQuery;
     pub use crate::system_params::project::LdtkProjectQueryError;
+    pub use crate::system_params::traits::LdtkItem;
+    pub use crate::system_params::traits::LdtkQuery;
+    pub use crate::system_params::traits::LdtkQueryError;
+    pub use crate::system_params::traits::LdtkQueryEx;
 }

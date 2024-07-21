@@ -59,7 +59,7 @@ fn update(
     ldtk_entity_query: LdtkEntityQuery,
     keys: Res<ButtonInput<KeyCode>>,
 ) {
-    let player = ldtk_entity_query.single_with_identifier("Axe_Man");
+    let player: LdtkEntity = ldtk_entity_query.single_with_identifier("Axe_Man");
 
     if keys.just_pressed(KeyCode::Space) {
         debug!("space pressed!");

@@ -2,10 +2,25 @@ use bevy::prelude::*;
 
 use crate::assets::entity::LdtkEntityAsset;
 use crate::reexports::field_instance::FieldInstance;
+use crate::system_params::traits::LdtkItem;
 
 pub struct LdtkEntity<'w> {
     pub(crate) entity: Entity,
     pub(crate) asset: &'w LdtkEntityAsset,
+}
+
+impl<'w> LdtkItem<'w, LdtkEntityAsset> for LdtkEntity<'w> {
+    fn new(entity: Entity, asset: &'w LdtkEntityAsset) -> Self {
+        Self { entity, asset }
+    }
+
+    fn ecs_entity(&self) -> Entity {
+        self.entity
+    }
+
+    fn asset(&self) -> &LdtkEntityAsset {
+        self.asset
+    }
 }
 
 impl<'w> LdtkEntity<'w> {
@@ -18,23 +33,5 @@ impl<'w> LdtkEntity<'w> {
 
     pub fn has_tag(&self, tag: &str) -> bool {
         self.asset.tags.iter().any(|inner_tag| inner_tag == tag)
-    }
-
-    pub fn ecs_entity(&self) -> Entity {
-        self.entity
-    }
-
-    pub fn asset(&self) -> &LdtkEntityAsset {
-        self.asset
-    }
-
-    pub(crate) fn new(entity: Entity, asset: &'w LdtkEntityAsset) -> Self {
-        Self { entity, asset }
-    }
-}
-
-impl<'w> From<(Entity, &'w LdtkEntityAsset)> for LdtkEntity<'w> {
-    fn from((entity, asset): (Entity, &'w LdtkEntityAsset)) -> Self {
-        Self::new(entity, asset)
     }
 }
