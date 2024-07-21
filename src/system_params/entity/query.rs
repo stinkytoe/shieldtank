@@ -5,7 +5,11 @@ use thiserror::Error;
 
 use crate::assets::entity::LdtkEntityAsset;
 use crate::assets::layer::LdtkLayerAsset;
+use crate::prelude::LdtkQuery;
+use crate::prelude::LdtkQueryEx;
 use crate::system_params::entity::item::LdtkEntity;
+use crate::system_params::layer::item::LdtkLayer;
+use crate::system_params::layer::query::LdtkLayerQuery;
 use crate::system_params::traits::LdtkItem;
 use crate::system_params::traits::LdtkIterable;
 
@@ -15,6 +19,8 @@ pub enum LdtkEntityQueryError {
     QueryEntityError(#[from] QueryEntityError),
     #[error("bad layer handle? {0:?}")]
     BadLayerHandle(Handle<LdtkLayerAsset>),
+    #[error("could not query parent as a layer")]
+    NoLayerParent,
 }
 
 #[derive(SystemParam)]
@@ -23,8 +29,7 @@ pub struct LdtkEntityQuery<'w, 's> {
     entity_query: Query<'w, 's, (Entity, &'static Handle<LdtkEntityAsset>)>,
     entity_query_added:
         Query<'w, 's, (Entity, &'static Handle<LdtkEntityAsset>), Added<Handle<LdtkEntityAsset>>>,
-    layer_assets: Res<'w, Assets<LdtkLayerAsset>>,
-    layer_query: Query<'w, 's, &'static Handle<LdtkLayerAsset>>,
+    layer_query: LdtkLayerQuery<'w, 's>,
     parent_query: Query<'w, 's, &'static Parent>,
     transform_query: Query<'w, 's, &'static Transform, With<Handle<LdtkEntityAsset>>>,
 }
@@ -47,15 +52,15 @@ impl<'w, 's> LdtkEntityQuery<'w, 's> {
     pub fn get_layer(
         &'w self,
         ldtk_entity: &LdtkEntity<'w>,
-    ) -> Result<&LdtkLayerAsset, LdtkEntityQueryError> {
+    ) -> Result<LdtkLayer, LdtkEntityQueryError> {
         let entity = ldtk_entity.ecs_entity();
         let layer_entity = self.parent_query.get(entity)?.get();
-        let layer_handle = self.layer_query.get(layer_entity)?;
-        let layer_asset = self
-            .layer_assets
-            .get(layer_handle.id())
-            .ok_or(LdtkEntityQueryError::BadLayerHandle(layer_handle.clone()))?;
-        Ok(layer_asset)
+        let ldtk_layer: LdtkLayer = self
+            .layer_query
+            .iter()
+            .find_entity(layer_entity)
+            .ok_or(LdtkEntityQueryError::NoLayerParent)?;
+        Ok(ldtk_layer)
     }
 
     pub fn grid(&'w self, ldtk_entity: &LdtkEntity<'w>) -> IVec2 {
@@ -67,12 +72,12 @@ impl<'w, 's> LdtkEntityQuery<'w, 's> {
             .expect("an entity with Handle<LdtkEntity> component")
             .translation
             .truncate();
-        let layer_asset = self.get_layer(ldtk_entity).expect("a layer asset");
+        let ldtk_layer: LdtkLayer<'_> = self.get_layer(ldtk_entity).expect("a layer asset");
 
         let anchor_vec = asset.anchor.as_vec();
         let focus = Vec2::new(1.0, -1.0) * (translation - anchor_vec);
         let focus = focus.as_ivec2();
-        let grid_size = layer_asset.grid_size as i32;
+        let grid_size = ldtk_layer.asset().grid_size as i32;
 
         focus / grid_size
     }
