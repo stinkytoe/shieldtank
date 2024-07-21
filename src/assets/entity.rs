@@ -1,5 +1,4 @@
 use bevy::ecs::query::QueryEntityError;
-use bevy::ecs::removal_detection::RemovedComponentEntity;
 use bevy::math::I64Vec2;
 use bevy::prelude::*;
 use bevy::sprite::Anchor;
