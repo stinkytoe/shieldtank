@@ -43,6 +43,7 @@ impl Plugin for ShieldTankPlugin {
                     LdtkLayerAsset::layer_image_system.map(error),
                     LdtkEntityAsset::ldtk_asset_event_system,
                     LdtkEntityAsset::entity_tile_system.map(error),
+                    LdtkEntityAsset::handle_tile_system.map(error),
                 ),
             );
     }

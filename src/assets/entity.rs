@@ -1,4 +1,5 @@
 use bevy::ecs::query::QueryEntityError;
+use bevy::ecs::removal_detection::RemovedComponentEntity;
 use bevy::math::I64Vec2;
 use bevy::prelude::*;
 use bevy::sprite::Anchor;
@@ -103,12 +104,9 @@ impl LdtkEntityAsset {
         })
     }
 
-    #[allow(clippy::type_complexity)]
     pub(crate) fn entity_tile_system(
         mut commands: Commands,
-        project_commands: LdtkProjectQuery,
         mut events: EventReader<LdkAssetEvent<LdtkEntityAsset>>,
-        mut query: Query<Option<&mut Sprite>, With<Handle<LdtkEntityAsset>>>,
         entity_assets: Res<Assets<LdtkEntityAsset>>,
     ) -> Result<(), LdtkEntityAssetError> {
         for LdkAssetEvent::<LdtkEntityAsset>::Modified { entity, handle } in events.read() {
@@ -119,7 +117,37 @@ impl LdtkEntityAsset {
                 .ok_or(LdtkEntityAssetError::BadHandle(handle.clone()))?;
 
             if let Some(tile) = entity_asset.tile.as_ref() {
-                let project_asset = project_commands.get(entity_asset.project_iid).ok_or(
+                commands.entity(*entity).insert((tile.clone(),));
+            } else {
+                commands.entity(*entity).remove::<TilesetRectangle>();
+            }
+        }
+        Ok(())
+    }
+
+    #[allow(clippy::type_complexity)]
+    pub(crate) fn handle_tile_system(
+        mut commands: Commands,
+        project_query: LdtkProjectQuery,
+        entity_assets: Res<Assets<LdtkEntityAsset>>,
+        mut modified_query: Query<
+            (
+                Entity,
+                &Handle<LdtkEntityAsset>,
+                &TilesetRectangle,
+                Option<&mut Sprite>,
+            ),
+            Changed<TilesetRectangle>,
+        >,
+        mut removed_tiles: RemovedComponents<TilesetRectangle>,
+    ) -> Result<(), LdtkEntityAssetError> {
+        modified_query.iter_mut().try_for_each(
+            |(entity, handle, tile, sprite)| -> Result<(), LdtkEntityAssetError> {
+                let entity_asset = entity_assets
+                    .get(handle.id())
+                    .ok_or(LdtkEntityAssetError::BadHandle(handle.clone()))?;
+
+                let project_asset = project_query.get(entity_asset.project_iid).ok_or(
                     LdtkEntityAssetError::BadProjectIid(entity_asset.project_iid),
                 )?;
 
@@ -138,33 +166,36 @@ impl LdtkEntityAsset {
                     .get(rel_path)
                     .ok_or(LdtkEntityAssetError::BadRelPath(rel_path.clone()))?;
 
+                commands.entity(entity).insert(tile_handle.clone());
+
                 let custom_size = Some(tile.size);
                 let rect = Some(Rect::from_corners(tile.location, tile.location + tile.size));
                 let anchor = entity_asset.anchor;
 
-                commands
-                    .entity(*entity)
-                    .insert((tile.clone(), tile_handle.clone()));
-
-                if let Some(mut sprite) = query.get_mut(*entity)? {
+                if let Some(mut sprite) = sprite {
                     sprite.custom_size = custom_size;
                     sprite.rect = rect;
                     sprite.anchor = anchor;
                 } else {
-                    commands.entity(*entity).insert(Sprite {
+                    commands.entity(entity).insert(Sprite {
                         custom_size,
                         rect,
                         anchor,
                         ..default()
                     });
                 }
-            } else {
-                commands
-                    .entity(*entity)
-                    .remove::<TilesetRectangle>()
-                    .remove::<Sprite>();
-            }
-        }
+
+                Ok(())
+            },
+        )?;
+
+        removed_tiles.read().for_each(|entity| {
+            commands
+                .entity(entity)
+                .remove::<Handle<Image>>()
+                .remove::<Sprite>();
+        });
+
         Ok(())
     }
 }
