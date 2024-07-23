@@ -71,7 +71,7 @@ fn update(
 
         ldtk_entity_commands.set_tile(&player, swing_tile);
 
-        let grid = ldtk_entity_query.grid(&player);
+        let grid = player.grid();
         debug!("{grid:?}");
     }
 }
