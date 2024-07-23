@@ -28,6 +28,7 @@ fn main() {
         .add_plugins(WorldInspectorPlugin::default())
         .add_systems(Startup, startup)
         .add_systems(Update, loading.run_if(in_state(GameState::Loading)))
+        .add_systems(OnEnter(GameState::Playing), on_enter_playing)
         .add_systems(Update, update.run_if(in_state(GameState::Playing)))
         .run();
 }
@@ -52,6 +53,21 @@ fn loading(project_commands: LdtkProjectQuery, mut next_state: ResMut<NextState<
     if project_commands.all_projects_loaded() {
         next_state.set(GameState::Playing);
     }
+}
+
+fn on_enter_playing(ldtk_entity_query: LdtkEntityQuery) {
+    ldtk_entity_query
+        .iter_added()
+        .for_each(|ldtk_entity: LdtkEntity| {
+            debug!("ldtk_entity added: {ldtk_entity:?}");
+        });
+
+    ldtk_entity_query
+        .iter()
+        .filter_tag("player")
+        .for_each(|ldtk_entity| {
+            debug!("ldtk_entity with \"player\" tag: {ldtk_entity:?}");
+        });
 }
 
 fn update(

@@ -48,6 +48,12 @@ where
         })
     }
 
+    fn iter_added(&'w self) -> impl Iterator<Item = I> {
+        self.query_added().filter_map(move |(entity, handle)| {
+            Some(I::new(entity, self.get_asset(handle.id())?, self))
+        })
+    }
+
     fn get_single_with_identifier(&'w self, identifier: &str) -> Result<I, LdtkQueryError> {
         let mut iter = self.iter().filter_identifier(identifier);
         let first = iter.next();
@@ -81,7 +87,7 @@ where
     Self: Iterator<Item = I> + Sized,
 {
     fn filter_identifier(self, identifier: &str) -> impl Iterator<Item = I> {
-        self.filter(move |ldtk_entity| ldtk_entity.asset().identifier() == identifier)
+        self.filter(move |item| item.asset().identifier() == identifier)
     }
 
     fn find_entity(mut self, entity: Entity) -> Option<I> {

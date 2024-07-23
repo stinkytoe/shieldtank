@@ -8,6 +8,8 @@ use crate::assets::layer::LdtkLayerAsset;
 use crate::system_params::layer::query::LdtkLayerQuery;
 use crate::system_params::traits::LdtkIterable;
 
+use super::item::LdtkEntity;
+
 #[derive(Debug, Error)]
 pub enum LdtkEntityQueryError {
     #[error(transparent)]
@@ -43,4 +45,13 @@ impl<'w, 's> LdtkIterable<'w, 's, LdtkEntityAsset> for LdtkEntityQuery<'w, 's> {
     }
 }
 
-impl<'w, 's> LdtkEntityQuery<'w, 's> {}
+pub trait LdtkEntityQueryEx<'a>
+where
+    Self: Iterator<Item = LdtkEntity<'a, 'a>> + Sized,
+{
+    fn filter_tag(self, tag: &str) -> impl Iterator<Item = LdtkEntity<'a, 'a>> {
+        self.filter(move |ldtk_entity| ldtk_entity.has_tag(tag))
+    }
+}
+
+impl<'a, It> LdtkEntityQueryEx<'a> for It where It: Iterator<Item = LdtkEntity<'a, 'a>> {}
