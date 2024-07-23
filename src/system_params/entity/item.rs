@@ -4,8 +4,8 @@ use std::fmt::Debug;
 use crate::assets::entity::LdtkEntityAsset;
 use crate::prelude::{LdtkQuery, LdtkQueryEx};
 use crate::reexports::field_instance::FieldInstance;
+use crate::system_params::entity::error::LdtkEntityError;
 use crate::system_params::entity::query::LdtkEntityQuery;
-use crate::system_params::entity::query::LdtkEntityQueryError;
 use crate::system_params::layer::item::LdtkLayer;
 use crate::system_params::traits::LdtkItem;
 
@@ -59,7 +59,7 @@ impl<'w, 's> LdtkEntity<'w, 's> {
         self.asset.tags.iter().any(|inner_tag| inner_tag == tag)
     }
 
-    pub fn get_parent_layer(&'w self) -> Result<LdtkLayer, LdtkEntityQueryError> {
+    pub fn get_parent_layer(&'w self) -> Result<LdtkLayer, LdtkEntityError> {
         let entity = self.ecs_entity();
         let layer_entity = self.query.parent_query.get(entity)?.get();
         let ldtk_layer: LdtkLayer = self
@@ -67,7 +67,7 @@ impl<'w, 's> LdtkEntity<'w, 's> {
             .layer_query
             .iter()
             .find_entity(layer_entity)
-            .ok_or(LdtkEntityQueryError::NoLayerParent)?;
+            .ok_or(LdtkEntityError::NoLayerParent)?;
         Ok(ldtk_layer)
     }
 

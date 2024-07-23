@@ -1,24 +1,10 @@
-use bevy::ecs::query::QueryEntityError;
 use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
-use thiserror::Error;
 
 use crate::assets::entity::LdtkEntityAsset;
-use crate::assets::layer::LdtkLayerAsset;
+use crate::system_params::entity::item::LdtkEntity;
 use crate::system_params::layer::query::LdtkLayerQuery;
 use crate::system_params::traits::LdtkIterable;
-
-use super::item::LdtkEntity;
-
-#[derive(Debug, Error)]
-pub enum LdtkEntityQueryError {
-    #[error(transparent)]
-    QueryEntityError(#[from] QueryEntityError),
-    #[error("bad layer handle? {0:?}")]
-    BadLayerHandle(Handle<LdtkLayerAsset>),
-    #[error("could not query parent as a layer")]
-    NoLayerParent,
-}
 
 #[derive(SystemParam)]
 pub struct LdtkEntityQuery<'w, 's> {
