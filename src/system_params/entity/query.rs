@@ -51,7 +51,7 @@ impl<'w, 's> LdtkIterable<'w, 's, LdtkEntityAsset> for LdtkEntityQuery<'w, 's> {
 impl<'w, 's> LdtkEntityQuery<'w, 's> {
     pub fn get_layer(
         &'w self,
-        ldtk_entity: &LdtkEntity<'w>,
+        ldtk_entity: &LdtkEntity<'w, 's>,
     ) -> Result<LdtkLayer, LdtkEntityQueryError> {
         let entity = ldtk_entity.ecs_entity();
         let layer_entity = self.parent_query.get(entity)?.get();
@@ -63,7 +63,7 @@ impl<'w, 's> LdtkEntityQuery<'w, 's> {
         Ok(ldtk_layer)
     }
 
-    pub fn grid(&'w self, ldtk_entity: &LdtkEntity<'w>) -> IVec2 {
+    pub fn grid(&'w self, ldtk_entity: &LdtkEntity<'w, 's>) -> IVec2 {
         let entity = ldtk_entity.ecs_entity();
         let asset = ldtk_entity.asset();
         let translation = self
@@ -72,7 +72,7 @@ impl<'w, 's> LdtkEntityQuery<'w, 's> {
             .expect("an entity with Handle<LdtkEntity> component")
             .translation
             .truncate();
-        let ldtk_layer: LdtkLayer<'_> = self.get_layer(ldtk_entity).expect("a layer asset");
+        let ldtk_layer: LdtkLayer<'_, '_> = self.get_layer(ldtk_entity).expect("a layer asset");
 
         let anchor_vec = asset.anchor.as_vec();
         let focus = Vec2::new(1.0, -1.0) * (translation - anchor_vec);

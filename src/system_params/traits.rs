@@ -6,14 +6,16 @@ use thiserror::Error;
 use crate::assets::traits::LdtkAsset;
 use crate::iid::Iid;
 
-pub trait LdtkItem<'w, A>
+pub trait LdtkItem<'w, 's, A, Q>
 where
     A: LdtkAsset,
+    Q: LdtkIterable<'w, 's, A>,
     Self: Sized,
 {
-    fn new(entity: Entity, asset: &'w A) -> Self;
+    fn new(entity: Entity, asset: &'w A, query: &'w Q) -> Self;
     fn ecs_entity(&self) -> Entity;
     fn asset(&self) -> &A;
+    fn query(&self) -> &Q;
 }
 
 #[derive(Debug, Error)]
@@ -36,13 +38,14 @@ where
 
 pub trait LdtkQuery<'w, 's, I, A>
 where
-    I: LdtkItem<'w, A>,
+    I: LdtkItem<'w, 's, A, Self>,
     A: LdtkAsset,
     Self: LdtkIterable<'w, 's, A>,
 {
     fn iter(&'w self) -> impl Iterator<Item = I> {
-        self.query()
-            .filter_map(move |(entity, handle)| Some(I::new(entity, self.get_asset(handle.id())?)))
+        self.query().filter_map(move |(entity, handle)| {
+            Some(I::new(entity, self.get_asset(handle.id())?, self))
+        })
     }
 
     fn get_single_with_identifier(&'w self, identifier: &str) -> Result<I, LdtkQueryError> {
@@ -64,16 +67,17 @@ where
 
 impl<'w, 's, I, A, Q> LdtkQuery<'w, 's, I, A> for Q
 where
-    I: LdtkItem<'w, A>,
+    I: LdtkItem<'w, 's, A, Q>,
     A: LdtkAsset,
     Q: LdtkIterable<'w, 's, A>,
 {
 }
 
-pub trait LdtkQueryEx<'w, 's, I, A>
+pub trait LdtkQueryEx<'w, 's, I, A, Q>
 where
-    I: LdtkItem<'w, A>,
+    I: LdtkItem<'w, 's, A, Q>,
     A: LdtkAsset,
+    Q: LdtkIterable<'w, 's, A>,
     Self: Iterator<Item = I> + Sized,
 {
     fn filter_identifier(self, identifier: &str) -> impl Iterator<Item = I> {
@@ -89,10 +93,11 @@ where
     }
 }
 
-impl<'w, 's, I, A, It> LdtkQueryEx<'w, 's, I, A> for It
+impl<'w, 's, I, A, Q, It> LdtkQueryEx<'w, 's, I, A, Q> for It
 where
-    I: LdtkItem<'w, A>,
+    I: LdtkItem<'w, 's, A, Q>,
     A: LdtkAsset,
+    Q: LdtkIterable<'w, 's, A>,
     It: Iterator<Item = I>,
 {
 }
