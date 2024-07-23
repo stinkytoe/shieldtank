@@ -4,6 +4,7 @@ use ldtk::WorldLayout;
 use std::str::FromStr;
 use thiserror::Error;
 
+use crate::assets::project::LdtkProject;
 use crate::assets::traits::LdtkAsset;
 use crate::iid::Iid;
 use crate::iid::IidError;
@@ -53,7 +54,7 @@ impl LdtkWorldAsset {
 }
 
 impl LdtkAsset for LdtkWorldAsset {
-    fn iid(&self) -> crate::iid::Iid {
+    fn iid(&self) -> Iid {
         self.iid
     }
 
@@ -65,10 +66,7 @@ impl LdtkAsset for LdtkWorldAsset {
         &self.identifier
     }
 
-    fn asset_handle_from_project(
-        project: &crate::prelude::LdtkProject,
-        iid: Iid,
-    ) -> Option<Handle<Self>> {
+    fn asset_handle_from_project(project: &LdtkProject, iid: Iid) -> Option<Handle<Self>> {
         project.worlds.get(&iid).cloned()
     }
 }

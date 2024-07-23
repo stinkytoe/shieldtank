@@ -55,7 +55,7 @@ fn loading(project_commands: LdtkProjectQuery, mut next_state: ResMut<NextState<
 }
 
 fn update(
-    mut ldtk_entity_commands: LdtkEntityCommands,
+    mut ldtk_commands: LdtkCommands,
     ldtk_entity_query: LdtkEntityQuery,
     keys: Res<ButtonInput<KeyCode>>,
 ) {
@@ -63,15 +63,18 @@ fn update(
 
     if keys.just_pressed(KeyCode::Space) {
         debug!("space pressed!");
+
         let swing_tile = player
             .get_field_instance("Swing")
-            .expect("the swing tile field instance")
+            .expect("the swing field instance")
             .as_tile()
-            .expect("the swing tile");
-
-        ldtk_entity_commands.set_tile(&player, swing_tile);
+            .expect("a tile");
 
         let grid = player.grid();
-        debug!("{grid:?}");
+        debug!("{grid}");
+
+        ldtk_commands
+            .ldtk_entity(&player)
+            .set_tile(swing_tile.clone());
     }
 }

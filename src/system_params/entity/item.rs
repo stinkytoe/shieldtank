@@ -4,10 +4,9 @@ use crate::assets::entity::LdtkEntityAsset;
 use crate::prelude::{LdtkQuery, LdtkQueryEx};
 use crate::reexports::field_instance::FieldInstance;
 use crate::system_params::entity::query::LdtkEntityQuery;
+use crate::system_params::entity::query::LdtkEntityQueryError;
 use crate::system_params::layer::item::LdtkLayer;
 use crate::system_params::traits::LdtkItem;
-
-use super::query::LdtkEntityQueryError;
 
 pub struct LdtkEntity<'w, 's> {
     pub(crate) entity: Entity,
