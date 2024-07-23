@@ -9,7 +9,7 @@ use crate::iid::Iid;
 pub trait LdtkItem<'w, 's, A, Q>
 where
     A: LdtkAsset,
-    Q: LdtkIterable<'w, 's, A>,
+    Q: LdtkQuery<'w, 's, Self, A>,
     Self: Sized,
 {
     fn new(entity: Entity, asset: &'w A, query: &'w Q) -> Self;
@@ -77,7 +77,7 @@ pub trait LdtkQueryEx<'w, 's, I, A, Q>
 where
     I: LdtkItem<'w, 's, A, Q>,
     A: LdtkAsset,
-    Q: LdtkIterable<'w, 's, A>,
+    Q: LdtkQuery<'w, 's, I, A>,
     Self: Iterator<Item = I> + Sized,
 {
     fn filter_identifier(self, identifier: &str) -> impl Iterator<Item = I> {
@@ -97,7 +97,7 @@ impl<'w, 's, I, A, Q, It> LdtkQueryEx<'w, 's, I, A, Q> for It
 where
     I: LdtkItem<'w, 's, A, Q>,
     A: LdtkAsset,
-    Q: LdtkIterable<'w, 's, A>,
+    Q: LdtkQuery<'w, 's, I, A>,
     It: Iterator<Item = I>,
 {
 }
