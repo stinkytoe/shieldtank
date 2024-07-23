@@ -7,6 +7,7 @@ use crate::reexports::field_instance::FieldInstance;
 use crate::system_params::entity::error::LdtkEntityError;
 use crate::system_params::entity::query::LdtkEntityQuery;
 use crate::system_params::layer::item::LdtkLayer;
+use crate::system_params::level::item::LdtkLevel;
 use crate::system_params::traits::LdtkItem;
 
 pub struct LdtkEntity<'w, 's> {
@@ -62,13 +63,28 @@ impl<'w, 's> LdtkEntity<'w, 's> {
     pub fn get_parent_layer(&'w self) -> Result<LdtkLayer, LdtkEntityError> {
         let entity = self.ecs_entity();
         let layer_entity = self.query.parent_query.get(entity)?.get();
-        let ldtk_layer: LdtkLayer = self
+        let ldtk_layer = self
             .query
             .layer_query
             .iter()
             .find_entity(layer_entity)
             .ok_or(LdtkEntityError::NoLayerParent)?;
         Ok(ldtk_layer)
+    }
+
+    pub fn get_parent_level(&'w self) -> Result<LdtkLevel, LdtkEntityError> {
+        let entity = self.ecs_entity();
+        let layer_entity = self.query.parent_query.get(entity)?.get();
+        let level_entity = self.query.parent_query.get(layer_entity)?.get();
+
+        let ldtk_level = self
+            .query
+            .level_query
+            .iter()
+            .find_entity(level_entity)
+            .ok_or(LdtkEntityError::NoLevelParent)?;
+
+        Ok(ldtk_level)
     }
 
     pub fn grid(&'w self) -> IVec2 {

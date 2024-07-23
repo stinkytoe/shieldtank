@@ -4,6 +4,7 @@ use bevy::prelude::*;
 use crate::assets::entity::LdtkEntityAsset;
 use crate::system_params::entity::item::LdtkEntity;
 use crate::system_params::layer::query::LdtkLayerQuery;
+use crate::system_params::level::query::LdtkLevelQuery;
 use crate::system_params::traits::LdtkIterable;
 
 #[derive(SystemParam)]
@@ -13,6 +14,7 @@ pub struct LdtkEntityQuery<'w, 's> {
     pub(crate) entity_query_added:
         Query<'w, 's, (Entity, &'static Handle<LdtkEntityAsset>), Added<Handle<LdtkEntityAsset>>>,
     pub(crate) layer_query: LdtkLayerQuery<'w, 's>,
+    pub(crate) level_query: LdtkLevelQuery<'w, 's>,
     pub(crate) parent_query: Query<'w, 's, &'static Parent>,
     pub(crate) transform_query: Query<'w, 's, &'static Transform, With<Handle<LdtkEntityAsset>>>,
 }

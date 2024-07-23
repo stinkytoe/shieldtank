@@ -42,3 +42,5 @@ impl<'w, 's> LdtkItem<'w, 's, LdtkLevelAsset, LdtkLevelQuery<'w, 's>> for LdtkLe
         self.query
     }
 }
+
+impl<'w, 's> LdtkLevel<'w, 's> {}

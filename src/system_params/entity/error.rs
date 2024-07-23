@@ -12,4 +12,6 @@ pub enum LdtkEntityError {
     BadLayerHandle(Handle<LdtkLayerAsset>),
     #[error("could not query parent as a layer")]
     NoLayerParent,
+    #[error("could not query parent as a level")]
+    NoLevelParent,
 }
