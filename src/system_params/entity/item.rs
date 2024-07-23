@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use std::fmt::Debug;
 
 use crate::assets::entity::LdtkEntityAsset;
 use crate::prelude::{LdtkQuery, LdtkQueryEx};
@@ -12,6 +13,16 @@ pub struct LdtkEntity<'w, 's> {
     pub(crate) entity: Entity,
     pub(crate) asset: &'w LdtkEntityAsset,
     pub(crate) query: &'w LdtkEntityQuery<'w, 's>,
+}
+
+impl Debug for LdtkEntity<'_, '_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("LdtkEntity")
+            .field("entity", &self.entity)
+            .field("asset", &self.asset)
+            // NOTE: field "query" ignored
+            .finish()
+    }
 }
 
 impl<'w, 's> LdtkItem<'w, 's, LdtkEntityAsset, LdtkEntityQuery<'w, 's>> for LdtkEntity<'w, 's> {
