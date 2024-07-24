@@ -76,12 +76,13 @@ pub struct LdtkLayerAsset {
     pub(crate) layer_separation: f32,
     pub(crate) layer_image: Option<(Mesh2dHandle, Handle<ColorMaterial>)>,
     // NOTE: LDtk exports
+    pub(crate) grid_dimensions: I64Vec2,
     pub(crate) grid_size: i64,
     pub(crate) px_total_offset: I64Vec2,
     pub(crate) tileset_def_uid: Option<i64>,
     pub(crate) layer_type: LdtkLayerType,
     #[reflect(ignore)]
-    pub(crate) _int_grid_csv: Vec<i64>,
+    pub(crate) int_grid_csv: Vec<i64>,
     pub(crate) layer_def_uid: i64,
     pub(crate) level_id: i64,
     pub(crate) override_tileset_uid: Option<i64>,
@@ -138,7 +139,7 @@ impl LdtkLayerAsset {
             }
         };
 
-        let grid_cell = (value.c_wid, value.c_hei).into();
+        let grid_dimensions = (value.c_wid, value.c_hei).into();
         let grid_size = value.grid_size;
         let opacity = value.opacity;
         let tileset_rel_path = value.tileset_rel_path.clone();
@@ -150,7 +151,7 @@ impl LdtkLayerAsset {
             index,
             layer_separation,
             layer_image: Self::create_layer_image(
-                grid_cell,
+                grid_dimensions,
                 grid_size,
                 opacity,
                 tiles,
@@ -159,11 +160,12 @@ impl LdtkLayerAsset {
                 base_directory,
                 iid,
             )?,
+            grid_dimensions,
             grid_size,
             px_total_offset: (value.px_total_offset_x, -value.px_total_offset_y).into(),
             tileset_def_uid: value.tileset_def_uid,
             layer_type,
-            _int_grid_csv: value.int_grid_csv.clone(),
+            int_grid_csv: value.int_grid_csv.clone(),
             layer_def_uid: value.layer_def_uid,
             level_id: value.level_id,
             override_tileset_uid: value.override_tileset_uid,

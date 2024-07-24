@@ -1,5 +1,8 @@
 pub(crate) mod enum_tag_value;
 pub(crate) mod field_instance;
+pub(crate) mod int_grid_value;
+pub(crate) mod int_grid_value_group;
+pub(crate) mod layer_definition;
 pub(crate) mod level_background_position;
 pub(crate) mod neighbour;
 pub(crate) mod tile_custom_metadata;

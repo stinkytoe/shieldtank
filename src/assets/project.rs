@@ -16,6 +16,7 @@ use crate::assets::world::LdtkWorldAssetError;
 use crate::iid::IidMap;
 use crate::iid::IidSet;
 use crate::prelude::Iid;
+use crate::reexports::layer_definition::LayerDefinition;
 use crate::reexports::tileset_definition::TilesetDefinition;
 
 #[derive(Debug, Error)]
@@ -61,6 +62,7 @@ pub struct LdtkProject {
     pub(crate) settings: LdtkProjectSettings,
     pub(crate) worlds: IidMap<Handle<LdtkWorldAsset>>,
     pub(crate) levels: IidMap<Handle<LdtkLevelAsset>>,
+    pub(crate) layer_defs: HashMap<i64, LayerDefinition>,
     pub(crate) layers: IidMap<Handle<LdtkLayerAsset>>,
     pub(crate) entities: IidMap<Handle<LdtkEntityAsset>>,
     pub(crate) tileset_defs: HashMap<i64, TilesetDefinition>,
@@ -68,7 +70,7 @@ pub struct LdtkProject {
     // LDtk exports
     pub(crate) bg_color: Color,
     // TODO: defs
-    // NOTE: external_levels ignored
+    // NOTE: external_levels field not exported, but honored in LdtkProjectLoader
     pub(crate) json_version: String,
     // TODO: TOC
     // NOTE: world_grid_height, world_grid_width, and world_layout

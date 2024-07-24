@@ -22,6 +22,8 @@ use crate::assets::world::LdtkWorldAssetError;
 use crate::iid::Iid;
 use crate::iid::IidError;
 use crate::ldtk;
+use crate::reexports::layer_definition::LayerDefinition;
+use crate::reexports::layer_definition::LayerDefinitionFromError;
 use crate::reexports::tileset_definition::TilesetDefinition;
 use crate::util::bevy_color_from_ldtk;
 use crate::util::ldtk_path_to_bevy_path;
@@ -49,6 +51,8 @@ pub(crate) enum LdtkProjectLoaderError {
     LdtkEntityError(#[from] LdtkEntityAssetError),
     #[error(transparent)]
     ColorParseError(#[from] ColorParseError),
+    #[error(transparent)]
+    LayerDefinitionFromError(#[from] LayerDefinitionFromError),
     #[error("field is None in non-multi world project! field: {0}")]
     FieldIsNone(String),
     #[error("failed to get project directory!")]
@@ -201,6 +205,16 @@ impl AssetLoader for LdtkProjectLoader {
                 })
                 .collect::<Result<_, LdtkProjectLoaderError>>()?;
 
+            let layer_defs: HashMap<i64, LayerDefinition> = value
+                .defs
+                .layers
+                .iter()
+                .map(|layer_def| {
+                    let layer_def = LayerDefinition::new(layer_def)?;
+                    Ok((layer_def.uid, layer_def))
+                })
+                .collect::<Result<_, LdtkProjectLoaderError>>()?;
+
             let tileset_defs: HashMap<i64, TilesetDefinition> = value
                 .defs
                 .tilesets
@@ -228,6 +242,7 @@ impl AssetLoader for LdtkProjectLoader {
                 settings: settings.clone(),
                 worlds,
                 levels,
+                layer_defs,
                 layers,
                 entities,
                 tileset_defs,
