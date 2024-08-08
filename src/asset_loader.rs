@@ -32,7 +32,7 @@ use crate::util::ColorParseError;
 #[derive(Debug, Error)]
 pub(crate) enum LdtkProjectLoaderError {
     #[error(transparent)]
-    IoErrpr(#[from] std::io::Error),
+    IoError(#[from] std::io::Error),
     #[error(transparent)]
     SerdeJsonError(#[from] serde_json::Error),
     #[error(transparent)]
