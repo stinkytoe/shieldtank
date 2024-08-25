@@ -1,5 +1,3 @@
-use bevy::ecs::query::QueryIter;
-use bevy::ecs::system::SystemParam;
 use bevy::log::Level;
 use bevy::log::LogPlugin;
 use bevy::prelude::*;
@@ -51,38 +49,24 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
     ));
 }
 
-fn loading(ldtk_query: LdtkQuery, mut next_state: ResMut<NextState<GameState>>) {
-    if ldtk_query.all_projects_loaded() {
+fn loading(projects_query: LdtkProjectsQuery, mut next_state: ResMut<NextState<GameState>>) {
+    if projects_query.all_projects_loaded() {
         next_state.set(GameState::Playing);
     }
 }
 
-// fn on_enter_playing(project_query: LdtkProjectQuery) {
-// ldtk_entity_query
-//     .iter_added()
-//     .for_each(|ldtk_entity: LdtkEntity| {
-//         debug!("ldtk_entity added: {ldtk_entity:?}");
-//     });
-//
-// ldtk_entity_query
-//     .iter()
-//     .filter_tag("player")
-//     .for_each(|ldtk_entity| {
-//         debug!("ldtk_entity with \"player\" tag: {ldtk_entity:?}");
-//     });
-// }
-
 fn update(
-    // words!!!!
-    // mut ldtk_commands: LdtkCommands,
-    mut commands: Commands,
-    ldtk_query: LdtkQuery,
+    mut entity_commands: LdtkEntityCommands,
+    entities_query: LdtkEntitiesQuery,
+    levels_query: LdtkLevelsQuery,
     keys: Res<ButtonInput<KeyCode>>,
 ) {
-    let player = ldtk_query.entities().single_with_identifier("Axe_Man");
+    let Ok(player) = entities_query.get_single_with_identifier("Axe_Man") else {
+        return;
+    };
 
     // let level = player.get_level().expect("an ldtk level");
-    //
+
     // let attempt_move = player.location().grid_move(IVec2::new(1, 0));
     //
     // let int_grid_value = level.get_int_grid_value(attempt_move);
@@ -95,49 +79,26 @@ fn update(
         debug!("space pressed!");
 
         let swing_tile = player
-            .get_field_instance("Swing")
+            .field_instance("Swing")
             .expect("the swing field instance")
             .as_tile()
             .expect("a tile");
-
-        commands.entity(player.entity()).insert(swing_tile.clone());
-
-        // let x = ldtk_commands.ldtk_entity(&player);
-
-        // ldtk_commands
-        //     .ldtk_entity(&player)
-        //     .set_tile(swing_tile.clone());
+        //
+        // commands.entity(player.entity()).insert(swing_tile.clone());
+        entity_commands.set_tile(&player, swing_tile.clone());
     }
 }
 
-// #[derive(SystemParam)]
-// pub struct LdtkCommands<'w, 's> {
-//     _commands: Commands<'w, 's>,
-// }
+use bevy::ecs::system::SystemParam;
+use bevy::prelude::*;
 
-// impl<'a> LdtkCommands<'a, 'a> {
-//     pub fn ldtk_entity<'b>(&'a mut self, item: &'b LdtkEntity<'b>) -> LdtkEntityCommands<'b, 'b>
-//     where
-//         'b: 'a,
-//     {
-//         LdtkEntityCommands {
-//             commands: self,
-//             item,
-//         }
-//     }
-// }
-//
-// pub struct LdtkEntityCommands<'a, 'b> {
-//     commands: &'a mut LdtkCommands<'a, 'b>,
-//     item: &'a LdtkEntity<'a>,
-// }
-//
-// impl LdtkEntityCommands<'_, '_> {
-//     pub fn set_tile(&mut self, _tile: TilesetRectangle) {
-//         // self.commands
-//         //     ._commands
-//         //     .entity(self.item.entity)
-//         //     .insert(tile);
-//         todo!()
-//     }
-// }
+#[derive(SystemParam)]
+pub struct LdtkEntityCommands<'w, 's> {
+    commands: Commands<'w, 's>,
+}
+
+impl LdtkEntityCommands<'_, '_> {
+    pub fn set_tile(&mut self, entity: &LdtkEntity, tile: TilesetRectangle) {
+        self.commands.entity(entity.ecs_entity()).insert(tile);
+    }
+}

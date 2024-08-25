@@ -82,7 +82,7 @@ pub struct LdtkLayerAsset {
     pub(crate) tileset_def_uid: Option<i64>,
     pub(crate) layer_type: LdtkLayerType,
     #[reflect(ignore)]
-    pub(crate) int_grid_csv: Vec<i64>,
+    pub(crate) _int_grid_csv: Vec<i64>,
     pub(crate) layer_def_uid: i64,
     pub(crate) level_id: i64,
     pub(crate) override_tileset_uid: Option<i64>,
@@ -165,7 +165,7 @@ impl LdtkLayerAsset {
             px_total_offset: (value.px_total_offset_x, -value.px_total_offset_y).into(),
             tileset_def_uid: value.tileset_def_uid,
             layer_type,
-            int_grid_csv: value.int_grid_csv.clone(),
+            _int_grid_csv: value.int_grid_csv.clone(),
             layer_def_uid: value.layer_def_uid,
             level_id: value.level_id,
             override_tileset_uid: value.override_tileset_uid,
