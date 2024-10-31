@@ -1,28 +1,77 @@
-mod asset_loader;
-mod assets;
-mod plugin;
-mod reexports;
+#![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
-pub(crate) mod ldtk;
-pub(crate) mod query;
-pub(crate) mod util;
+pub mod children_spawn;
+pub mod component_event;
+pub mod component_traits;
+pub mod entity;
+pub mod error;
+pub mod layer;
+pub mod level;
+pub mod load_pattern;
+pub mod plugin;
+pub mod project;
+pub mod project_config;
+pub mod world;
 
-pub mod iid;
+pub use error::{Error, Result};
 
-pub mod prelude {
-    pub use crate::assets::entity::LdtkEntityAsset;
-    pub use crate::assets::level::LdtkLevelAsset;
-    pub use crate::assets::project::LdtkProject;
-    pub use crate::iid::Iid;
-    pub use crate::iid::IidError;
-    pub use crate::plugin::ShieldTankPlugin;
-    pub use crate::query::entities::LdtkEntitiesQuery;
-    pub use crate::query::entities::LdtkEntity;
-    pub use crate::query::levels::LdtkLevel;
-    pub use crate::query::levels::LdtkLevelsQuery;
-    pub use crate::query::projects::LdtkProjectsQuery;
-    pub use crate::query::traits::LdtkItemIteratorExt;
-    pub use crate::query::traits::LdtkItemIteratorUniqueIdentifierExt;
-    pub use crate::reexports::field_instance::FieldInstance;
-    pub use crate::reexports::tileset_rectangle::TilesetRectangle;
-}
+// ## Level
+//  - Name
+//  -- from identifier
+//  -- Only on new, and if not present
+//  -- if changed, then asset path changed also and is now a different asset
+//
+//  - Visibility
+//  -- always visible
+//  -- Only on new, and if not present
+//
+//  - Transform
+//  -- Depends on WorldLayout
+//  --- Free or GridVania: from asset: location, world_depth TODO: We need to establish a scale factor for calculating z
+//  --- LinearHorizontal or LinearVertical: TODO: What to do here?
+//  -- Only on new, and if not present
+//
+//  - LevelBackground
+//  -- from asset
+//  -- always update
+//  -- systems use this to draw background
+//
+// ## Layer
+//  - Name
+//  -- from identifier
+//  -- Only on new, and if not present
+//  -- if changed, then asset path changed also and is now a different asset
+//
+//  - Visibility
+//  -- always visible
+//  -- Only on new, and if not present
+//
+//  - Transform
+//  -- always translation (0,0,0)
+//  -- Only on new, and if not present
+//
+//  - Tiles
+//  -- only for layers with tiles
+//  -- delete if no tiles/changed to entity layer
+//  -- from asset
+//  -- always update
+//  -- systems use this to draw layer
+//
+// ## Entity
+//  - Name
+//  -- from identifier
+//  -- Only on new, and if not present
+//  -- if changed, then asset path changed also and is now a different asset
+//
+//  - Visibility
+//  -- always visible
+//  -- Only on new, and if not present
+//
+//  - Transform
+//  -- Use location from asset;
+//  -- Only on new, and if not present
+//
+//  - TilesetRectangle
+//  -- from asset, if present
+//  -- always update
+//  -- systems use this to draw entity

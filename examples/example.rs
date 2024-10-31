@@ -1,104 +1,163 @@
-use bevy::log::Level;
-use bevy::log::LogPlugin;
+//#![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use bevy::prelude::*;
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
-
-use shieldtank::prelude::*;
-
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default, States)]
-enum GameState {
-    #[default]
-    Loading,
-    Playing,
-}
+use bevy_ldtk_asset::prelude::*;
+use shieldtank::plugin::ShieldtankPlugin;
 
 fn main() {
-    App::new()
-        .add_plugins((
-            DefaultPlugins
-                .set(LogPlugin {
-                    level: Level::WARN,
-                    filter: "shieldtank=debug,example=trace".into(),
-                    ..default()
-                })
-                .set(ImagePlugin::default_nearest()),
-            ShieldTankPlugin,
-        ))
-        .init_state::<GameState>()
-        .add_plugins(WorldInspectorPlugin::default())
-        .add_systems(Startup, startup)
-        .add_systems(Update, loading.run_if(in_state(GameState::Loading)))
-        // .add_systems(OnEnter(GameState::Playing), on_enter_playing)
-        .add_systems(Update, update.run_if(in_state(GameState::Playing)))
-        .run();
+    //use ron::ser::PrettyConfig;
+    //use shieldtank::project_config::ProjectConfig;
+    //let sample_project_config = ProjectConfig::default();
+    //let ser = ron::ser::to_string_pretty(&sample_project_config, PrettyConfig::default()).unwrap();
+    //println!("{ser}");
+
+    let mut app = App::new();
+
+    app.add_plugins((
+        DefaultPlugins
+            .set(bevy::log::LogPlugin {
+                level: bevy::log::Level::WARN,
+                filter: "wgpu_hal=off,\
+                    winit=off,\
+                    bevy_ldtk_asset=debug,\
+                    shieldtank=trace,\
+                    example=trace"
+                    .into(),
+                ..default()
+            })
+            .set(ImagePlugin::default_nearest()),
+        //WorldInspectorPlugin::default(),
+        BevyLdtkAssetPlugin,
+        ShieldtankPlugin,
+    ))
+    .add_systems(Startup, startup);
+
+    //app //
+    //    .register_type::<shieldtank::level::Level>()
+    //    .register_type::<shieldtank::layer::Layer>()
+    //    .add_systems(Startup, startup)
+    //    .add_systems(Update, update)
+    //    .add_systems(
+    //        Update,
+    //        (
+    //            handle_added_ldtk_level.map(dbg),
+    //            handle_added_ldtk_layer.map(dbg),
+    //            handle_added_ldtk_entity.map(dbg),
+    //        ),
+    //    );
+
+    app.run();
 }
 
 fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn(Camera2dBundle {
-        transform: Transform {
-            // good scale for a 1920x1080 canvas/window
-            scale: Vec3::splat(0.3),
-            ..default()
-        },
-        ..default()
-    });
-
     commands.spawn((
-        asset_server.load::<LdtkProject>("ldtk/top_down.ldtk"),
-        SpatialBundle::default(),
+        Camera2d,
+        // good scale for a 1920x1080 canvas/window
+        Transform::from_scale(Vec2::splat(0.3).extend(1.0)),
     ));
+
+    commands.spawn(shieldtank::project::Project {
+        handle: asset_server.load("ldtk/top_down.ldtk"),
+        config: asset_server.load("project_config/top_down.project_config.ron"),
+    });
 }
 
-fn loading(projects_query: LdtkProjectsQuery, mut next_state: ResMut<NextState<GameState>>) {
-    if projects_query.all_projects_loaded() {
-        next_state.set(GameState::Playing);
-    }
-}
-
-fn update(
-    mut entity_commands: LdtkEntityCommands,
-    entities_query: LdtkEntitiesQuery,
-    levels_query: LdtkLevelsQuery,
-    keys: Res<ButtonInput<KeyCode>>,
-) {
-    let Ok(player) = entities_query.get_single_with_identifier("Axe_Man") else {
-        return;
-    };
-
-    // let level = player.get_level().expect("an ldtk level");
-
-    // let attempt_move = player.location().grid_move(IVec2::new(1, 0));
-    //
-    // let int_grid_value = level.get_int_grid_value(attempt_move);
-    //
-    // if int_grid_value.identifier != "water" {
-    //     ldtk_commands.ldtk_entity(player).move(attempt_move);
-    // }
-
-    if keys.just_pressed(KeyCode::Space) {
-        debug!("space pressed!");
-
-        let swing_tile = player
-            .field_instance("Swing")
-            .expect("the swing field instance")
-            .as_tile()
-            .expect("a tile");
-        //
-        // commands.entity(player.entity()).insert(swing_tile.clone());
-        entity_commands.set_tile(&player, swing_tile.clone());
-    }
-}
-
-use bevy::ecs::system::SystemParam;
-use bevy::prelude::*;
-
-#[derive(SystemParam)]
-pub struct LdtkEntityCommands<'w, 's> {
-    commands: Commands<'w, 's>,
-}
-
-impl LdtkEntityCommands<'_, '_> {
-    pub fn set_tile(&mut self, entity: &LdtkEntity, tile: TilesetRectangle) {
-        self.commands.entity(entity.ecs_entity()).insert(tile);
-    }
-}
+//fn update() {}
+//
+//fn handle_added_ldtk_entity(
+//    //mut commands: Commands,
+//    asset_server: Res<AssetServer>,
+//    assets: Res<Assets<ldtk_asset::Entity>>,
+//    query: Query<(Entity, &shieldtank::entity::Entity), Added<shieldtank::entity::Entity>>,
+//) -> shieldtank::Result<()> {
+//    query
+//        .iter()
+//        .try_for_each(|(_entity, component)| -> shieldtank::Result<()> {
+//            block_on(async { asset_server.wait_for_asset(&component.handle).await })?;
+//
+//            let asset = assets
+//                .get(component.handle.id())
+//                .ok_or(shieldtank::Error::BadHandle)?;
+//
+//            info!("LDtk Entity added! {}@{}", asset.identifier, asset.iid);
+//
+//            Ok(())
+//        })?;
+//    Ok(())
+//}
+//
+//fn handle_added_ldtk_level(
+//    mut commands: Commands,
+//    asset_server: Res<AssetServer>,
+//    assets: Res<Assets<ldtk_asset::Level>>,
+//    query: Query<(Entity, &shieldtank::level::Level), Added<shieldtank::level::Level>>,
+//) -> shieldtank::Result<()> {
+//    query
+//        .iter()
+//        .try_for_each(|(entity, component)| -> shieldtank::Result<()> {
+//            block_on(async { asset_server.wait_for_asset(&component.handle).await })?;
+//
+//            let asset = assets
+//                .get(component.handle.id())
+//                .ok_or(shieldtank::Error::BadHandle)?;
+//
+//            info!("LDtk Level added! {}", asset.identifier);
+//
+//            commands
+//                .entity(entity)
+//                .insert(Name::new(asset.identifier().to_string()))
+//                .with_children(|parent| {
+//                    asset
+//                        .children()
+//                        .filter(|&handle| component.load_pattern.handle_matches_pattern(handle))
+//                        .for_each(|handle| {
+//                            parent.spawn(component.new_child(handle.clone()));
+//                            //parent.spawn(shieldtank_component::Layer {
+//                            //    handle: handle.clone(),
+//                            //    load_pattern: component.load_pattern.clone(),
+//                            //});
+//                        });
+//                });
+//
+//            Ok(())
+//        })?;
+//
+//    Ok(())
+//}
+//
+//fn handle_added_ldtk_layer(
+//    mut commands: Commands,
+//    asset_server: Res<AssetServer>,
+//    assets: Res<Assets<ldtk_asset::Layer>>,
+//    query: Query<(Entity, &shieldtank::layer::Layer), Added<shieldtank::layer::Layer>>,
+//) -> shieldtank::Result<()> {
+//    query
+//        .iter()
+//        .try_for_each(|(entity, component)| -> shieldtank::Result<()> {
+//            block_on(async { asset_server.wait_for_asset(&component.handle).await })?;
+//
+//            let asset = assets
+//                .get(component.handle.id())
+//                .ok_or(shieldtank::Error::BadHandle)?;
+//
+//            info!("LDtk Layer added! {}", asset.identifier);
+//
+//            commands
+//                .entity(entity)
+//                .insert(Name::new(asset.identifier().to_string()))
+//                .with_children(|parent| {
+//                    asset
+//                        .children()
+//                        .filter(|&handle| component.load_pattern.handle_matches_pattern(handle))
+//                        .for_each(|handle| {
+//                            parent.spawn(shieldtank::entity::Entity {
+//                                handle: handle.clone(),
+//                            });
+//                        });
+//                });
+//
+//            Ok(())
+//        })?;
+//
+//    Ok(())
+//}
