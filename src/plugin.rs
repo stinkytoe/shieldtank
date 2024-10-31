@@ -7,9 +7,12 @@ use crate::children_spawn::handle_layer_load_children;
 use crate::children_spawn::handle_level_load_children;
 use crate::children_spawn::handle_project_load_children;
 use crate::children_spawn::handle_world_load_children;
-use crate::project::handle_project_asset_events;
+use crate::entity::Entity;
+use crate::layer::Layer;
+use crate::level::Level;
+use crate::project::{handle_project_asset_events, Project};
 use crate::project_config::{ProjectConfig, ProjectConfigLoader};
-use crate::world::handle_world_asset_events;
+use crate::world::{handle_world_asset_events, World};
 
 pub struct ShieldtankPlugin;
 
@@ -18,8 +21,12 @@ impl Plugin for ShieldtankPlugin {
         app //
             .init_asset::<ProjectConfig>()
             .init_asset_loader::<ProjectConfigLoader>()
-            .register_type::<crate::level::Level>()
-            .register_type::<crate::layer::Layer>()
+            .register_type::<Project>()
+            .register_type::<ProjectConfig>()
+            .register_type::<World>()
+            .register_type::<Level>()
+            .register_type::<Layer>()
+            .register_type::<Entity>()
             .add_systems(
                 Update,
                 (
