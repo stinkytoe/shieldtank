@@ -1,4 +1,4 @@
-use bevy::asset::{AssetEvent, AssetServer, Assets, Handle};
+use bevy::asset::{AssetEvent, AssetId, AssetServer, Assets, Handle};
 use bevy::core::Name;
 use bevy::ecs::component::Component;
 use bevy::ecs::entity::Entity;
@@ -36,36 +36,41 @@ pub(crate) fn handle_project_asset_events(
     query_added: Query<(Entity, &Project, Option<&Transform>)>,
 ) -> Result<()> {
     events.read().try_for_each(|event| -> Result<()> {
-        match event {
-            AssetEvent::Added { id } => {
-                let handle = assets.get_strong_handle(*id).ok_or(Error::BadHandle)?;
-                block_on(async { asset_server.wait_for_asset(&handle).await })?;
-                query_added
-                    .iter()
-                    .filter(|(_, project, _)| project.handle.id() == *id)
-                    .for_each(|(entity, project, transform)| {
-                        // Name
-                        let path = project
-                            .handle
-                            .path()
-                            .map(|path| path.to_string())
-                            .unwrap_or("<project>".to_string());
-                        commands.entity(entity).insert(Name::new(path.clone()));
-
-                        // Transform
-                        if transform.is_none() {
-                            commands.entity(entity).insert(Transform::default());
-                        }
-
-                        debug!("Project entity added: {path} entity: {entity:?}");
-                    });
-            }
-            AssetEvent::Modified { id: _ } => {}
-            _ => {}
+        if let AssetEvent::Added { id } = event {
+            let handle = assets.get_strong_handle(*id).ok_or(Error::BadHandle)?;
+            block_on(async { asset_server.wait_for_asset(&handle).await })?;
+            on_added(*id, &mut commands, &query_added)?;
         };
 
         Ok(())
     })?;
 
+    Ok(())
+}
+
+fn on_added(
+    id: AssetId<ldtk_asset::Project>,
+    commands: &mut Commands,
+    query_added: &Query<(Entity, &Project, Option<&Transform>)>,
+) -> Result<()> {
+    query_added
+        .iter()
+        .filter(|(_, project, _)| project.handle.id() == id)
+        .for_each(|(entity, project, transform)| {
+            // Name
+            let path = project
+                .handle
+                .path()
+                .map(|path| path.to_string())
+                .unwrap_or("<project>".to_string());
+            commands.entity(entity).insert(Name::new(path.clone()));
+
+            // Transform
+            if transform.is_none() {
+                commands.entity(entity).insert(Transform::default());
+            }
+
+            debug!("Project entity added: {path} entity: {entity:?}");
+        });
     Ok(())
 }

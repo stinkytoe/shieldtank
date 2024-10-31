@@ -36,16 +36,11 @@ pub(crate) fn handle_world_asset_events(
     query_added: Query<(Entity, &World, Option<&Transform>)>,
 ) -> Result<()> {
     events.read().try_for_each(|event| -> Result<()> {
-        match event {
-            AssetEvent::Added { id } => {
-                let handle = assets.get_strong_handle(*id).ok_or(Error::BadHandle)?;
-                block_on(async { asset_server.wait_for_asset(&handle).await })?;
-                on_added(*id, &mut commands, &assets, &query_added)?;
-            }
-            AssetEvent::Modified { id: _ } => {}
-            _ => {}
-        };
-
+        if let AssetEvent::Added { id } = event {
+            let handle = assets.get_strong_handle(*id).ok_or(Error::BadHandle)?;
+            block_on(async { asset_server.wait_for_asset(&handle).await })?;
+            on_added(*id, &mut commands, &assets, &query_added)?;
+        }
         Ok(())
     })?;
 
