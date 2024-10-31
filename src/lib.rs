@@ -1,8 +1,6 @@
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 pub mod children_spawn;
-pub mod component_event;
-pub mod component_traits;
 pub mod entity;
 pub mod error;
 pub mod layer;
