@@ -34,7 +34,6 @@ pub(crate) fn handle_project_asset_events(
     asset_server: Res<AssetServer>,
     mut assets: ResMut<Assets<ldtk_asset::Project>>,
     query_added: Query<(Entity, &Project, Option<&Transform>)>,
-    //query_modified: Query<(Entity, &Project)>,
 ) -> Result<()> {
     events.read().try_for_each(|event| -> Result<()> {
         match event {

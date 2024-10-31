@@ -1,4 +1,4 @@
-use bevy::asset::{AssetEvent, AssetServer, Assets, Handle};
+use bevy::asset::{AssetEvent, AssetId, AssetServer, Assets, Handle};
 use bevy::core::Name;
 use bevy::ecs::component::Component;
 use bevy::ecs::entity::Entity;
@@ -34,30 +34,13 @@ pub(crate) fn handle_world_asset_events(
     asset_server: Res<AssetServer>,
     mut assets: ResMut<Assets<ldtk_asset::World>>,
     query_added: Query<(Entity, &World, Option<&Transform>)>,
-    //query_modified: Query<(Entity, &Project)>,
 ) -> Result<()> {
     events.read().try_for_each(|event| -> Result<()> {
         match event {
             AssetEvent::Added { id } => {
                 let handle = assets.get_strong_handle(*id).ok_or(Error::BadHandle)?;
                 block_on(async { asset_server.wait_for_asset(&handle).await })?;
-                query_added
-                    .iter()
-                    .filter(|(_, world, _)| world.handle.id() == *id)
-                    .try_for_each(|(entity, world, transform)| -> Result<()> {
-                        let asset = assets.get(world.handle.id()).ok_or(Error::BadHandle)?;
-                        // Name
-                        let name = &asset.identifier;
-                        commands.entity(entity).insert(Name::new(name.clone()));
-
-                        // Transform
-                        if transform.is_none() {
-                            commands.entity(entity).insert(Transform::default());
-                        }
-
-                        debug!("World entity added: {name} entity: {entity:?}");
-                        Ok(())
-                    })?;
+                on_added(*id, &mut commands, &assets, &query_added)?;
             }
             AssetEvent::Modified { id: _ } => {}
             _ => {}
@@ -65,6 +48,34 @@ pub(crate) fn handle_world_asset_events(
 
         Ok(())
     })?;
+
+    Ok(())
+}
+
+fn on_added(
+    id: AssetId<ldtk_asset::World>,
+    commands: &mut Commands,
+    assets: &Assets<ldtk_asset::World>,
+    query_added: &Query<(Entity, &World, Option<&Transform>)>,
+) -> Result<()> {
+    query_added
+        .iter()
+        .filter(|(_, world, _)| world.handle.id() == id)
+        .try_for_each(|(entity, world, transform)| -> Result<()> {
+            let asset = assets.get(world.handle.id()).ok_or(Error::BadHandle)?;
+
+            // Name
+            let name = &asset.identifier;
+            commands.entity(entity).insert(Name::new(name.clone()));
+
+            // Transform
+            if transform.is_none() {
+                commands.entity(entity).insert(Transform::default());
+            }
+
+            debug!("World entity added: {name} entity: {entity:?}");
+            Ok(())
+        })?;
 
     Ok(())
 }

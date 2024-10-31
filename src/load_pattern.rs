@@ -24,8 +24,8 @@ impl LoadPattern {
 
                     let re = match regex::Regex::new(pattern) {
                         Ok(re) => re,
-                        Err(_) => {
-                            debug!("failed to compile regular expression!");
+                        Err(e) => {
+                            debug!("failed to compile regular expression! {e}");
                             return false;
                         }
                     };
