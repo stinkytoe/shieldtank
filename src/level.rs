@@ -59,8 +59,6 @@ pub(crate) fn handle_level_component_added(
 ) -> Result<()> {
     query.iter().try_for_each(
         |(entity, level, name, transform, background)| -> Result<()> {
-            //block_on(async { asset_server.wait_for_asset(&level.handle).await })?;
-
             let asset = assets.get(level.handle.id()).ok_or(Error::BadHandle)?;
             let config = configs.get(level.config.id()).ok_or(Error::BadHandle)?;
 

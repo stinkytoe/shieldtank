@@ -8,7 +8,7 @@ use crate::children_spawn::handle_level_load_children;
 use crate::children_spawn::handle_project_load_children;
 use crate::children_spawn::handle_world_load_children;
 use crate::entity::Entity;
-use crate::layer::Layer;
+use crate::layer::{handle_layer_component_added, Layer};
 use crate::level::{handle_level_asset_modified, handle_level_component_added, Level};
 use crate::level_background::level_background_system;
 use crate::project::{handle_project_component_added, Project};
@@ -31,15 +31,20 @@ impl Plugin for ShieldtankPlugin {
             .add_systems(
                 Update,
                 (
+                    //project
+                    handle_project_load_children.map(dbg),
                     handle_project_component_added.map(dbg),
+                    //world
+                    handle_world_load_children.map(dbg),
                     handle_world_component_added.map(dbg),
+                    //level
+                    handle_level_load_children.map(dbg),
                     handle_level_component_added.map(dbg),
                     handle_level_asset_modified.map(dbg),
-                    handle_project_load_children.map(dbg),
-                    handle_world_load_children.map(dbg),
-                    handle_level_load_children.map(dbg),
-                    handle_layer_load_children.map(dbg),
                     level_background_system.map(dbg),
+                    //layer
+                    handle_layer_load_children.map(dbg),
+                    handle_layer_component_added.map(dbg),
                 ),
             );
     }
