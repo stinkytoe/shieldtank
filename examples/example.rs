@@ -53,7 +53,7 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         Camera2d,
         // good scale for a 1920x1080 canvas/window
-        Transform::from_scale(Vec2::splat(0.3).extend(1.0)),
+        Transform::from_scale(Vec2::splat(0.7).extend(1.0)),
     ));
 
     commands.spawn(shieldtank::project::Project {

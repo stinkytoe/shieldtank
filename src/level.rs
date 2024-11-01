@@ -7,6 +7,7 @@ use bevy::ecs::system::{Commands, Query, Res};
 use bevy::log::debug;
 use bevy::prelude::Added;
 use bevy::reflect::Reflect;
+use bevy::render::view::Visibility;
 use bevy::tasks::block_on;
 use bevy::transform::components::Transform;
 use bevy_ldtk_asset::prelude::ldtk_asset;
@@ -60,7 +61,7 @@ pub(crate) fn handle_level_component_added(
 ) -> Result<()> {
     query.iter().try_for_each(
         |(entity, level, name, transform, background)| -> Result<()> {
-            block_on(async { asset_server.wait_for_asset(&level.handle).await })?;
+            //block_on(async { asset_server.wait_for_asset(&level.handle).await })?;
 
             let asset = assets.get(level.handle.id()).ok_or(Error::BadHandle)?;
             let config = configs.get(level.config.id()).ok_or(Error::BadHandle)?;
@@ -79,10 +80,17 @@ pub(crate) fn handle_level_component_added(
                     .insert(Transform::from_translation(location));
             }
 
+            commands.entity(entity).insert(Visibility::default());
+
             if background.is_none() {
                 let color = asset.bg_color;
+                let size = asset.size;
                 let background = asset.background.clone();
-                let background = LevelBackground { color, background };
+                let background = LevelBackground {
+                    color,
+                    size,
+                    background,
+                };
 
                 commands
                     .entity(entity)
@@ -112,15 +120,21 @@ pub(crate) fn handle_level_asset_modified(
                     if background_automation.is_some() {
                         let asset = assets.get(level.handle.id()).ok_or(Error::BadHandle)?;
                         let color = asset.bg_color;
+                        let size = asset.size;
                         let background = asset.background.clone();
-                        let background = LevelBackground { color, background };
+                        let background = LevelBackground {
+                            color,
+                            size,
+                            background,
+                        };
                         commands.entity(entity).insert(background);
                     }
 
                     todo!()
                 })?;
         }
-        todo!()
+
+        Ok(())
     })?;
 
     Ok(())

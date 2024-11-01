@@ -6,6 +6,7 @@ use bevy::ecs::system::{Commands, Query, Res};
 use bevy::log::debug;
 use bevy::prelude::Added;
 use bevy::reflect::Reflect;
+use bevy::render::view::Visibility;
 use bevy::tasks::block_on;
 use bevy::transform::components::Transform;
 use bevy_ldtk_asset::prelude::ldtk_asset;
@@ -37,7 +38,7 @@ pub(crate) fn handle_project_component_added(
     query_added
         .iter()
         .try_for_each(|(entity, project, name, transform)| -> Result<()> {
-            block_on(async { asset_server.wait_for_asset(&project.handle).await })?;
+            //block_on(async { asset_server.wait_for_asset(&project.handle).await })?;
 
             if name.is_none() {
                 let name = project
@@ -51,6 +52,8 @@ pub(crate) fn handle_project_component_added(
             if transform.is_none() {
                 commands.entity(entity).insert(Transform::default());
             }
+
+            commands.entity(entity).insert(Visibility::default());
 
             debug!("Project entity added and set up! {entity:?}");
 

@@ -42,12 +42,12 @@ macro_rules! handle_load_children_builder {
                         stringify!($parent_component)
                     );
 
-                    block_on(async { asset_server.wait_for_asset(&parent.config).await })?;
+                    //block_on(async { asset_server.wait_for_asset(&parent.config).await })?;
                     let project_config = config_assets
                         .get(parent.config.id())
                         .ok_or(Error::BadHandle)?;
 
-                    block_on(async { asset_server.wait_for_asset(&parent.handle).await })?;
+                    //block_on(async { asset_server.wait_for_asset(&parent.handle).await })?;
                     let world_asset = parent_assets
                         .get(parent.handle.id())
                         .ok_or(Error::BadHandle)?;
@@ -131,11 +131,11 @@ pub(crate) fn handle_layer_load_children(
                 stringify!(EntityComponent),
                 stringify!(LayerComponent)
             );
-            block_on(async { asset_server.wait_for_asset(&parent.config).await })?;
+            //block_on(async { asset_server.wait_for_asset(&parent.config).await })?;
             let project_config = config_assets
                 .get(parent.config.id())
                 .ok_or(Error::BadHandle)?;
-            block_on(async { asset_server.wait_for_asset(&parent.handle).await })?;
+            //block_on(async { asset_server.wait_for_asset(&parent.handle).await })?;
             let layer_asset = parent_assets
                 .get(parent.handle.id())
                 .ok_or(Error::BadHandle)?;
