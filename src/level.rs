@@ -130,7 +130,7 @@ pub(crate) fn handle_level_asset_modified(
                         commands.entity(entity).insert(background);
                     }
 
-                    todo!()
+                    Ok(())
                 })?;
         }
 

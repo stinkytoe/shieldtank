@@ -25,22 +25,56 @@ pub struct LevelBackground {
 
 impl LevelBackground {
     fn generate_image(&self, assets: &mut Assets<Image>) -> Result<Handle<Image>> {
-        let mut image = image::RgbaImage::new(self.size.x as u32, self.size.y as u32);
+        let mut background_image = image::RgbaImage::new(self.size.x as u32, self.size.y as u32);
 
-        image.enumerate_pixels_mut().for_each(|(_, _, pixel)| {
-            let c = self.color.to_srgba().to_u8_array();
-            *pixel = image::Rgba(c);
-        });
+        background_image
+            .enumerate_pixels_mut()
+            .for_each(|(_, _, pixel)| {
+                let c = self.color.to_srgba().to_u8_array();
+                *pixel = image::Rgba(c);
+            });
 
-        if let Some(background) = self.background.as_ref() {}
+        if let Some(background) = self.background.as_ref() {
+            let mut ldtk_background_image = assets
+                .get(background.image.id())
+                .ok_or(Error::BadHandle)?
+                .clone()
+                .try_into_dynamic()?;
 
-        let image = bevy::render::texture::Image::from_dynamic(
-            image::DynamicImage::from(image),
+            let mut crop = image::imageops::crop(
+                &mut ldtk_background_image,
+                background.crop_rect.min.x as u32,
+                background.crop_rect.min.y as u32,
+                background.crop_rect.max.x as u32,
+                background.crop_rect.max.y as u32,
+            )
+            .to_image();
+
+            let old_size = background.crop_rect.max - background.crop_rect.min;
+            let new_size = old_size * background.scale;
+
+            let scale = image::imageops::resize(
+                &crop,
+                new_size.x as u32,
+                new_size.y as u32,
+                image::imageops::FilterType::Gaussian,
+            );
+
+            image::imageops::overlay(
+                &mut background_image,
+                &scale,
+                background.corner.x as i64,
+                background.corner.y as i64,
+            );
+        }
+
+        let background_image = bevy::render::texture::Image::from_dynamic(
+            image::DynamicImage::from(background_image),
             true,
             RenderAssetUsages::default(),
         );
 
-        Ok(assets.add(image))
+        Ok(assets.add(background_image))
     }
 }
 
