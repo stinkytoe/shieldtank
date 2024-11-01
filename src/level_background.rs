@@ -41,23 +41,23 @@ impl LevelBackground {
                 .clone()
                 .try_into_dynamic()?;
 
-            let mut crop = image::imageops::crop(
+            let crop = image::imageops::crop(
                 &mut ldtk_background_image,
-                background.crop_rect.min.x as u32,
-                background.crop_rect.min.y as u32,
-                background.crop_rect.max.x as u32,
-                background.crop_rect.max.y as u32,
+                background.crop_corner.x as u32,
+                background.crop_corner.y as u32,
+                background.crop_size.x as u32,
+                background.crop_size.y as u32,
             )
             .to_image();
 
-            let old_size = background.crop_rect.max - background.crop_rect.min;
+            let old_size = background.crop_size;
             let new_size = old_size * background.scale;
 
             let scale = image::imageops::resize(
                 &crop,
                 new_size.x as u32,
                 new_size.y as u32,
-                image::imageops::FilterType::Gaussian,
+                image::imageops::FilterType::Nearest,
             );
 
             image::imageops::overlay(
