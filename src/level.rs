@@ -1,9 +1,9 @@
-use bevy::asset::{Asset, AssetEvent, AssetId, AssetServer, Assets, Handle};
+use bevy::asset::{AssetEvent, AssetServer, Assets, Handle};
 use bevy::core::Name;
 use bevy::ecs::component::Component;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::event::EventReader;
-use bevy::ecs::system::{Commands, Query, Res, ResMut};
+use bevy::ecs::system::{Commands, Query, Res};
 use bevy::log::debug;
 use bevy::prelude::Added;
 use bevy::reflect::Reflect;

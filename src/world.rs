@@ -1,9 +1,8 @@
-use bevy::asset::{AssetEvent, AssetId, AssetServer, Assets, Handle};
+use bevy::asset::{AssetServer, Handle};
 use bevy::core::Name;
 use bevy::ecs::component::Component;
 use bevy::ecs::entity::Entity;
-use bevy::ecs::event::EventReader;
-use bevy::ecs::system::{Commands, Query, Res, ResMut};
+use bevy::ecs::system::{Commands, Query, Res};
 use bevy::log::debug;
 use bevy::prelude::Added;
 use bevy::reflect::Reflect;
@@ -12,7 +11,7 @@ use bevy::transform::components::Transform;
 use bevy_ldtk_asset::prelude::ldtk_asset;
 
 use crate::project_config::ProjectConfig;
-use crate::{Error, Result};
+use crate::Result;
 
 #[derive(Component, Debug, Reflect)]
 pub struct World {
