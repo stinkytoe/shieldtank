@@ -5,6 +5,7 @@ use bevy::ecs::entity::Entity;
 use bevy::ecs::event::EventReader;
 use bevy::ecs::system::{Commands, Query, Res, ResMut};
 use bevy::log::debug;
+use bevy::prelude::Added;
 use bevy::reflect::Reflect;
 use bevy::tasks::block_on;
 use bevy::transform::components::Transform;
@@ -28,47 +29,31 @@ pub struct World {
 //  - Transform
 //  -- always translation (0,0,0)
 //  -- Only on new, and if not present
-pub(crate) fn handle_world_asset_events(
+#[allow(clippy::type_complexity)]
+pub(crate) fn handle_world_component_added(
     mut commands: Commands,
-    mut events: EventReader<AssetEvent<ldtk_asset::World>>,
     asset_server: Res<AssetServer>,
-    mut assets: ResMut<Assets<ldtk_asset::World>>,
-    query_added: Query<(Entity, &World, Option<&Transform>)>,
-) -> Result<()> {
-    events.read().try_for_each(|event| -> Result<()> {
-        if let AssetEvent::Added { id } = event {
-            let handle = assets.get_strong_handle(*id).ok_or(Error::BadHandle)?;
-            block_on(async { asset_server.wait_for_asset(&handle).await })?;
-            on_added(*id, &mut commands, &assets, &query_added)?;
-        }
-        Ok(())
-    })?;
-
-    Ok(())
-}
-
-fn on_added(
-    id: AssetId<ldtk_asset::World>,
-    commands: &mut Commands,
-    assets: &Assets<ldtk_asset::World>,
-    query_added: &Query<(Entity, &World, Option<&Transform>)>,
+    query_added: Query<(Entity, &World, Option<&Name>, Option<&Transform>), Added<World>>,
 ) -> Result<()> {
     query_added
         .iter()
-        .filter(|(_, world, _)| world.handle.id() == id)
-        .try_for_each(|(entity, world, transform)| -> Result<()> {
-            let asset = assets.get(world.handle.id()).ok_or(Error::BadHandle)?;
+        .try_for_each(|(entity, world, name, transform)| -> Result<()> {
+            block_on(async { asset_server.wait_for_asset(&world.handle).await })?;
 
-            // Name
-            let name = &asset.identifier;
-            commands.entity(entity).insert(Name::new(name.clone()));
+            if name.is_none() {
+                let name = world
+                    .handle
+                    .path()
+                    .map(|path| path.to_string())
+                    .unwrap_or("<project>".to_string());
+                commands.entity(entity).insert(Name::new(name));
+            }
 
-            // Transform
             if transform.is_none() {
                 commands.entity(entity).insert(Transform::default());
             }
 
-            debug!("World entity added: {name} entity: {entity:?}");
+            debug!("World entity added and set up! {entity:?}");
             Ok(())
         })?;
 

@@ -2,7 +2,7 @@ use bevy::asset::{AssetServer, Assets};
 use bevy::ecs::entity::Entity;
 use bevy::ecs::system::{Commands, Query, Res};
 use bevy::hierarchy::{BuildChildren, ChildBuild};
-use bevy::log::debug;
+use bevy::log::trace;
 use bevy::prelude::{Added, Changed, Or};
 use bevy::tasks::block_on;
 use bevy_ldtk_asset::layer::Layer as LayerAsset;
@@ -36,7 +36,7 @@ macro_rules! handle_load_children_builder {
             added_query
                 .iter()
                 .try_for_each(|(entity, parent)| -> Result<()> {
-                    debug!(
+                    trace!(
                         "Processing {} children for {} {entity:?}",
                         stringify!($child_component),
                         stringify!($parent_component)
@@ -70,7 +70,7 @@ macro_rules! handle_load_children_builder {
                                     })
                                     .id();
 
-                                debug!(
+                                trace!(
                                     "Added {} entity {id:?} as child of {} entity {entity:?}",
                                     stringify!($child_component),
                                     stringify!($parent_component)
@@ -126,7 +126,7 @@ pub(crate) fn handle_layer_load_children(
     added_query
         .iter()
         .try_for_each(|(entity, parent)| -> Result<()> {
-            debug!(
+            trace!(
                 "Processing {} children for {} {entity:?}",
                 stringify!(EntityComponent),
                 stringify!(LayerComponent)
@@ -157,7 +157,7 @@ pub(crate) fn handle_layer_load_children(
                                     config: parent.config.clone(),
                                 })
                                 .id();
-                            debug!(
+                            trace!(
                                 "Added {} entity {id:?} as child of {} entity {entity:?}",
                                 stringify!(EntityComponent),
                                 stringify!(LayerComponent)

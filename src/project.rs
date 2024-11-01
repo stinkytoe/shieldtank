@@ -5,6 +5,7 @@ use bevy::ecs::entity::Entity;
 use bevy::ecs::event::EventReader;
 use bevy::ecs::system::{Commands, Query, Res, ResMut};
 use bevy::log::debug;
+use bevy::prelude::Added;
 use bevy::reflect::Reflect;
 use bevy::tasks::block_on;
 use bevy::transform::components::Transform;
@@ -28,49 +29,34 @@ pub struct Project {
 //  - Transform
 //  -- always translation (0,0,0)
 //  -- Only on new, and if not present
-pub(crate) fn handle_project_asset_events(
+#[allow(clippy::type_complexity)]
+pub(crate) fn handle_project_component_added(
     mut commands: Commands,
-    mut events: EventReader<AssetEvent<ldtk_asset::Project>>,
     asset_server: Res<AssetServer>,
-    mut assets: ResMut<Assets<ldtk_asset::Project>>,
-    query_added: Query<(Entity, &Project, Option<&Transform>)>,
-) -> Result<()> {
-    events.read().try_for_each(|event| -> Result<()> {
-        if let AssetEvent::Added { id } = event {
-            let handle = assets.get_strong_handle(*id).ok_or(Error::BadHandle)?;
-            block_on(async { asset_server.wait_for_asset(&handle).await })?;
-            on_added(*id, &mut commands, &query_added)?;
-        };
-
-        Ok(())
-    })?;
-
-    Ok(())
-}
-
-fn on_added(
-    id: AssetId<ldtk_asset::Project>,
-    commands: &mut Commands,
-    query_added: &Query<(Entity, &Project, Option<&Transform>)>,
+    query_added: Query<(Entity, &Project, Option<&Name>, Option<&Transform>), Added<Project>>,
 ) -> Result<()> {
     query_added
         .iter()
-        .filter(|(_, project, _)| project.handle.id() == id)
-        .for_each(|(entity, project, transform)| {
-            // Name
-            let path = project
-                .handle
-                .path()
-                .map(|path| path.to_string())
-                .unwrap_or("<project>".to_string());
-            commands.entity(entity).insert(Name::new(path.clone()));
+        .try_for_each(|(entity, project, name, transform)| -> Result<()> {
+            block_on(async { asset_server.wait_for_asset(&project.handle).await })?;
 
-            // Transform
+            if name.is_none() {
+                let name = project
+                    .handle
+                    .path()
+                    .map(|path| path.to_string())
+                    .unwrap_or("<project>".to_string());
+                commands.entity(entity).insert(Name::new(name));
+            }
+
             if transform.is_none() {
                 commands.entity(entity).insert(Transform::default());
             }
 
-            debug!("Project entity added: {path} entity: {entity:?}");
-        });
+            debug!("Project entity added and set up! {entity:?}");
+
+            Ok(())
+        })?;
+
     Ok(())
 }

@@ -1,3 +1,4 @@
 (
     load_pattern: All,
+    level_z_scale: 1.0,
 )

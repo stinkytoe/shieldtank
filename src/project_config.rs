@@ -12,6 +12,7 @@ use crate::{Error, Result};
 #[derive(Asset, Debug, Default, Reflect, Serialize, Deserialize)]
 pub struct ProjectConfig {
     pub load_pattern: LoadPattern,
+    pub level_z_scale: f32,
 }
 
 #[derive(Default)]

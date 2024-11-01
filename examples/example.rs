@@ -20,7 +20,7 @@ fn main() {
                 filter: "wgpu_hal=off,\
                     winit=off,\
                     bevy_ldtk_asset=debug,\
-                    shieldtank=trace,\
+                    shieldtank=debug,\
                     example=trace"
                     .into(),
                 ..default()

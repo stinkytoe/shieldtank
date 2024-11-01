@@ -9,10 +9,10 @@ use crate::children_spawn::handle_project_load_children;
 use crate::children_spawn::handle_world_load_children;
 use crate::entity::Entity;
 use crate::layer::Layer;
-use crate::level::Level;
-use crate::project::{handle_project_asset_events, Project};
+use crate::level::{handle_level_component_added, Level};
+use crate::project::{handle_project_component_added, Project};
 use crate::project_config::{ProjectConfig, ProjectConfigLoader};
-use crate::world::{handle_world_asset_events, World};
+use crate::world::{handle_world_component_added, World};
 
 pub struct ShieldtankPlugin;
 
@@ -30,8 +30,9 @@ impl Plugin for ShieldtankPlugin {
             .add_systems(
                 Update,
                 (
-                    handle_project_asset_events.map(dbg),
-                    handle_world_asset_events.map(dbg),
+                    handle_project_component_added.map(dbg),
+                    handle_world_component_added.map(dbg),
+                    handle_level_component_added.map(dbg),
                     handle_project_load_children.map(dbg),
                     handle_world_load_children.map(dbg),
                     handle_level_load_children.map(dbg),
