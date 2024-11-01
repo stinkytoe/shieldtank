@@ -11,6 +11,7 @@ use bevy::tasks::block_on;
 use bevy::transform::components::Transform;
 use bevy_ldtk_asset::prelude::ldtk_asset;
 
+use crate::level_background::{LevelBackground, LevelBackgroundAutomation};
 use crate::project_config::ProjectConfig;
 use crate::{Error, Result};
 
@@ -46,11 +47,19 @@ pub(crate) fn handle_level_component_added(
     asset_server: Res<AssetServer>,
     assets: Res<Assets<ldtk_asset::Level>>,
     configs: Res<Assets<ProjectConfig>>,
-    query: Query<(Entity, &Level, Option<&Name>, Option<&Transform>), Added<Level>>,
+    query: Query<
+        (
+            Entity,
+            &Level,
+            Option<&Name>,
+            Option<&Transform>,
+            Option<&LevelBackground>,
+        ),
+        Added<Level>,
+    >,
 ) -> Result<()> {
-    query
-        .iter()
-        .try_for_each(|(entity, level, name, transform)| -> Result<()> {
+    query.iter().try_for_each(
+        |(entity, level, name, transform, background)| -> Result<()> {
             block_on(async { asset_server.wait_for_asset(&level.handle).await })?;
 
             let asset = assets.get(level.handle.id()).ok_or(Error::BadHandle)?;
@@ -70,9 +79,20 @@ pub(crate) fn handle_level_component_added(
                     .insert(Transform::from_translation(location));
             }
 
+            if background.is_none() {
+                let color = asset.bg_color;
+                let background = asset.background.clone();
+                let background = LevelBackground { color, background };
+
+                commands
+                    .entity(entity)
+                    .insert((background, LevelBackgroundAutomation));
+            }
+
             debug!("Level entity added and set up! {entity:?}");
             Ok(())
-        })?;
+        },
+    )?;
 
     Ok(())
 }
@@ -80,17 +100,25 @@ pub(crate) fn handle_level_component_added(
 pub(crate) fn handle_level_asset_modified(
     mut commands: Commands,
     mut asset_events: EventReader<AssetEvent<ldtk_asset::Level>>,
-    asset_server: Res<AssetServer>,
     assets: Res<Assets<ldtk_asset::Level>>,
-    configs: Res<Assets<ProjectConfig>>,
-    query: Query<(Entity, &Level)>,
+    query: Query<(Entity, &Level, Option<&LevelBackgroundAutomation>)>,
 ) -> Result<()> {
     asset_events.read().try_for_each(|event| -> Result<()> {
         if let AssetEvent::Modified { id } = event {
             query
                 .iter()
                 .filter(|(_, level, ..)| level.handle.id() == *id)
-                .try_for_each(|_| -> Result<()> { todo!() })?;
+                .try_for_each(|(entity, level, background_automation)| -> Result<()> {
+                    if background_automation.is_some() {
+                        let asset = assets.get(level.handle.id()).ok_or(Error::BadHandle)?;
+                        let color = asset.bg_color;
+                        let background = asset.background.clone();
+                        let background = LevelBackground { color, background };
+                        commands.entity(entity).insert(background);
+                    }
+
+                    todo!()
+                })?;
         }
         todo!()
     })?;
