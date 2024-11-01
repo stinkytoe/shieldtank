@@ -2,15 +2,9 @@
 
 use bevy::prelude::*;
 use bevy_ldtk_asset::prelude::*;
-use shieldtank::plugin::ShieldtankPlugin;
+use shieldtank::{plugin::ShieldtankPlugin, project_config::ProjectConfig};
 
 fn main() {
-    //use ron::ser::PrettyConfig;
-    //use shieldtank::project_config::ProjectConfig;
-    //let sample_project_config = ProjectConfig::default();
-    //let ser = ron::ser::to_string_pretty(&sample_project_config, PrettyConfig::default()).unwrap();
-    //println!("{ser}");
-
     let mut app = App::new();
 
     app.add_plugins((
@@ -32,24 +26,14 @@ fn main() {
     ))
     .add_systems(Startup, startup);
 
-    //app //
-    //    .register_type::<shieldtank::level::Level>()
-    //    .register_type::<shieldtank::layer::Layer>()
-    //    .add_systems(Startup, startup)
-    //    .add_systems(Update, update)
-    //    .add_systems(
-    //        Update,
-    //        (
-    //            handle_added_ldtk_level.map(dbg),
-    //            handle_added_ldtk_layer.map(dbg),
-    //            handle_added_ldtk_entity.map(dbg),
-    //        ),
-    //    );
-
     app.run();
 }
 
-fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn startup(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut project_configs: ResMut<Assets<ProjectConfig>>,
+) {
     commands.spawn((
         Camera2d,
         // good scale for a 1920x1080 canvas/window
@@ -58,6 +42,6 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
 
     commands.spawn(shieldtank::project::Project {
         handle: asset_server.load("ldtk/top_down.ldtk"),
-        config: asset_server.load("project_config/top_down.project_config.ron"),
+        config: project_configs.add(ProjectConfig::default()),
     });
 }

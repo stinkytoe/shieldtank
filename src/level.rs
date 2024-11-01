@@ -1,4 +1,4 @@
-use bevy::asset::{AssetEvent, AssetServer, Assets, Handle};
+use bevy::asset::{AssetEvent, Assets, Handle};
 use bevy::core::Name;
 use bevy::ecs::component::Component;
 use bevy::ecs::entity::Entity;
@@ -8,7 +8,6 @@ use bevy::log::debug;
 use bevy::prelude::Added;
 use bevy::reflect::Reflect;
 use bevy::render::view::Visibility;
-use bevy::tasks::block_on;
 use bevy::transform::components::Transform;
 use bevy_ldtk_asset::prelude::ldtk_asset;
 
@@ -45,7 +44,6 @@ pub struct Level {
 #[allow(clippy::type_complexity)]
 pub(crate) fn handle_level_component_added(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
     assets: Res<Assets<ldtk_asset::Level>>,
     configs: Res<Assets<ProjectConfig>>,
     query: Query<

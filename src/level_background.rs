@@ -10,7 +10,6 @@ use bevy::math::Vec2;
 use bevy::reflect::Reflect;
 use bevy::render::texture::Image;
 use bevy::sprite::{Anchor, Sprite};
-use bevy::state::commands;
 use bevy::{color::Color, prelude::Changed};
 use bevy_ldtk_asset::level::LevelBackground as LdtkLevelBackground;
 
@@ -95,17 +94,11 @@ pub(crate) fn level_background_system(
 
             commands.entity(entity).insert(Sprite {
                 image,
-                //texture_atlas: todo!(),
-                //color: todo!(),
-                //flip_x: todo!(),
-                //flip_y: todo!(),
-                //custom_size: todo!(),
-                //rect: todo!(),
                 anchor: Anchor::TopLeft,
                 ..Default::default()
             });
 
-            debug!("Sprite inserted!");
+            debug!("Level background generated!");
             Ok(())
         })?;
 

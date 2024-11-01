@@ -1,10 +1,9 @@
-use bevy::asset::{AssetServer, Assets};
+use bevy::asset::Assets;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::system::{Commands, Query, Res};
 use bevy::hierarchy::{BuildChildren, ChildBuild};
 use bevy::log::trace;
 use bevy::prelude::{Added, Changed, Or};
-use bevy::tasks::block_on;
 use bevy_ldtk_asset::layer::Layer as LayerAsset;
 use bevy_ldtk_asset::layer::LayerType;
 use bevy_ldtk_asset::level::Level as LevelAsset;
@@ -24,7 +23,6 @@ macro_rules! handle_load_children_builder {
         #[allow(clippy::type_complexity)]
         pub(crate) fn $func_name(
             mut commands: Commands,
-            asset_server: Res<AssetServer>,
             config_assets: Res<Assets<ProjectConfig>>,
             parent_assets: Res<Assets<$parent_asset>>,
             added_query: Query<
@@ -114,7 +112,6 @@ handle_load_children_builder!(
 #[allow(clippy::type_complexity)]
 pub(crate) fn handle_layer_load_children(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
     config_assets: Res<Assets<ProjectConfig>>,
     parent_assets: Res<Assets<LayerAsset>>,
     added_query: Query<
