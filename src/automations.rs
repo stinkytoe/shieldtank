@@ -6,3 +6,6 @@ pub struct TransformAutomation;
 
 #[derive(Component, Debug, Reflect)]
 pub struct LevelBackgroundAutomation;
+
+#[derive(Component, Debug, Reflect)]
+pub struct IntGridAutomation;
