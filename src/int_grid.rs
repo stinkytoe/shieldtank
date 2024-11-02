@@ -3,8 +3,7 @@ use bevy::math::I64Vec2;
 use bevy::reflect::Reflect;
 use bevy::utils::HashMap;
 use bevy_ldtk_asset::layer::{Layer as LayerAsset, LayerType, TilesLayer};
-use bevy_ldtk_asset::layer_definition::LayerDefinition;
-use bevy_ldtk_asset::tileset_rectangle::TilesetRectangle;
+use bevy_ldtk_asset::layer_definition::{IntGridValue, LayerDefinition};
 
 use crate::{Error, Result};
 
@@ -52,14 +51,13 @@ impl IntGrid {
             .iter()
             .enumerate()
             .map(|(index, value)| (index as i64, value))
-            .map(|(index, value)| (I64Vec2::new(index / columns, index % columns), value))
-            .map(|(grid, &value)| {
+            .map(|(index, &value)| {
                 Ok((
-                    grid,
+                    I64Vec2::new(index % columns, index / columns),
                     int_grid_values
                         .iter()
                         .find(|int_grid_value| int_grid_value.value == value)
-                        .map(IntGridValue::new)
+                        .cloned()
                         .ok_or(Error::BadIntGrid(format!(
                             "int grid value of {value} not found in layer {}!",
                             layer_instance.identifier
@@ -91,30 +89,5 @@ impl IntGrid {
         self.in_bounds(grid)
             .then(|| self.values.insert(grid, value))
             .is_some()
-    }
-}
-
-#[derive(Clone, Debug, Reflect)]
-pub struct IntGridValue {
-    pub identifier: Option<String>,
-    //pub handle: Handle<Image>,
-    pub group_uid: i64,
-    pub tile: Option<TilesetRectangle>,
-    pub value: i64,
-}
-
-impl IntGridValue {
-    pub(crate) fn new(int_grid_value: &bevy_ldtk_asset::layer_definition::IntGridValue) -> Self {
-        let identifier = int_grid_value.identifier.clone();
-        let group_uid = int_grid_value.group_uid;
-        let tile = int_grid_value.tile.clone();
-        let value = int_grid_value.value;
-
-        Self {
-            identifier,
-            group_uid,
-            tile,
-            value,
-        }
     }
 }
