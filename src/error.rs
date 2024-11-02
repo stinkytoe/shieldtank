@@ -12,8 +12,14 @@ pub enum Error {
     #[error(transparent)]
     IntoDynamicImageError(#[from] bevy::render::texture::IntoDynamicImageError),
 
-    #[error("Bad Handle! ")]
+    #[error("Bad Handle!")]
     BadHandle,
+
+    #[error("Not a tiles layer")]
+    BadTilesLayer,
+
+    #[error("Bad Int Grid! reason: {0}")]
+    BadIntGrid(String),
 }
 
 pub type Result<T> = core::result::Result<T, Error>;
