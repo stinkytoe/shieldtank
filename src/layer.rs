@@ -11,7 +11,6 @@ use bevy::render::view::Visibility;
 use bevy::transform::components::Transform;
 use bevy_ldtk_asset::prelude::ldtk_asset;
 
-use crate::level_background::{LevelBackground, LevelBackgroundAutomation};
 use crate::project_config::ProjectConfig;
 use crate::{Error, Result};
 
@@ -21,6 +20,26 @@ pub struct Layer {
     pub config: Handle<ProjectConfig>,
 }
 
+// ## Layer
+//  - Name
+//  -- from identifier
+//  -- Only on new, and if not present
+//  -- if changed, then asset path changed also and is now a different asset
+//
+//  - Visibility
+//  -- always visible
+//  -- Only on new, and if not present
+//
+//  - Transform
+//  -- always translation (0,0,0)
+//  -- Only on new, and if not present
+//
+//  - Tiles
+//  -- only for layers with tiles
+//  -- delete if no tiles/changed to entity layer
+//  -- from asset
+//  -- always update
+//  -- systems use this to draw layer
 #[allow(clippy::type_complexity)]
 pub(crate) fn handle_layer_component_added(
     mut commands: Commands,
