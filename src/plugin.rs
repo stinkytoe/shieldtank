@@ -1,7 +1,7 @@
 use bevy::app::{Plugin, Update};
 use bevy::asset::AssetApp;
 use bevy::ecs::system::IntoSystem;
-use bevy::utils::dbg;
+use bevy::utils::error;
 
 use crate::children_spawn::handle_layer_load_children;
 use crate::children_spawn::handle_level_load_children;
@@ -32,19 +32,19 @@ impl Plugin for ShieldtankPlugin {
                 Update,
                 (
                     //project
-                    handle_project_load_children.map(dbg),
-                    handle_project_component_added.map(dbg),
+                    handle_project_load_children.map(error),
+                    handle_project_component_added.map(error),
                     //world
-                    handle_world_load_children.map(dbg),
-                    handle_world_component_added.map(dbg),
+                    handle_world_load_children.map(error),
+                    handle_world_component_added.map(error),
                     //level
-                    handle_level_load_children.map(dbg),
-                    handle_level_component_added.map(dbg),
-                    handle_level_asset_modified.map(dbg),
-                    level_background_system.map(dbg),
+                    handle_level_load_children.map(error),
+                    handle_level_component_added.map(error),
+                    handle_level_asset_modified.map(error),
+                    level_background_system.map(error),
                     //layer
-                    handle_layer_load_children.map(dbg),
-                    handle_layer_component_added.map(dbg),
+                    handle_layer_load_children.map(error),
+                    handle_layer_component_added.map(error),
                 ),
             );
     }
