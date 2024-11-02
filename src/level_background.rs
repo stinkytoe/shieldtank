@@ -34,14 +34,14 @@ impl LevelBackground {
             });
 
         if let Some(background) = self.background.as_ref() {
-            let mut ldtk_background_image = assets
+            let ldtk_background_image = assets
                 .get(background.image.id())
                 .ok_or(Error::BadHandle)?
                 .clone()
                 .try_into_dynamic()?;
 
-            let crop = image::imageops::crop(
-                &mut ldtk_background_image,
+            let crop = image::imageops::crop_imm(
+                &ldtk_background_image,
                 background.crop_corner.x as u32,
                 background.crop_corner.y as u32,
                 background.crop_size.x as u32,
