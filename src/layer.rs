@@ -51,7 +51,7 @@ pub(crate) fn handle_layer_component_added(
         .iter()
         .try_for_each(|(entity, layer, name, transform)| -> Result<()> {
             let asset = assets.get(layer.handle.id()).ok_or(Error::BadHandle)?;
-            let config = configs.get(layer.config.id()).ok_or(Error::BadHandle)?;
+            let _config = configs.get(layer.config.id()).ok_or(Error::BadHandle)?;
 
             if name.is_none() {
                 let name = asset.identifier.clone();
@@ -71,8 +71,8 @@ pub(crate) fn handle_layer_component_added(
     Ok(())
 }
 
-pub(crate) fn handle_layer_asset_modified(
-    mut commands: Commands,
+pub(crate) fn _handle_layer_asset_modified(
+    mut _commands: Commands,
     mut asset_events: EventReader<AssetEvent<ldtk_asset::Layer>>,
     assets: Res<Assets<ldtk_asset::Layer>>,
     query: Query<(Entity, &Layer)>,
@@ -82,8 +82,8 @@ pub(crate) fn handle_layer_asset_modified(
             query
                 .iter()
                 .filter(|(_, layer, ..)| layer.handle.id() == *id)
-                .try_for_each(|(event, layer)| -> Result<()> {
-                    let asset = assets.get(layer.handle.id()).ok_or(Error::BadHandle)?;
+                .try_for_each(|(_event, layer)| -> Result<()> {
+                    let _asset = assets.get(layer.handle.id()).ok_or(Error::BadHandle)?;
                     Ok(())
                 })?;
         };
