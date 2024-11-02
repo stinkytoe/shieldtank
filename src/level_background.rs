@@ -77,11 +77,6 @@ impl LevelBackground {
     }
 }
 
-/// The presence of this component signifies that [shieldtank] is responsible for loading/updating
-/// the [LevelBackground] component.
-#[derive(Component, Debug, Reflect)]
-pub struct LevelBackgroundAutomation;
-
 pub(crate) fn level_background_system(
     mut commands: Commands,
     mut image_assets: ResMut<Assets<Image>>,

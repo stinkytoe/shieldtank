@@ -11,7 +11,8 @@ use bevy::render::view::Visibility;
 use bevy::transform::components::Transform;
 use bevy_ldtk_asset::prelude::ldtk_asset;
 
-use crate::level_background::{LevelBackground, LevelBackgroundAutomation};
+use crate::automations::LevelBackgroundAutomation;
+use crate::level_background::LevelBackground;
 use crate::project_config::ProjectConfig;
 use crate::{Error, Result};
 

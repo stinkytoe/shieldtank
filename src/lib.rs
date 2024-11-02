@@ -1,8 +1,10 @@
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
+pub mod automations;
 pub mod children_spawn;
 pub mod entity;
 pub mod error;
+pub mod int_grid;
 pub mod layer;
 pub mod level;
 pub mod level_background;
@@ -15,26 +17,6 @@ pub mod world;
 pub use error::{Error, Result};
 
 //
-// ## Layer
-//  - Name
-//  -- from identifier
-//  -- Only on new, and if not present
-//  -- if changed, then asset path changed also and is now a different asset
-//
-//  - Visibility
-//  -- always visible
-//  -- Only on new, and if not present
-//
-//  - Transform
-//  -- always translation (0,0,0)
-//  -- Only on new, and if not present
-//
-//  - Tiles
-//  -- only for layers with tiles
-//  -- delete if no tiles/changed to entity layer
-//  -- from asset
-//  -- always update
-//  -- systems use this to draw layer
 //
 // ## Entity
 //  - Name
