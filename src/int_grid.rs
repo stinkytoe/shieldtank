@@ -49,6 +49,7 @@ impl IntGrid {
 
         let values = int_grid
             .iter()
+            .filter(|&&value| value != 0)
             .enumerate()
             .map(|(index, value)| (index as i64, value))
             .map(|(index, &value)| {
@@ -67,6 +68,15 @@ impl IntGrid {
             .collect::<Result<HashMap<_, _>>>()?;
 
         Ok(Self { size, values })
+    }
+
+    pub fn len(&self) -> usize {
+        self.values.len()
+    }
+
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
     }
 
     /// Returns true if grid is in the region defined for this particular grid.

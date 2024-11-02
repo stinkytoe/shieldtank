@@ -9,8 +9,11 @@ use bevy::prelude::Added;
 use bevy::reflect::Reflect;
 use bevy::render::view::Visibility;
 use bevy::transform::components::Transform;
+use bevy_ldtk_asset::layer::LayerType;
 use bevy_ldtk_asset::prelude::ldtk_asset;
 
+use crate::automations::IntGridAutomation;
+use crate::int_grid::IntGrid;
 use crate::project_config::ProjectConfig;
 use crate::{Error, Result};
 
@@ -40,16 +43,31 @@ pub struct Layer {
 //  -- from asset
 //  -- always update
 //  -- systems use this to draw layer
+//
+//  - IntGrid
+//  -- Only for TilesLayer with IntGrids
+//  -- from asset
+//  -- use IntGridAutomation to determine if we manage or not
 #[allow(clippy::type_complexity)]
 pub(crate) fn handle_layer_component_added(
     mut commands: Commands,
     assets: Res<Assets<ldtk_asset::Layer>>,
+    definitions: Res<Assets<ldtk_asset::LayerDefinition>>,
     configs: Res<Assets<ProjectConfig>>,
-    query: Query<(Entity, &Layer, Option<&Name>, Option<&Transform>), Added<Layer>>,
+    query: Query<
+        (
+            Entity,
+            &Layer,
+            Option<&Name>,
+            Option<&Transform>,
+            Option<&IntGrid>,
+        ),
+        Added<Layer>,
+    >,
 ) -> Result<()> {
     query
         .iter()
-        .try_for_each(|(entity, layer, name, transform)| -> Result<()> {
+        .try_for_each(|(entity, layer, name, transform, int_grid)| -> Result<()> {
             let asset = assets.get(layer.handle.id()).ok_or(Error::BadHandle)?;
             let _config = configs.get(layer.config.id()).ok_or(Error::BadHandle)?;
 
@@ -64,6 +82,26 @@ pub(crate) fn handle_layer_component_added(
 
             commands.entity(entity).insert(Visibility::default());
 
+            if int_grid.is_none() {
+                let layer_definition = definitions
+                    .get(asset.layer_definition.id())
+                    .ok_or(Error::BadHandle)?;
+
+                match asset.layer_type {
+                    LayerType::Entities(_) => {}
+                    LayerType::IntGrid(_) | LayerType::Tiles(_) | LayerType::AutoLayer(_) => {
+                        let int_grid = IntGrid::from_layer(asset, layer_definition)?;
+
+                        if !int_grid.is_empty() {
+                            debug!("IntGrid layer added for layer {}!", asset.identifier);
+                            commands
+                                .entity(entity)
+                                .insert((int_grid, IntGridAutomation));
+                        }
+                    }
+                }
+            }
+
             debug!("Layer entity added and set up! {entity:?}");
             Ok(())
         })?;
@@ -72,18 +110,32 @@ pub(crate) fn handle_layer_component_added(
 }
 
 pub(crate) fn _handle_layer_asset_modified(
-    mut _commands: Commands,
+    mut commands: Commands,
     mut asset_events: EventReader<AssetEvent<ldtk_asset::Layer>>,
     assets: Res<Assets<ldtk_asset::Layer>>,
-    query: Query<(Entity, &Layer)>,
+    definitions: Res<Assets<ldtk_asset::LayerDefinition>>,
+    query: Query<(Entity, &Layer, Option<&IntGridAutomation>)>,
 ) -> Result<()> {
     asset_events.read().try_for_each(|event| -> Result<()> {
         if let AssetEvent::Modified { id } = event {
             query
                 .iter()
                 .filter(|(_, layer, ..)| layer.handle.id() == *id)
-                .try_for_each(|(_event, layer)| -> Result<()> {
-                    let _asset = assets.get(layer.handle.id()).ok_or(Error::BadHandle)?;
+                .try_for_each(|(entity, layer, int_grid_automation)| -> Result<()> {
+                    let asset = assets.get(layer.handle.id()).ok_or(Error::BadHandle)?;
+
+                    if int_grid_automation.is_some() {
+                        let layer_definition = definitions
+                            .get(asset.layer_definition.id())
+                            .ok_or(Error::BadHandle)?;
+
+                        let int_grid = IntGrid::from_layer(asset, layer_definition)?;
+
+                        commands
+                            .entity(entity)
+                            .insert((int_grid, IntGridAutomation));
+                    }
+
                     Ok(())
                 })?;
         };
