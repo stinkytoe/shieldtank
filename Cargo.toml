@@ -4,10 +4,11 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy = { git = "https://github.com/bevyengine/bevy", branch = "main", features = [
-  "file_watcher",
-] } #bevy = "0.14"
+#bevy = { git = "https://github.com/bevyengine/bevy", branch = "main", features = [
+#  "file_watcher",
+#] } #bevy = "0.14"
 # bevy_ldtk_asset = { git = "https://github.com/stinkytoe/bevy_ldtk_asset", branch = "rc_0.5.0" }
+bevy = "=0.15.0-rc.2"
 bevy_ldtk_asset = { path = "../bevy_ldtk_asset/", default-features = false }
 image = "0.25"
 # path-clean = "1.0"
@@ -27,4 +28,4 @@ path = "examples/example.rs"
 # bevy = { git = "https://github.com/bevyengine/bevy", branch = "main", features = [
 #   "file_watcher",
 # ] }
-bevy-inspector-egui = "0.27"
+#bevy-inspector-egui = "0.27"
