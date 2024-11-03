@@ -9,10 +9,21 @@ use serde::Serialize;
 use crate::load_pattern::LoadPattern;
 use crate::{Error, Result};
 
-#[derive(Asset, Debug, Default, Reflect, Serialize, Deserialize)]
+#[derive(Asset, Debug, Reflect, Serialize, Deserialize)]
 pub struct ProjectConfig {
     pub load_pattern: LoadPattern,
     pub level_z_scale: f32,
+    pub layer_z_scale: f32,
+}
+
+impl Default for ProjectConfig {
+    fn default() -> Self {
+        Self {
+            load_pattern: Default::default(),
+            level_z_scale: 1.0,
+            layer_z_scale: 0.1,
+        }
+    }
 }
 
 #[derive(Default)]

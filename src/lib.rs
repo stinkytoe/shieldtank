@@ -12,6 +12,7 @@ pub mod load_pattern;
 pub mod plugin;
 pub mod project;
 pub mod project_config;
+pub mod tiles;
 pub mod world;
 
 pub use error::{Error, Result};

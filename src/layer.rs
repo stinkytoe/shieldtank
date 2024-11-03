@@ -1,20 +1,22 @@
-use bevy::asset::{AssetEvent, Assets, Handle};
+use bevy::asset::{AssetEvent, AssetServer, Assets, Handle};
 use bevy::core::Name;
 use bevy::ecs::component::Component;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::event::EventReader;
 use bevy::ecs::system::{Commands, Query, Res};
-use bevy::log::debug;
+use bevy::log::{debug, info};
+use bevy::math::Vec2;
 use bevy::prelude::Added;
 use bevy::reflect::Reflect;
 use bevy::render::view::Visibility;
+use bevy::tasks::block_on;
 use bevy::transform::components::Transform;
-use bevy_ldtk_asset::layer::LayerType;
 use bevy_ldtk_asset::prelude::ldtk_asset;
 
-use crate::automations::IntGridAutomation;
+use crate::automations::{IntGridAutomation, TilesAutomation};
 use crate::int_grid::IntGrid;
 use crate::project_config::ProjectConfig;
+use crate::tiles::Tiles;
 use crate::{bad_handle, Error, Result};
 
 #[derive(Component, Debug, Default, Reflect)]
@@ -51,6 +53,7 @@ pub struct Layer {
 #[allow(clippy::type_complexity)]
 pub(crate) fn handle_layer_component_added(
     mut commands: Commands,
+    asset_server: Res<AssetServer>,
     assets: Res<Assets<ldtk_asset::Layer>>,
     definitions: Res<Assets<ldtk_asset::LayerDefinition>>,
     configs: Res<Assets<ProjectConfig>>,
@@ -61,17 +64,21 @@ pub(crate) fn handle_layer_component_added(
             Option<&Name>,
             Option<&Transform>,
             Option<&IntGrid>,
+            Option<&Tiles>,
         ),
         Added<Layer>,
     >,
 ) -> Result<()> {
-    query
-        .iter()
-        .try_for_each(|(entity, layer, name, transform, int_grid)| -> Result<()> {
+    query.iter().try_for_each(
+        |(entity, layer, name, transform, int_grid, tiles)| -> Result<()> {
+            //info!("blocking on layer asset...");
+            //block_on(async { asset_server.wait_for_asset(&layer.handle).await })?;
+            //info!("blocking on layer asset done!");
             let asset = assets
                 .get(layer.handle.id())
                 .ok_or(bad_handle!(layer.handle))?;
-            let _config = configs
+
+            let config = configs
                 .get(layer.config.id())
                 .ok_or(bad_handle!(layer.config))?;
 
@@ -81,36 +88,40 @@ pub(crate) fn handle_layer_component_added(
             }
 
             if transform.is_none() {
-                commands.entity(entity).insert(Transform::default());
+                commands
+                    .entity(entity)
+                    .insert(Transform::default().with_translation(
+                        Vec2::ZERO.extend(((asset.index + 1) as f32) * config.layer_z_scale),
+                    ));
             }
 
             commands.entity(entity).insert(Visibility::default());
 
-            if int_grid.is_none() {
+            if int_grid.is_none() && asset.layer_type.is_tiles_layer() {
                 let layer_definition = definitions
                     .get(asset.layer_definition.id())
                     .ok_or(bad_handle!(asset.layer_definition))?;
+                let int_grid = IntGrid::from_layer(asset, layer_definition)?;
+                if !int_grid.is_empty() {
+                    commands
+                        .entity(entity)
+                        .insert((int_grid, IntGridAutomation));
+                    debug!("IntGrid layer added for layer {}!", asset.identifier);
+                }
+            }
 
-                match asset.layer_type {
-                    LayerType::Entities(_) => {}
-                    LayerType::IntGrid(_) | LayerType::Tiles(_) | LayerType::AutoLayer(_) => {
-                        let int_grid = IntGrid::from_layer(asset, layer_definition)?;
-
-                        if !int_grid.is_empty() {
-                            debug!("IntGrid layer added for layer {}!", asset.identifier);
-                            commands
-                                .entity(entity)
-                                .insert((int_grid, IntGridAutomation));
-                        }
-                    }
+            if tiles.is_none() {
+                if let Some(tiles_layer) = asset.layer_type.get_tiles_layer() {
+                    let tiles = Tiles::new(tiles_layer);
+                    commands.entity(entity).insert((tiles, TilesAutomation));
+                    debug!("Tiles layer added for layer {}!", asset.identifier);
                 }
             }
 
             debug!("Layer entity added and set up! {entity:?}");
             Ok(())
-        })?;
-
-    Ok(())
+        },
+    )
 }
 
 pub(crate) fn _handle_layer_asset_modified(
@@ -118,14 +129,23 @@ pub(crate) fn _handle_layer_asset_modified(
     mut asset_events: EventReader<AssetEvent<ldtk_asset::Layer>>,
     assets: Res<Assets<ldtk_asset::Layer>>,
     definitions: Res<Assets<ldtk_asset::LayerDefinition>>,
-    query: Query<(Entity, &Layer, Option<&IntGridAutomation>)>,
+    query: Query<(
+        Entity,
+        &Layer,
+        Option<&IntGridAutomation>,
+        Option<&TilesAutomation>,
+    )>,
 ) -> Result<()> {
     asset_events.read().try_for_each(|event| -> Result<()> {
-        if let AssetEvent::Modified { id } = event {
-            query
-                .iter()
-                .filter(|(_, layer, ..)| layer.handle.id() == *id)
-                .try_for_each(|(entity, layer, int_grid_automation)| -> Result<()> {
+        let AssetEvent::Modified { id } = event else {
+            return Ok(());
+        };
+
+        query
+            .iter()
+            .filter(|(_, layer, ..)| layer.handle.id() == *id)
+            .try_for_each(
+                |(entity, layer, int_grid_automation, tiles_automation)| -> Result<()> {
                     let asset = assets
                         .get(layer.handle.id())
                         .ok_or(bad_handle!(layer.handle))?;
@@ -142,12 +162,16 @@ pub(crate) fn _handle_layer_asset_modified(
                             .insert((int_grid, IntGridAutomation));
                     }
 
+                    if tiles_automation.is_some() {
+                        if let Some(tiles_layer) = asset.layer_type.get_tiles_layer() {
+                            let tiles = Tiles::new(tiles_layer);
+
+                            commands.entity(entity).insert((tiles, TilesAutomation));
+                        }
+                    }
+
                     Ok(())
-                })?;
-        };
-
-        Ok(())
-    })?;
-
-    Ok(())
+                },
+            )
+    })
 }

@@ -1,3 +1,4 @@
+use bevy::asset::AssetServer;
 use bevy::asset::Assets;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::system::{Commands, Query, Res};
@@ -40,12 +41,10 @@ macro_rules! handle_load_children_builder {
                         stringify!($parent_component)
                     );
 
-                    //block_on(async { asset_server.wait_for_asset(&parent.config).await })?;
                     let project_config = config_assets
                         .get(parent.config.id())
                         .ok_or(bad_handle!(parent.config))?;
 
-                    //block_on(async { asset_server.wait_for_asset(&parent.handle).await })?;
                     let world_asset = parent_assets
                         .get(parent.handle.id())
                         .ok_or(bad_handle!(parent.handle))?;
@@ -128,11 +127,9 @@ pub(crate) fn handle_layer_load_children(
                 stringify!(EntityComponent),
                 stringify!(LayerComponent)
             );
-            //block_on(async { asset_server.wait_for_asset(&parent.config).await })?;
             let project_config = config_assets
                 .get(parent.config.id())
                 .ok_or(bad_handle!(parent.config))?;
-            //block_on(async { asset_server.wait_for_asset(&parent.handle).await })?;
             let layer_asset = parent_assets
                 .get(parent.handle.id())
                 .ok_or(bad_handle!(parent.handle))?;

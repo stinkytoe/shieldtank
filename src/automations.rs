@@ -9,3 +9,6 @@ pub struct LevelBackgroundAutomation;
 
 #[derive(Component, Debug, Reflect)]
 pub struct IntGridAutomation;
+
+#[derive(Component, Debug, Reflect)]
+pub struct TilesAutomation;

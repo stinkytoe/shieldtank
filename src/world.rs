@@ -1,7 +1,8 @@
-use bevy::asset::Handle;
+use bevy::asset::{AssetServer, Handle};
 use bevy::core::Name;
 use bevy::ecs::component::Component;
 use bevy::ecs::entity::Entity;
+use bevy::ecs::system::Res;
 use bevy::ecs::system::{Commands, Query};
 use bevy::log::debug;
 use bevy::prelude::Added;
@@ -36,8 +37,6 @@ pub(crate) fn handle_world_component_added(
     query_added
         .iter()
         .try_for_each(|(entity, world, name, transform)| -> Result<()> {
-            //block_on(async { asset_server.wait_for_asset(&world.handle).await })?;
-
             if name.is_none() {
                 let name = world
                     .handle
