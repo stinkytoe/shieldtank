@@ -1,8 +1,7 @@
-use bevy::asset::{AssetServer, Handle};
+use bevy::asset::Handle;
 use bevy::core::Name;
 use bevy::ecs::component::Component;
 use bevy::ecs::entity::Entity;
-use bevy::ecs::system::Res;
 use bevy::ecs::system::{Commands, Query};
 use bevy::log::debug;
 use bevy::prelude::Added;

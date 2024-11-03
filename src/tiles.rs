@@ -4,7 +4,6 @@ use bevy::ecs::entity::Entity;
 use bevy::ecs::system::Commands;
 use bevy::ecs::system::Query;
 use bevy::ecs::system::{Res, ResMut};
-use bevy::log::info;
 use bevy::prelude::Changed;
 use bevy::reflect::Reflect;
 use bevy::render::texture::Image;

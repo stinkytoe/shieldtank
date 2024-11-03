@@ -1,15 +1,14 @@
-use bevy::asset::{AssetEvent, AssetServer, Assets, Handle};
+use bevy::asset::{AssetEvent, Assets, Handle};
 use bevy::core::Name;
 use bevy::ecs::component::Component;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::event::EventReader;
 use bevy::ecs::system::{Commands, Query, Res};
-use bevy::log::{debug, info};
+use bevy::log::debug;
 use bevy::math::Vec2;
 use bevy::prelude::Added;
 use bevy::reflect::Reflect;
 use bevy::render::view::Visibility;
-use bevy::tasks::block_on;
 use bevy::transform::components::Transform;
 use bevy_ldtk_asset::prelude::ldtk_asset;
 
@@ -53,7 +52,6 @@ pub struct Layer {
 #[allow(clippy::type_complexity)]
 pub(crate) fn handle_layer_component_added(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
     assets: Res<Assets<ldtk_asset::Layer>>,
     definitions: Res<Assets<ldtk_asset::LayerDefinition>>,
     configs: Res<Assets<ProjectConfig>>,
