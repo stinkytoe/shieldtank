@@ -13,7 +13,7 @@ use bevy::sprite::{Anchor, Sprite};
 use bevy::{color::Color, prelude::Changed};
 use bevy_ldtk_asset::level::LevelBackground as LdtkLevelBackground;
 
-use crate::{bad_handle, Error, Result};
+use crate::{bad_handle, Result};
 
 #[derive(Component, Debug, Reflect)]
 pub struct LevelBackground {

@@ -1,62 +1,128 @@
-use bevy::asset::Handle;
+use bevy::asset::{AssetEvent, AssetServer, Assets};
 use bevy::core::Name;
-use bevy::ecs::component::Component;
 use bevy::ecs::entity::Entity;
+use bevy::ecs::system::Res;
 use bevy::ecs::system::{Commands, Query};
 use bevy::log::debug;
-use bevy::prelude::Added;
-use bevy::reflect::Reflect;
-use bevy::render::view::Visibility;
+use bevy::prelude::{BuildChildren, Changed, ChildBuild, EventReader};
 use bevy::transform::components::Transform;
-use bevy_ldtk_asset::prelude::ldtk_asset;
+use bevy::utils::HashSet;
+use bevy_ldtk_asset::prelude::HasChildren;
+use bevy_ldtk_asset::project::Project as ProjectAsset;
 
+use crate::component::{LdtkComponent, LdtkComponentExt};
 use crate::project_config::ProjectConfig;
-use crate::Result;
+use crate::world::World;
+use crate::{bad_entity, bad_handle, Result};
 
-#[derive(Component, Debug, Reflect)]
-pub struct Project {
-    pub handle: Handle<ldtk_asset::Project>,
-    pub config: Handle<ProjectConfig>,
-}
+pub type Project = LdtkComponent<ProjectAsset>;
+pub type ProjectData<'a> = (&'a Project, Entity);
 
-// ## Project
-// ### Components
-//  - Name
-//  -- from path
-//  -- only need on new, because path would change otherwise
-//
-//  - Transform
-//  -- always translation (0,0,0)
-//  -- Only on new, and if not present
-#[allow(clippy::type_complexity)]
+#[allow(clippy::too_many_arguments)]
 pub(crate) fn handle_project_component_added(
     mut commands: Commands,
-    query_added: Query<(Entity, &Project, Option<&Name>, Option<&Transform>), Added<Project>>,
+    asset_server: Res<AssetServer>,
+    mut project_events: EventReader<AssetEvent<ProjectAsset>>,
+    mut config_events: EventReader<AssetEvent<ProjectConfig>>,
+    project_assets: Res<Assets<ProjectAsset>>,
+    config_assets: Res<Assets<ProjectConfig>>,
+    query: Query<ProjectData>,
+    query_changed: Query<ProjectData, Changed<Project>>,
 ) -> Result<()> {
-    query_added
+    let with_added_component_handle: HashSet<Entity> = project_events
+        .read()
+        .filter_map(|event| match event {
+            AssetEvent::Added { id } | AssetEvent::Modified { id } => Some(*id),
+            _ => None,
+        })
+        .inspect(|_| debug!("Added/Modified event for Project!"))
+        .flat_map(|id| {
+            query
+                .iter()
+                .filter(move |(component, ..)| component.get_handle().id() == id)
+                .filter(|(component, ..)| component.is_loaded(&asset_server))
+                .map(|(_, entity, ..)| entity)
+        })
+        .collect();
+
+    let with_added_config_handle: HashSet<Entity> = config_events
+        .read()
+        .filter_map(|event| match event {
+            AssetEvent::Added { id } | AssetEvent::Modified { id } => Some(*id),
+            _ => None,
+        })
+        .inspect(|_| debug!("Added/Modified event for Project Config!"))
+        .flat_map(|id| {
+            query
+                .iter()
+                .filter(move |(component, ..)| component.get_config_handle().id() == id)
+                .filter(|(component, ..)| component.is_loaded(&asset_server))
+                .map(|(_, entity, ..)| entity)
+        })
+        .collect();
+
+    let with_changed_component: HashSet<Entity> = query_changed
         .iter()
-        .try_for_each(|(entity, project, name, transform)| -> Result<()> {
-            //block_on(async { asset_server.wait_for_asset(&project.handle).await })?;
+        .inspect(|_| debug!("Component changed for Project!"))
+        .filter(|(component, ..)| component.is_loaded(&asset_server))
+        .map(|(_, entity, ..)| entity)
+        .collect();
 
-            if name.is_none() {
-                let name = project
-                    .handle
-                    .path()
-                    .map(|path| path.to_string())
-                    .unwrap_or("<project>".to_string());
-                commands.entity(entity).insert(Name::new(name));
-            }
+    let entities_to_finalize: HashSet<Entity> = with_added_component_handle
+        .into_iter()
+        .chain(with_added_config_handle)
+        .chain(with_changed_component)
+        .collect();
 
-            if transform.is_none() {
-                commands.entity(entity).insert(Transform::default());
-            }
+    entities_to_finalize
+        .into_iter()
+        .try_for_each(|entity| -> Result<()> {
+            let data = query.get(entity).map_err(|_| bad_entity!(entity))?;
 
-            commands.entity(entity).insert(Visibility::default());
+            finish(&mut commands, data, &project_assets, &config_assets)
+        })
+}
 
-            debug!("Project entity added and set up! {entity:?}");
+fn finish(
+    commands: &mut Commands,
+    data: ProjectData,
+    project_assets: &Assets<ProjectAsset>,
+    config_assets: &Assets<ProjectConfig>,
+) -> Result<()> {
+    let (project, entity, ..) = data;
 
-            Ok(())
-        })?;
+    let project_asset = project_assets
+        .get(project.get_handle().id())
+        .ok_or(bad_handle!(project.get_handle()))?;
+
+    let project_config = config_assets
+        .get(project.get_config_handle().id())
+        .ok_or(bad_handle!(project.get_config_handle()))?;
+
+    commands
+        .entity(entity)
+        .insert(Name::new(format!("{:?}", project.get_handle().path())));
+
+    commands.entity(entity).insert(Transform::default());
+
+    commands.entity(entity).with_children(|parent| {
+        project_asset.children().for_each(|world_handle| {
+            if project_config
+                .load_pattern
+                .handle_matches_pattern(world_handle)
+            {
+                parent.spawn(World {
+                    handle: world_handle.clone(),
+                    config: project.get_config_handle(),
+                });
+            };
+        });
+    });
+
+    debug!(
+        "Finished spawning Project: {:?}",
+        project.get_handle().path()
+    );
 
     Ok(())
 }

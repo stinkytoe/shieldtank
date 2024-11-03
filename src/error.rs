@@ -12,6 +12,8 @@ pub enum Error {
     #[error(transparent)]
     IntoDynamicImageError(#[from] bevy::render::texture::IntoDynamicImageError),
 
+    //#[error(transparent)]
+    //QueryEntityError(#[from] bevy::ecs::query::QueryEntityError),
     #[error("Bad Handle! {0}")]
     BadHandle(String),
 
@@ -20,6 +22,9 @@ pub enum Error {
 
     #[error("Bad Int Grid! reason: {0}")]
     BadIntGrid(String),
+
+    #[error("Bad entity! {0}")]
+    BadEntity(String),
 }
 
 pub type Result<T> = core::result::Result<T, Error>;
@@ -27,8 +32,15 @@ pub type Result<T> = core::result::Result<T, Error>;
 #[macro_export]
 macro_rules! bad_handle {
     ($handle:expr) => {
-        Error::BadHandle(format!("{:?}", $handle.path()))
+        $crate::Error::BadHandle(format!("{:?}", $handle.path()))
     };
 }
-
 pub use bad_handle;
+
+#[macro_export]
+macro_rules! bad_entity {
+    ($entity:expr) => {
+        $crate::Error::BadEntity(format!("{:?}", $entity))
+    };
+}
+pub use bad_entity;

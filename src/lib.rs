@@ -1,7 +1,7 @@
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 pub mod automations;
-pub mod children_spawn;
+pub mod component;
 pub mod entity;
 pub mod error;
 pub mod int_grid;

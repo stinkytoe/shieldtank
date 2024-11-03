@@ -14,7 +14,7 @@ use bevy_ldtk_asset::prelude::ldtk_asset;
 use crate::automations::LevelBackgroundAutomation;
 use crate::level_background::LevelBackground;
 use crate::project_config::ProjectConfig;
-use crate::{bad_handle, Error, Result};
+use crate::{bad_handle, Result};
 
 #[derive(Component, Debug, Reflect)]
 pub struct Level {

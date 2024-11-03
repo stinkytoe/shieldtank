@@ -8,7 +8,7 @@ edition = "2021"
 #  "file_watcher",
 #] } #bevy = "0.14"
 # bevy_ldtk_asset = { git = "https://github.com/stinkytoe/bevy_ldtk_asset", branch = "rc_0.5.0" }
-bevy = "=0.15.0-rc.2"
+bevy = { version = "=0.15.0-rc.2", features = ["file_watcher"] }
 bevy_ldtk_asset = { path = "../bevy_ldtk_asset/", default-features = false }
 image = "0.25"
 # path-clean = "1.0"

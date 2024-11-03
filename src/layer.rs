@@ -16,7 +16,7 @@ use crate::automations::{IntGridAutomation, TilesAutomation};
 use crate::int_grid::IntGrid;
 use crate::project_config::ProjectConfig;
 use crate::tiles::Tiles;
-use crate::{bad_handle, Error, Result};
+use crate::{bad_handle, Result};
 
 #[derive(Component, Debug, Default, Reflect)]
 pub struct Layer {
@@ -69,9 +69,6 @@ pub(crate) fn handle_layer_component_added(
 ) -> Result<()> {
     query.iter().try_for_each(
         |(entity, layer, name, transform, int_grid, tiles)| -> Result<()> {
-            //info!("blocking on layer asset...");
-            //block_on(async { asset_server.wait_for_asset(&layer.handle).await })?;
-            //info!("blocking on layer asset done!");
             let asset = assets
                 .get(layer.handle.id())
                 .ok_or(bad_handle!(layer.handle))?;
@@ -122,7 +119,7 @@ pub(crate) fn handle_layer_component_added(
     )
 }
 
-pub(crate) fn _handle_layer_asset_modified(
+pub(crate) fn handle_layer_asset_modified(
     mut commands: Commands,
     mut asset_events: EventReader<AssetEvent<ldtk_asset::Layer>>,
     assets: Res<Assets<ldtk_asset::Layer>>,
@@ -138,6 +135,8 @@ pub(crate) fn _handle_layer_asset_modified(
         let AssetEvent::Modified { id } = event else {
             return Ok(());
         };
+
+        debug!("layer modified!");
 
         query
             .iter()
