@@ -16,7 +16,7 @@ use crate::level::Level as LevelComponent;
 use crate::project::Project as ProjectComponent;
 use crate::project_config::ProjectConfig;
 use crate::world::World as WorldComponent;
-use crate::{Error, Result};
+use crate::{bad_handle, Error, Result};
 
 macro_rules! handle_load_children_builder {
     ($func_name:ident, $parent_component:ident, $parent_asset:path, $child_component:ident, $child_field:ident) => {
@@ -43,12 +43,12 @@ macro_rules! handle_load_children_builder {
                     //block_on(async { asset_server.wait_for_asset(&parent.config).await })?;
                     let project_config = config_assets
                         .get(parent.config.id())
-                        .ok_or(Error::BadHandle)?;
+                        .ok_or(bad_handle!(parent.config))?;
 
                     //block_on(async { asset_server.wait_for_asset(&parent.handle).await })?;
                     let world_asset = parent_assets
                         .get(parent.handle.id())
-                        .ok_or(Error::BadHandle)?;
+                        .ok_or(bad_handle!(parent.handle))?;
 
                     world_asset.$child_field.values().for_each(|child_handle| {
                         if !children_query
@@ -131,11 +131,11 @@ pub(crate) fn handle_layer_load_children(
             //block_on(async { asset_server.wait_for_asset(&parent.config).await })?;
             let project_config = config_assets
                 .get(parent.config.id())
-                .ok_or(Error::BadHandle)?;
+                .ok_or(bad_handle!(parent.config))?;
             //block_on(async { asset_server.wait_for_asset(&parent.handle).await })?;
             let layer_asset = parent_assets
                 .get(parent.handle.id())
-                .ok_or(Error::BadHandle)?;
+                .ok_or(bad_handle!(parent.handle))?;
             if let LayerType::Entities(entities) = &layer_asset.layer_type {
                 entities.entity_handles.values().for_each(|child_handle| {
                     if !children_query

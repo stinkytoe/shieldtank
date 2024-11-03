@@ -12,8 +12,8 @@ pub enum Error {
     #[error(transparent)]
     IntoDynamicImageError(#[from] bevy::render::texture::IntoDynamicImageError),
 
-    #[error("Bad Handle!")]
-    BadHandle,
+    #[error("Bad Handle! {0}")]
+    BadHandle(String),
 
     #[error("Not a tiles layer")]
     BadTilesLayer,
@@ -23,3 +23,12 @@ pub enum Error {
 }
 
 pub type Result<T> = core::result::Result<T, Error>;
+
+#[macro_export]
+macro_rules! bad_handle {
+    ($handle:expr) => {
+        Error::BadHandle(format!("{:?}", $handle.path()))
+    };
+}
+
+pub use bad_handle;

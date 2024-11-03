@@ -14,7 +14,7 @@ use bevy_ldtk_asset::prelude::ldtk_asset;
 use crate::automations::LevelBackgroundAutomation;
 use crate::level_background::LevelBackground;
 use crate::project_config::ProjectConfig;
-use crate::{Error, Result};
+use crate::{bad_handle, Error, Result};
 
 #[derive(Component, Debug, Reflect)]
 pub struct Level {
@@ -60,8 +60,12 @@ pub(crate) fn handle_level_component_added(
 ) -> Result<()> {
     query.iter().try_for_each(
         |(entity, level, name, transform, background)| -> Result<()> {
-            let asset = assets.get(level.handle.id()).ok_or(Error::BadHandle)?;
-            let config = configs.get(level.config.id()).ok_or(Error::BadHandle)?;
+            let asset = assets
+                .get(level.handle.id())
+                .ok_or(bad_handle!(level.handle))?;
+            let config = configs
+                .get(level.config.id())
+                .ok_or(bad_handle!(level.config))?;
 
             if name.is_none() {
                 let name = asset.identifier.clone();
@@ -115,7 +119,9 @@ pub(crate) fn handle_level_asset_modified(
                 .filter(|(_, level, ..)| level.handle.id() == *id)
                 .try_for_each(|(entity, level, background_automation)| -> Result<()> {
                     if background_automation.is_some() {
-                        let asset = assets.get(level.handle.id()).ok_or(Error::BadHandle)?;
+                        let asset = assets
+                            .get(level.handle.id())
+                            .ok_or(bad_handle!(level.handle))?;
                         let color = asset.bg_color;
                         let size = asset.size;
                         let background = asset.background.clone();

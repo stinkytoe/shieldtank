@@ -15,7 +15,7 @@ use bevy_ldtk_asset::prelude::ldtk_asset;
 use crate::automations::IntGridAutomation;
 use crate::int_grid::IntGrid;
 use crate::project_config::ProjectConfig;
-use crate::{Error, Result};
+use crate::{bad_handle, Error, Result};
 
 #[derive(Component, Debug, Default, Reflect)]
 pub struct Layer {
@@ -68,8 +68,12 @@ pub(crate) fn handle_layer_component_added(
     query
         .iter()
         .try_for_each(|(entity, layer, name, transform, int_grid)| -> Result<()> {
-            let asset = assets.get(layer.handle.id()).ok_or(Error::BadHandle)?;
-            let _config = configs.get(layer.config.id()).ok_or(Error::BadHandle)?;
+            let asset = assets
+                .get(layer.handle.id())
+                .ok_or(bad_handle!(layer.handle))?;
+            let _config = configs
+                .get(layer.config.id())
+                .ok_or(bad_handle!(layer.config))?;
 
             if name.is_none() {
                 let name = asset.identifier.clone();
@@ -85,7 +89,7 @@ pub(crate) fn handle_layer_component_added(
             if int_grid.is_none() {
                 let layer_definition = definitions
                     .get(asset.layer_definition.id())
-                    .ok_or(Error::BadHandle)?;
+                    .ok_or(bad_handle!(asset.layer_definition))?;
 
                 match asset.layer_type {
                     LayerType::Entities(_) => {}
@@ -122,12 +126,14 @@ pub(crate) fn _handle_layer_asset_modified(
                 .iter()
                 .filter(|(_, layer, ..)| layer.handle.id() == *id)
                 .try_for_each(|(entity, layer, int_grid_automation)| -> Result<()> {
-                    let asset = assets.get(layer.handle.id()).ok_or(Error::BadHandle)?;
+                    let asset = assets
+                        .get(layer.handle.id())
+                        .ok_or(bad_handle!(layer.handle))?;
 
                     if int_grid_automation.is_some() {
                         let layer_definition = definitions
                             .get(asset.layer_definition.id())
-                            .ok_or(Error::BadHandle)?;
+                            .ok_or(bad_handle!(asset.layer_definition))?;
 
                         let int_grid = IntGrid::from_layer(asset, layer_definition)?;
 

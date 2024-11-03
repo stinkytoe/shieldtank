@@ -13,7 +13,7 @@ use bevy::sprite::{Anchor, Sprite};
 use bevy::{color::Color, prelude::Changed};
 use bevy_ldtk_asset::level::LevelBackground as LdtkLevelBackground;
 
-use crate::{Error, Result};
+use crate::{bad_handle, Error, Result};
 
 #[derive(Component, Debug, Reflect)]
 pub struct LevelBackground {
@@ -36,7 +36,7 @@ impl LevelBackground {
         if let Some(background) = self.background.as_ref() {
             let ldtk_background_image = assets
                 .get(background.image.id())
-                .ok_or(Error::BadHandle)?
+                .ok_or(bad_handle!(background.image))?
                 .clone()
                 .try_into_dynamic()?;
 
