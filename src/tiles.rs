@@ -1,15 +1,15 @@
-use bevy::asset::{Assets, Handle, RenderAssetUsages};
-use bevy::ecs::component::Component;
-use bevy::ecs::entity::Entity;
-use bevy::ecs::system::Commands;
-use bevy::ecs::system::Query;
-use bevy::ecs::system::{Res, ResMut};
-use bevy::prelude::Changed;
-use bevy::reflect::Reflect;
-use bevy::render::texture::Image;
-use bevy::sprite::{Anchor, Sprite};
+use bevy_asset::{Assets, Handle, RenderAssetUsages};
+use bevy_ecs::component::Component;
+use bevy_ecs::entity::Entity;
+use bevy_ecs::query::Changed;
+use bevy_ecs::system::Commands;
+use bevy_ecs::system::Query;
+use bevy_ecs::system::{Res, ResMut};
 use bevy_ldtk_asset::layer::{Layer as LayerAsset, TilesLayer};
 use bevy_ldtk_asset::tile_instance::TileInstance;
+use bevy_reflect::Reflect;
+use bevy_render::texture::Image;
+use bevy_sprite::{Anchor, Sprite};
 
 use crate::layer::Layer;
 use crate::{bad_handle, Error, Result};
@@ -73,7 +73,7 @@ impl Tiles {
             image::imageops::overlay(&mut layer_image, &tile_image, location.x, location.y);
         });
 
-        let layer_image = bevy::render::texture::Image::from_dynamic(
+        let layer_image = bevy_render::texture::Image::from_dynamic(
             image::DynamicImage::from(layer_image),
             true,
             RenderAssetUsages::default(),

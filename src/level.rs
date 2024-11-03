@@ -1,15 +1,13 @@
-use bevy::asset::{AssetEvent, Assets, Handle};
-use bevy::core::Name;
-use bevy::ecs::component::Component;
-use bevy::ecs::entity::Entity;
-use bevy::ecs::event::EventReader;
-use bevy::ecs::system::{Commands, Query, Res};
-use bevy::log::debug;
-use bevy::prelude::Added;
-use bevy::reflect::Reflect;
-use bevy::render::view::Visibility;
-use bevy::transform::components::Transform;
+use bevy_asset::{AssetEvent, Assets, Handle};
+use bevy_core::Name;
+use bevy_ecs::component::Component;
+use bevy_ecs::entity::Entity;
+use bevy_ecs::event::EventReader;
+use bevy_ecs::system::{Commands, Query, Res};
 use bevy_ldtk_asset::prelude::ldtk_asset;
+//use bevy_prelude::Added;
+use bevy_reflect::Reflect;
+use bevy_transform::components::Transform;
 
 use crate::automations::LevelBackgroundAutomation;
 use crate::level_background::LevelBackground;
@@ -55,54 +53,54 @@ pub(crate) fn handle_level_component_added(
             Option<&Transform>,
             Option<&LevelBackground>,
         ),
-        Added<Level>,
+        //Added<Level>,
     >,
 ) -> Result<()> {
-    query.iter().try_for_each(
-        |(entity, level, name, transform, background)| -> Result<()> {
-            let asset = assets
-                .get(level.handle.id())
-                .ok_or(bad_handle!(level.handle))?;
-            let config = configs
-                .get(level.config.id())
-                .ok_or(bad_handle!(level.config))?;
-
-            if name.is_none() {
-                let name = asset.identifier.clone();
-                commands.entity(entity).insert(Name::new(name));
-            }
-
-            if transform.is_none() {
-                let location = asset
-                    .location
-                    .extend((asset.world_depth as f32) * config.level_z_scale);
-                commands
-                    .entity(entity)
-                    .insert(Transform::from_translation(location));
-            }
-
-            commands.entity(entity).insert(Visibility::default());
-
-            if background.is_none() {
-                let color = asset.bg_color;
-                let size = asset.size;
-                let background = asset.background.clone();
-                let background = LevelBackground {
-                    color,
-                    size,
-                    background,
-                };
-
-                commands
-                    .entity(entity)
-                    .insert((background, LevelBackgroundAutomation));
-            }
-
-            debug!("Level entity added and set up! {entity:?}");
-            Ok(())
-        },
-    )?;
-
+    //query.iter().try_for_each(
+    //    |(entity, level, name, transform, background)| -> Result<()> {
+    //        let asset = assets
+    //            .get(level.handle.id())
+    //            .ok_or(bad_handle!(level.handle))?;
+    //        let config = configs
+    //            .get(level.config.id())
+    //            .ok_or(bad_handle!(level.config))?;
+    //
+    //        if name.is_none() {
+    //            let name = asset.identifier.clone();
+    //            commands.entity(entity).insert(Name::new(name));
+    //        }
+    //
+    //        if transform.is_none() {
+    //            let location = asset
+    //                .location
+    //                .extend((asset.world_depth as f32) * config.level_z_scale);
+    //            commands
+    //                .entity(entity)
+    //                .insert(Transform::from_translation(location));
+    //        }
+    //
+    //        commands.entity(entity).insert(Visibility::default());
+    //
+    //        if background.is_none() {
+    //            let color = asset.bg_color;
+    //            let size = asset.size;
+    //            let background = asset.background.clone();
+    //            let background = LevelBackground {
+    //                color,
+    //                size,
+    //                background,
+    //            };
+    //
+    //            commands
+    //                .entity(entity)
+    //                .insert((background, LevelBackgroundAutomation));
+    //        }
+    //
+    //        debug!("Level entity added and set up! {entity:?}");
+    //        Ok(())
+    //    },
+    //)?;
+    //
     Ok(())
 }
 

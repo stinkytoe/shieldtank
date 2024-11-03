@@ -1,7 +1,7 @@
-use bevy::app::{Plugin, Update};
-use bevy::asset::AssetApp;
-use bevy::ecs::system::IntoSystem;
-use bevy::utils::error;
+use bevy_app::{App, Plugin, Update};
+use bevy_asset::AssetApp;
+use bevy_ecs::system::IntoSystem;
+use bevy_utils::error;
 
 use crate::entity::Entity;
 use crate::layer::{handle_layer_asset_modified, handle_layer_component_added, Layer};
@@ -15,7 +15,7 @@ use crate::world::{handle_world_component_added, World};
 pub struct ShieldtankPlugin;
 
 impl Plugin for ShieldtankPlugin {
-    fn build(&self, app: &mut bevy::prelude::App) {
+    fn build(&self, app: &mut App) {
         app //
             .init_asset::<ProjectConfig>()
             .init_asset_loader::<ProjectConfigLoader>()

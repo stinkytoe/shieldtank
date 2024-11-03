@@ -1,9 +1,9 @@
-use bevy::ecs::component::Component;
-use bevy::math::I64Vec2;
-use bevy::reflect::Reflect;
-use bevy::utils::HashMap;
+use bevy_ecs::component::Component;
 use bevy_ldtk_asset::layer::{Layer as LayerAsset, LayerType, TilesLayer};
 use bevy_ldtk_asset::layer_definition::{IntGridValue, LayerDefinition};
+use bevy_math::I64Vec2;
+use bevy_reflect::Reflect;
+use bevy_utils::HashMap;
 
 use crate::{Error, Result};
 

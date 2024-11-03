@@ -1,7 +1,7 @@
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error(transparent)]
-    WaitForAssetError(#[from] bevy::asset::WaitForAssetError),
+    WaitForAssetError(#[from] bevy_asset::WaitForAssetError),
 
     #[error(transparent)]
     RonSpannedError(#[from] ron::error::SpannedError),
@@ -10,7 +10,7 @@ pub enum Error {
     IoError(#[from] std::io::Error),
 
     #[error(transparent)]
-    IntoDynamicImageError(#[from] bevy::render::texture::IntoDynamicImageError),
+    IntoDynamicImageError(#[from] bevy_render::texture::IntoDynamicImageError),
 
     //#[error(transparent)]
     //QueryEntityError(#[from] bevy::ecs::query::QueryEntityError),

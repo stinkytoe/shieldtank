@@ -1,8 +1,8 @@
-use bevy::asset::Asset;
-use bevy::asset::AssetLoader;
-use bevy::asset::AsyncReadExt;
-use bevy::reflect::Reflect;
-use bevy::tasks::block_on;
+use bevy_asset::Asset;
+use bevy_asset::AssetLoader;
+use bevy_asset::AsyncReadExt;
+use bevy_reflect::Reflect;
+use bevy_tasks::block_on;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -38,9 +38,9 @@ impl AssetLoader for ProjectConfigLoader {
 
     async fn load(
         &self,
-        reader: &mut dyn bevy::asset::io::Reader,
+        reader: &mut dyn bevy_asset::io::Reader,
         _settings: &(),
-        _load_context: &mut bevy::asset::LoadContext<'_>,
+        _load_context: &mut bevy_asset::LoadContext<'_>,
     ) -> Result<Self::Asset> {
         let config = {
             let mut buf = String::new();

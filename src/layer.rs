@@ -1,16 +1,16 @@
-use bevy::asset::{AssetEvent, Assets, Handle};
-use bevy::core::Name;
-use bevy::ecs::component::Component;
-use bevy::ecs::entity::Entity;
-use bevy::ecs::event::EventReader;
-use bevy::ecs::system::{Commands, Query, Res};
-use bevy::log::debug;
-use bevy::math::Vec2;
-use bevy::prelude::Added;
-use bevy::reflect::Reflect;
-use bevy::render::view::Visibility;
-use bevy::transform::components::Transform;
-use bevy_ldtk_asset::prelude::ldtk_asset;
+use bevy_asset::{AssetEvent, Assets, Handle};
+use bevy_core::Name;
+use bevy_ecs::component::Component;
+use bevy_ecs::entity::Entity;
+use bevy_ecs::event::EventReader;
+use bevy_ecs::system::{Commands, Query, Res};
+use bevy_ldtk_asset::layer::Layer as LayerAsset;
+use bevy_ldtk_asset::layer_definition::LayerDefinition;
+use bevy_log::debug;
+use bevy_math::Vec2;
+use bevy_reflect::Reflect;
+use bevy_render::view::Visibility;
+use bevy_transform::components::Transform;
 
 use crate::automations::{IntGridAutomation, TilesAutomation};
 use crate::int_grid::IntGrid;
@@ -20,7 +20,7 @@ use crate::{bad_handle, Result};
 
 #[derive(Component, Debug, Default, Reflect)]
 pub struct Layer {
-    pub handle: Handle<ldtk_asset::Layer>,
+    pub handle: Handle<LayerAsset>,
     pub config: Handle<ProjectConfig>,
 }
 
@@ -52,8 +52,8 @@ pub struct Layer {
 #[allow(clippy::type_complexity)]
 pub(crate) fn handle_layer_component_added(
     mut commands: Commands,
-    assets: Res<Assets<ldtk_asset::Layer>>,
-    definitions: Res<Assets<ldtk_asset::LayerDefinition>>,
+    assets: Res<Assets<LayerAsset>>,
+    definitions: Res<Assets<LayerDefinition>>,
     configs: Res<Assets<ProjectConfig>>,
     query: Query<
         (
@@ -64,7 +64,7 @@ pub(crate) fn handle_layer_component_added(
             Option<&IntGrid>,
             Option<&Tiles>,
         ),
-        Added<Layer>,
+        //Added<Layer>,
     >,
 ) -> Result<()> {
     query.iter().try_for_each(
@@ -121,9 +121,9 @@ pub(crate) fn handle_layer_component_added(
 
 pub(crate) fn handle_layer_asset_modified(
     mut commands: Commands,
-    mut asset_events: EventReader<AssetEvent<ldtk_asset::Layer>>,
-    assets: Res<Assets<ldtk_asset::Layer>>,
-    definitions: Res<Assets<ldtk_asset::LayerDefinition>>,
+    mut asset_events: EventReader<AssetEvent<LayerAsset>>,
+    assets: Res<Assets<LayerAsset>>,
+    definitions: Res<Assets<LayerDefinition>>,
     query: Query<(
         Entity,
         &Layer,

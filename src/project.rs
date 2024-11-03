@@ -1,14 +1,15 @@
-use bevy::asset::{AssetEvent, AssetServer, Assets};
-use bevy::core::Name;
-use bevy::ecs::entity::Entity;
-use bevy::ecs::system::Res;
-use bevy::ecs::system::{Commands, Query};
-use bevy::log::debug;
-use bevy::prelude::{BuildChildren, Changed, ChildBuild, EventReader};
-use bevy::transform::components::Transform;
-use bevy::utils::HashSet;
+use bevy_asset::{AssetEvent, AssetServer, Assets};
+use bevy_core::Name;
+use bevy_ecs::entity::Entity;
+use bevy_ecs::event::EventReader;
+use bevy_ecs::query::Changed;
+use bevy_ecs::system::{Commands, Query, Res};
+use bevy_hierarchy::{BuildChildren, ChildBuild};
 use bevy_ldtk_asset::prelude::HasChildren;
 use bevy_ldtk_asset::project::Project as ProjectAsset;
+use bevy_log::debug;
+use bevy_transform::components::Transform;
+use bevy_utils::HashSet;
 
 use crate::component::{LdtkComponent, LdtkComponentExt};
 use crate::project_config::ProjectConfig;

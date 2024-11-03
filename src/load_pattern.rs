@@ -1,7 +1,7 @@
-use bevy::asset::Asset;
-use bevy::asset::Handle;
-use bevy::log::debug;
-use bevy::reflect::Reflect;
+use bevy_asset::Asset;
+use bevy_asset::Handle;
+use bevy_log::debug;
+use bevy_reflect::Reflect;
 use serde::Deserialize;
 use serde::Serialize;
 

@@ -1,7 +1,7 @@
-use bevy::asset::{Asset, AssetServer, Handle};
-use bevy::ecs::component::Component;
-use bevy::log::debug;
-use bevy::reflect::Reflect;
+use bevy_asset::{Asset, AssetServer, Handle};
+use bevy_ecs::component::Component;
+use bevy_log::debug;
+use bevy_reflect::Reflect;
 
 use crate::project_config::ProjectConfig;
 

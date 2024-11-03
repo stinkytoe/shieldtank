@@ -1,12 +1,12 @@
-use bevy::asset::{AssetServer, Assets, Handle};
-use bevy::core::Name;
-use bevy::ecs::component::Component;
-use bevy::ecs::entity::Entity;
-use bevy::ecs::system::{Commands, Query, Res};
-use bevy::prelude::Added;
-use bevy::reflect::Reflect;
-use bevy::transform::components::Transform;
+use bevy_asset::{AssetServer, Assets, Handle};
+use bevy_core::Name;
+use bevy_ecs::component::Component;
+use bevy_ecs::entity::Entity;
+use bevy_ecs::query::Added;
+use bevy_ecs::system::{Commands, Query, Res};
 use bevy_ldtk_asset::world::World as WorldAsset;
+use bevy_reflect::Reflect;
+use bevy_transform::components::Transform;
 
 use crate::project_config::ProjectConfig;
 use crate::Result;

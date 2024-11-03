@@ -1,17 +1,18 @@
-use bevy::asset::{Assets, Handle, RenderAssetUsages};
-use bevy::color::ColorToPacked;
-use bevy::ecs::component::Component;
-use bevy::ecs::entity::Entity;
-use bevy::ecs::system::Commands;
-use bevy::ecs::system::Query;
-use bevy::ecs::system::ResMut;
-use bevy::log::debug;
-use bevy::math::Vec2;
-use bevy::reflect::Reflect;
-use bevy::render::texture::Image;
-use bevy::sprite::{Anchor, Sprite};
-use bevy::{color::Color, prelude::Changed};
+use bevy_asset::{Assets, Handle, RenderAssetUsages};
+use bevy_color::Color;
+use bevy_color::ColorToPacked;
+use bevy_ecs::component::Component;
+use bevy_ecs::entity::Entity;
+use bevy_ecs::query::Changed;
+use bevy_ecs::system::Commands;
+use bevy_ecs::system::Query;
+use bevy_ecs::system::ResMut;
 use bevy_ldtk_asset::level::LevelBackground as LdtkLevelBackground;
+use bevy_log::debug;
+use bevy_math::Vec2;
+use bevy_reflect::Reflect;
+use bevy_render::texture::Image;
+use bevy_sprite::{Anchor, Sprite};
 
 use crate::{bad_handle, Result};
 
@@ -67,7 +68,7 @@ impl LevelBackground {
             );
         }
 
-        let background_image = bevy::render::texture::Image::from_dynamic(
+        let background_image = bevy_render::texture::Image::from_dynamic(
             image::DynamicImage::from(background_image),
             true,
             RenderAssetUsages::default(),

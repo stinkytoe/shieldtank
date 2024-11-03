@@ -1,7 +1,7 @@
-use bevy::asset::Handle;
-use bevy::ecs::component::Component;
-use bevy::reflect::Reflect;
+use bevy_asset::Handle;
+use bevy_ecs::component::Component;
 use bevy_ldtk_asset::prelude::ldtk_asset;
+use bevy_reflect::Reflect;
 
 use crate::project_config::ProjectConfig;
 
