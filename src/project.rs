@@ -7,6 +7,7 @@ use bevy_hierarchy::{BuildChildren, ChildBuild};
 use bevy_ldtk_asset::prelude::HasChildren;
 use bevy_ldtk_asset::project::Project as ProjectAsset;
 use bevy_log::debug;
+use bevy_render::view::Visibility;
 use bevy_transform::components::Transform;
 
 use crate::component::{DoFinalizeEvent, LdtkComponent, LdtkComponentExt};
@@ -16,7 +17,7 @@ use crate::{bad_handle, Result};
 
 pub type Project = LdtkComponent<ProjectAsset>;
 
-pub(crate) fn finalize_on_event(
+pub(crate) fn project_finalize_on_event(
     mut commands: Commands,
     mut events: EventReader<DoFinalizeEvent<ProjectAsset>>,
     project_assets: Res<Assets<ProjectAsset>>,
@@ -52,25 +53,26 @@ fn finalize(
         .get(project.get_config_handle().id())
         .ok_or(bad_handle!(project.get_config_handle()))?;
 
+    let name = Name::new(format!("{:?}", project.get_handle().path()));
+    let transform = Transform::default();
+    let visibility = Visibility::default();
+
     commands
         .entity(entity)
-        .insert(Name::new(format!("{:?}", project.get_handle().path())));
-
-    commands.entity(entity).insert(Transform::default());
-
-    commands.entity(entity).with_children(|parent| {
-        project_asset.children().for_each(|world_handle| {
-            if project_config
-                .load_pattern
-                .handle_matches_pattern(world_handle)
-            {
-                parent.spawn(World {
-                    handle: world_handle.clone(),
-                    config: project.get_config_handle(),
-                });
-            };
+        .insert((name, transform, visibility))
+        .with_children(|parent| {
+            project_asset.children().for_each(|world_handle| {
+                if project_config
+                    .load_pattern
+                    .handle_matches_pattern(world_handle)
+                {
+                    parent.spawn(World {
+                        handle: world_handle.clone(),
+                        config: project.get_config_handle(),
+                    });
+                };
+            });
         });
-    });
 
     debug!(
         "Project {:?} finalized!",

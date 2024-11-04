@@ -1,142 +1,95 @@
-use bevy_asset::{AssetEvent, Assets, Handle};
+use bevy_asset::Assets;
 use bevy_core::Name;
-use bevy_ecs::component::Component;
 use bevy_ecs::entity::Entity;
 use bevy_ecs::event::EventReader;
 use bevy_ecs::system::{Commands, Query, Res};
-use bevy_ldtk_asset::prelude::ldtk_asset;
-//use bevy_prelude::Added;
-use bevy_reflect::Reflect;
+use bevy_hierarchy::{BuildChildren, ChildBuild};
+use bevy_ldtk_asset::level::Level as LevelAsset;
+use bevy_ldtk_asset::prelude::HasChildren;
+use bevy_log::debug;
+use bevy_render::view::Visibility;
 use bevy_transform::components::Transform;
 
-use crate::automations::LevelBackgroundAutomation;
+use crate::component::{DoFinalizeEvent, LdtkComponent, LdtkComponentExt};
+use crate::layer::Layer;
 use crate::level_background::LevelBackground;
 use crate::project_config::ProjectConfig;
 use crate::{bad_handle, Result};
 
-#[derive(Component, Debug, Reflect)]
-pub struct Level {
-    pub handle: Handle<ldtk_asset::Level>,
-    pub config: Handle<ProjectConfig>,
+pub type Level = LdtkComponent<LevelAsset>;
+
+pub(crate) fn level_finalize_on_event(
+    mut commands: Commands,
+    mut events: EventReader<DoFinalizeEvent<LevelAsset>>,
+    level_assets: Res<Assets<LevelAsset>>,
+    config_assets: Res<Assets<ProjectConfig>>,
+    query: Query<(Entity, &Level)>,
+) -> Result<()> {
+    events.read().try_for_each(|event| -> Result<()> {
+        let DoFinalizeEvent {
+            entity: event_entity,
+            ..
+        } = event;
+
+        query
+            .iter()
+            .filter(|(entity, ..)| entity == event_entity)
+            .try_for_each(|data| -> Result<()> {
+                finalize(&mut commands, data, &level_assets, &config_assets)
+            })
+    })
 }
 
-// ## Level
-//  - Name
-//  -- from identifier
-//  -- Only on new, and if not present
-//  -- if changed, then asset path changed also and is now a different asset
-//
-//  - Visibility
-//  -- always visible
-//  -- Only on new, and if not present
-//
-//  - Transform
-//  -- Depends on WorldLayout
-//  --- Free or GridVania: from asset: location, world_depth TODO: We need to establish a scale factor for calculating z
-//  --- LinearHorizontal or LinearVertical: TODO: What to do here?
-//  -- Only on new, and if not present
-//
-//  - LevelBackground
-//  -- from asset
-//  -- always update
-//  -- systems use this to draw background
-#[allow(clippy::type_complexity)]
-pub(crate) fn handle_level_component_added(
-    mut commands: Commands,
-    assets: Res<Assets<ldtk_asset::Level>>,
-    configs: Res<Assets<ProjectConfig>>,
-    query: Query<
-        (
-            Entity,
-            &Level,
-            Option<&Name>,
-            Option<&Transform>,
-            Option<&LevelBackground>,
-        ),
-        //Added<Level>,
-    >,
+fn finalize(
+    commands: &mut Commands,
+    (entity, level): (Entity, &Level),
+    level_assets: &Assets<LevelAsset>,
+    config_assets: &Assets<ProjectConfig>,
 ) -> Result<()> {
-    //query.iter().try_for_each(
-    //    |(entity, level, name, transform, background)| -> Result<()> {
-    //        let asset = assets
-    //            .get(level.handle.id())
-    //            .ok_or(bad_handle!(level.handle))?;
-    //        let config = configs
-    //            .get(level.config.id())
-    //            .ok_or(bad_handle!(level.config))?;
-    //
-    //        if name.is_none() {
-    //            let name = asset.identifier.clone();
-    //            commands.entity(entity).insert(Name::new(name));
-    //        }
-    //
-    //        if transform.is_none() {
-    //            let location = asset
-    //                .location
-    //                .extend((asset.world_depth as f32) * config.level_z_scale);
-    //            commands
-    //                .entity(entity)
-    //                .insert(Transform::from_translation(location));
-    //        }
-    //
-    //        commands.entity(entity).insert(Visibility::default());
-    //
-    //        if background.is_none() {
-    //            let color = asset.bg_color;
-    //            let size = asset.size;
-    //            let background = asset.background.clone();
-    //            let background = LevelBackground {
-    //                color,
-    //                size,
-    //                background,
-    //            };
-    //
-    //            commands
-    //                .entity(entity)
-    //                .insert((background, LevelBackgroundAutomation));
-    //        }
-    //
-    //        debug!("Level entity added and set up! {entity:?}");
-    //        Ok(())
-    //    },
-    //)?;
-    //
-    Ok(())
-}
+    let level_asset = level_assets
+        .get(level.get_handle().id())
+        .ok_or(bad_handle!(level.get_handle()))?;
 
-pub(crate) fn handle_level_asset_modified(
-    mut commands: Commands,
-    mut asset_events: EventReader<AssetEvent<ldtk_asset::Level>>,
-    assets: Res<Assets<ldtk_asset::Level>>,
-    query: Query<(Entity, &Level, Option<&LevelBackgroundAutomation>)>,
-) -> Result<()> {
-    asset_events.read().try_for_each(|event| -> Result<()> {
-        if let AssetEvent::Modified { id } = event {
-            query
-                .iter()
-                .filter(|(_, level, ..)| level.handle.id() == *id)
-                .try_for_each(|(entity, level, background_automation)| -> Result<()> {
-                    if background_automation.is_some() {
-                        let asset = assets
-                            .get(level.handle.id())
-                            .ok_or(bad_handle!(level.handle))?;
-                        let color = asset.bg_color;
-                        let size = asset.size;
-                        let background = asset.background.clone();
-                        let background = LevelBackground {
-                            color,
-                            size,
-                            background,
-                        };
-                        commands.entity(entity).insert(background);
-                    }
+    let project_config = config_assets
+        .get(level.get_config_handle().id())
+        .ok_or(bad_handle!(level.get_config_handle()))?;
 
-                    Ok(())
-                })?;
-        }
+    let name = Name::from(level_asset.identifier.clone());
 
-        Ok(())
-    })?;
+    let translation = level_asset
+        .location
+        .extend((level_asset.world_depth as f32) * project_config.level_z_scale);
+    let transform = Transform::from_translation(translation);
+
+    let visibility = Visibility::default();
+
+    let color = level_asset.bg_color;
+    let size = level_asset.size;
+    let background = level_asset.background.clone();
+    let background = LevelBackground {
+        color,
+        size,
+        background,
+    };
+
+    commands
+        .entity(entity)
+        .insert((name, transform, visibility, background))
+        .with_children(|parent| {
+            level_asset.children().for_each(|layer_handle| {
+                if project_config
+                    .load_pattern
+                    .handle_matches_pattern(layer_handle)
+                {
+                    parent.spawn(Layer {
+                        handle: layer_handle.clone(),
+                        config: level.get_config_handle(),
+                    });
+                }
+            })
+        });
+
+    debug!("Level {:?} finalized!", level_asset.identifier);
 
     Ok(())
 }

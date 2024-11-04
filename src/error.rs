@@ -12,8 +12,6 @@ pub enum Error {
     #[error(transparent)]
     IntoDynamicImageError(#[from] bevy_render::texture::IntoDynamicImageError),
 
-    //#[error(transparent)]
-    //QueryEntityError(#[from] bevy::ecs::query::QueryEntityError),
     #[error("Bad Handle! {0}")]
     BadHandle(String),
 
@@ -22,9 +20,6 @@ pub enum Error {
 
     #[error("Bad Int Grid! reason: {0}")]
     BadIntGrid(String),
-
-    #[error("Bad entity! {0}")]
-    BadEntity(String),
 }
 
 pub type Result<T> = core::result::Result<T, Error>;
