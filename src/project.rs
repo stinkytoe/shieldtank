@@ -1,97 +1,49 @@
-use bevy_asset::{AssetEvent, AssetServer, Assets};
+use bevy_asset::Assets;
 use bevy_core::Name;
 use bevy_ecs::entity::Entity;
 use bevy_ecs::event::EventReader;
-use bevy_ecs::query::Changed;
 use bevy_ecs::system::{Commands, Query, Res};
 use bevy_hierarchy::{BuildChildren, ChildBuild};
 use bevy_ldtk_asset::prelude::HasChildren;
 use bevy_ldtk_asset::project::Project as ProjectAsset;
 use bevy_log::debug;
 use bevy_transform::components::Transform;
-use bevy_utils::HashSet;
 
-use crate::component::{LdtkComponent, LdtkComponentExt};
+use crate::component::{DoFinalizeEvent, LdtkComponent, LdtkComponentExt};
 use crate::project_config::ProjectConfig;
 use crate::world::World;
-use crate::{bad_entity, bad_handle, Result};
+use crate::{bad_handle, Result};
 
 pub type Project = LdtkComponent<ProjectAsset>;
-pub type ProjectData<'a> = (&'a Project, Entity);
 
-#[allow(clippy::too_many_arguments)]
-pub(crate) fn handle_project_component_added(
+pub(crate) fn finalize_on_event(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut project_events: EventReader<AssetEvent<ProjectAsset>>,
-    mut config_events: EventReader<AssetEvent<ProjectConfig>>,
+    mut events: EventReader<DoFinalizeEvent<ProjectAsset>>,
     project_assets: Res<Assets<ProjectAsset>>,
     config_assets: Res<Assets<ProjectConfig>>,
-    query: Query<ProjectData>,
-    query_changed: Query<ProjectData, Changed<Project>>,
+    query: Query<(Entity, &Project)>,
 ) -> Result<()> {
-    let with_added_component_handle: HashSet<Entity> = project_events
-        .read()
-        .filter_map(|event| match event {
-            AssetEvent::Added { id } | AssetEvent::Modified { id } => Some(*id),
-            _ => None,
-        })
-        .inspect(|_| debug!("Added/Modified event for Project!"))
-        .flat_map(|id| {
-            query
-                .iter()
-                .filter(move |(component, ..)| component.get_handle().id() == id)
-                .filter(|(component, ..)| component.is_loaded(&asset_server))
-                .map(|(_, entity, ..)| entity)
-        })
-        .collect();
+    events.read().try_for_each(|event| -> Result<()> {
+        let DoFinalizeEvent {
+            entity: event_entity,
+            ..
+        } = event;
 
-    let with_added_config_handle: HashSet<Entity> = config_events
-        .read()
-        .filter_map(|event| match event {
-            AssetEvent::Added { id } | AssetEvent::Modified { id } => Some(*id),
-            _ => None,
-        })
-        .inspect(|_| debug!("Added/Modified event for Project Config!"))
-        .flat_map(|id| {
-            query
-                .iter()
-                .filter(move |(component, ..)| component.get_config_handle().id() == id)
-                .filter(|(component, ..)| component.is_loaded(&asset_server))
-                .map(|(_, entity, ..)| entity)
-        })
-        .collect();
-
-    let with_changed_component: HashSet<Entity> = query_changed
-        .iter()
-        .inspect(|_| debug!("Component changed for Project!"))
-        .filter(|(component, ..)| component.is_loaded(&asset_server))
-        .map(|(_, entity, ..)| entity)
-        .collect();
-
-    let entities_to_finalize: HashSet<Entity> = with_added_component_handle
-        .into_iter()
-        .chain(with_added_config_handle)
-        .chain(with_changed_component)
-        .collect();
-
-    entities_to_finalize
-        .into_iter()
-        .try_for_each(|entity| -> Result<()> {
-            let data = query.get(entity).map_err(|_| bad_entity!(entity))?;
-
-            finish(&mut commands, data, &project_assets, &config_assets)
-        })
+        query
+            .iter()
+            .filter(|(entity, ..)| entity == event_entity)
+            .try_for_each(|data| -> Result<()> {
+                finalize(&mut commands, data, &project_assets, &config_assets)
+            })
+    })
 }
 
-fn finish(
+fn finalize(
     commands: &mut Commands,
-    data: ProjectData,
+    (entity, project): (Entity, &Project),
     project_assets: &Assets<ProjectAsset>,
     config_assets: &Assets<ProjectConfig>,
 ) -> Result<()> {
-    let (project, entity, ..) = data;
-
     let project_asset = project_assets
         .get(project.get_handle().id())
         .ok_or(bad_handle!(project.get_handle()))?;
@@ -121,8 +73,12 @@ fn finish(
     });
 
     debug!(
-        "Finished spawning Project: {:?}",
-        project.get_handle().path()
+        "Project {:?} finalized!",
+        project
+            .get_handle()
+            .path()
+            .map(|path| format!("{}", path))
+            .unwrap_or(String::default())
     );
 
     Ok(())

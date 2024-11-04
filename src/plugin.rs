@@ -1,16 +1,18 @@
 use bevy_app::{App, Plugin, Update};
 use bevy_asset::AssetApp;
 use bevy_ecs::system::IntoSystem;
+use bevy_ldtk_asset::project::Project as ProjectAsset;
 use bevy_utils::error;
 
+use crate::component::{
+    handle_project_component_added, send_finalize_if_ready, AwaitingFinalize, DoFinalizeEvent,
+};
 use crate::entity::Entity;
-use crate::layer::{handle_layer_asset_modified, handle_layer_component_added, Layer};
-use crate::level::{handle_level_asset_modified, handle_level_component_added, Level};
-use crate::level_background::level_background_system;
-use crate::project::{handle_project_component_added, Project};
+use crate::layer::Layer;
+use crate::level::Level;
+use crate::project::{finalize_on_event, Project};
 use crate::project_config::{ProjectConfig, ProjectConfigLoader};
-use crate::tiles::handle_tiles_system;
-use crate::world::{handle_world_component_added, World};
+use crate::world::World;
 
 pub struct ShieldtankPlugin;
 
@@ -19,6 +21,8 @@ impl Plugin for ShieldtankPlugin {
         app //
             .init_asset::<ProjectConfig>()
             .init_asset_loader::<ProjectConfigLoader>()
+            .insert_resource(AwaitingFinalize::default())
+            .add_event::<DoFinalizeEvent<ProjectAsset>>()
             .register_asset_reflect::<ProjectConfig>()
             .register_type::<Project>()
             .register_type::<ProjectConfig>()
@@ -30,17 +34,9 @@ impl Plugin for ShieldtankPlugin {
                 Update,
                 (
                     //project
-                    handle_project_component_added.map(error),
-                    //world
-                    handle_world_component_added.map(error),
-                    //level
-                    handle_level_component_added.map(error),
-                    handle_level_asset_modified.map(error),
-                    level_background_system.map(error),
-                    //layer
-                    handle_layer_component_added.map(error),
-                    handle_layer_asset_modified.map(error),
-                    handle_tiles_system.map(error),
+                    handle_project_component_added::<ProjectAsset>.map(error),
+                    send_finalize_if_ready::<ProjectAsset>,
+                    finalize_on_event.map(error),
                 ),
             );
     }

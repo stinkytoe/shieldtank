@@ -7,11 +7,13 @@ use shieldtank::{plugin::ShieldtankPlugin, project_config::ProjectConfig};
 fn main() {
     let mut app = App::new();
 
-    let default_project_config = ProjectConfig::default();
-    let default_ron_string =
-        ron::ser::to_string_pretty(&default_project_config, ron::ser::PrettyConfig::default())
-            .unwrap();
-    println!("{default_ron_string}");
+    //{
+    //    let default_project_config = ProjectConfig::default();
+    //    let default_ron_string =
+    //        ron::ser::to_string_pretty(&default_project_config, ron::ser::PrettyConfig::default())
+    //            .unwrap();
+    //    println!("{default_ron_string}");
+    //}
 
     app.add_plugins((
         DefaultPlugins
