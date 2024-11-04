@@ -5,7 +5,6 @@ use bevy_ecs::event::EventReader;
 use bevy_ecs::system::{Commands, Query, Res};
 use bevy_hierarchy::{BuildChildren, ChildBuild};
 use bevy_ldtk_asset::level::Level as LevelAsset;
-use bevy_ldtk_asset::prelude::HasChildren;
 use bevy_log::debug;
 use bevy_render::view::Visibility;
 use bevy_transform::components::Transform;
@@ -76,7 +75,7 @@ fn finalize(
         .entity(entity)
         .insert((name, transform, visibility, background))
         .with_children(|parent| {
-            level_asset.children().for_each(|layer_handle| {
+            level_asset.layers.values().for_each(|layer_handle| {
                 if project_config
                     .load_pattern
                     .handle_matches_pattern(layer_handle)

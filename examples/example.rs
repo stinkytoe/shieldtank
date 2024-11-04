@@ -1,7 +1,7 @@
 //#![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use bevy::prelude::*;
-use bevy_ldtk_asset::prelude::*;
+use bevy_ldtk_asset::plugin::BevyLdtkAssetPlugin;
 use shieldtank::{plugin::ShieldtankPlugin, project_config::ProjectConfig};
 
 fn main() {
@@ -48,19 +48,18 @@ fn startup(
         Transform::from_scale(Vec2::splat(0.7).extend(1.0)),
     ));
 
-    commands.spawn(shieldtank::project::Project {
-        handle: asset_server.load("ldtk/top_down.ldtk"),
-        //config: project_configs.add(ProjectConfig::default()),
+    //commands.spawn(shieldtank::project::Project {
+    //    handle: asset_server.load("ldtk/top_down.ldtk"),
+    //    config: asset_server.load("config/example.project_config.ron"),
+    //});
+
+    commands.spawn(shieldtank::world::World {
+        handle: asset_server.load("ldtk/top_down.ldtk#World"),
         config: asset_server.load("config/example.project_config.ron"),
     });
 
-    //commands.spawn(shieldtank::world::World {
-    //    handle: asset_server.load("ldtk/top_down.ldtk#World"),
-    //    config: project_configs.add(ProjectConfig::default()),
-    //});
-
     //commands.spawn(shieldtank::level::Level {
     //    handle: asset_server.load("ldtk/top_down.ldtk#World/Island_of_Thieves"),
-    //    config: project_configs.add(ProjectConfig::default()),
+    //    config: asset_server.load("config/example.project_config.ron"),
     //});
 }

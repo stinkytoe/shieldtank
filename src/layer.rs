@@ -3,10 +3,8 @@ use bevy_core::Name;
 use bevy_ecs::entity::Entity;
 use bevy_ecs::event::EventReader;
 use bevy_ecs::system::{Commands, Query, Res};
-use bevy_hierarchy::BuildChildren;
 use bevy_ldtk_asset::layer::Layer as LayerAsset;
 use bevy_ldtk_asset::layer_definition::LayerDefinition;
-use bevy_ldtk_asset::prelude::HasChildren;
 use bevy_log::debug;
 use bevy_math::Vec2;
 use bevy_render::view::Visibility;
@@ -76,21 +74,22 @@ fn finalize(
 
     entity_commands.insert((name, transform, visibility));
 
-    if layer_asset.layer_type.is_entities_layer() {
-        entity_commands.with_children(|_parent| {
-            layer_asset.children().for_each(|entity_handle| {
-                if project_config
-                    .load_pattern
-                    .handle_matches_pattern(entity_handle)
-                {
-                    //parent.spawn(Entity {
-                    //    handle: entity_handle.clone(),
-                    //    config: level.get_config_handle(),
-                    //});
-                }
-            });
-        });
-    }
+    if let Some(_entities_layer) = layer_asset.layer_type.get_entities_layer() {}
+    //if layer_asset.layer_type.is_entities_layer() {
+    //    entity_commands.with_children(|_parent| {
+    //        layer_asset..for_each(|entity_handle| {
+    //            if project_config
+    //                .load_pattern
+    //                .handle_matches_pattern(entity_handle)
+    //            {
+    //                //parent.spawn(Entity {
+    //                //    handle: entity_handle.clone(),
+    //                //    config: level.get_config_handle(),
+    //                //});
+    //            }
+    //        });
+    //    });
+    //}
 
     if let Some(tiles_layer) = layer_asset.layer_type.get_tiles_layer() {
         // TODO: Unguarded Assets::get(..) here. Probably fine, but should fix.

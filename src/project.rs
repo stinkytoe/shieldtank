@@ -4,7 +4,6 @@ use bevy_ecs::entity::Entity;
 use bevy_ecs::event::EventReader;
 use bevy_ecs::system::{Commands, Query, Res};
 use bevy_hierarchy::{BuildChildren, ChildBuild};
-use bevy_ldtk_asset::prelude::HasChildren;
 use bevy_ldtk_asset::project::Project as ProjectAsset;
 use bevy_log::debug;
 use bevy_render::view::Visibility;
@@ -61,7 +60,7 @@ fn finalize(
         .entity(entity)
         .insert((name, transform, visibility))
         .with_children(|parent| {
-            project_asset.children().for_each(|world_handle| {
+            project_asset.worlds.values().for_each(|world_handle| {
                 if project_config
                     .load_pattern
                     .handle_matches_pattern(world_handle)
