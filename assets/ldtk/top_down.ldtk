@@ -2147,7 +2147,7 @@
 			"iid": "d5ab0642-8990-11ee-a83b-b50c1be5a2ca",
 			"uid": 0,
 			"worldX": -256,
-			"worldY": 0,
+			"worldY": -128,
 			"worldDepth": 0,
 			"pxWid": 256,
 			"pxHei": 256,
@@ -2232,7 +2232,7 @@
 							"px": [152,168],
 							"fieldInstances": [],
 							"__worldX": -104,
-							"__worldY": 168
+							"__worldY": 40
 						},
 						{
 							"__identifier": "Thief",
@@ -2248,7 +2248,7 @@
 							"px": [88,184],
 							"fieldInstances": [],
 							"__worldX": -168,
-							"__worldY": 184
+							"__worldY": 56
 						},
 						{
 							"__identifier": "Axe_Man",
@@ -2287,7 +2287,7 @@
 								} ] }
 							],
 							"__worldX": -136,
-							"__worldY": 136
+							"__worldY": 8
 						}
 					]
 				},
@@ -2621,14 +2621,14 @@
 					"entityInstances": []
 				}
 			],
-			"__neighbours": [ { "levelIid": "ba96b5b0-8990-11ee-b369-6bec2cf1cf1a", "dir": "e" }, { "levelIid": "3e8d5ee0-73f0-11ef-8b75-05f816014ca5", "dir": "n" } ]
+			"__neighbours": [{ "levelIid": "ba96b5b0-8990-11ee-b369-6bec2cf1cf1a", "dir": "e" }]
 		},
 		{
 			"identifier": "Isthmus_of_Pain",
 			"iid": "ba96b5b0-8990-11ee-b369-6bec2cf1cf1a",
 			"uid": 305,
 			"worldX": 0,
-			"worldY": 0,
+			"worldY": -128,
 			"worldDepth": 0,
 			"pxWid": 256,
 			"pxHei": 256,
@@ -2707,7 +2707,7 @@
 							"px": [168,104],
 							"fieldInstances": [],
 							"__worldX": 168,
-							"__worldY": 104
+							"__worldY": -24
 						}
 					]
 				},
@@ -3037,149 +3037,7 @@
 					"entityInstances": []
 				}
 			],
-			"__neighbours": [ { "levelIid": "d5ab0642-8990-11ee-a83b-b50c1be5a2ca", "dir": "w" }, { "levelIid": "3e8d5ee0-73f0-11ef-8b75-05f816014ca5", "dir": "n" } ]
-		},
-		{
-			"identifier": "Level_2",
-			"iid": "3e8d5ee0-73f0-11ef-8b75-05f816014ca5",
-			"uid": 958,
-			"worldX": -128,
-			"worldY": -256,
-			"worldDepth": 0,
-			"pxWid": 256,
-			"pxHei": 256,
-			"__bgColor": "#696A79",
-			"bgColor": null,
-			"useAutoIdentifier": true,
-			"bgRelPath": "../icons/rustacean-flat-happy.png",
-			"bgPos": "Contain",
-			"bgPivotX": 0.5,
-			"bgPivotY": 0.5,
-			"__smartColor": "#ADADB5",
-			"__bgPos": { "topLeftPx": [0,42], "scale": [0.5565217391304348,0.5565217391304348], "cropRect": [0,0,460,307] },
-			"externalRelPath": null,
-			"fieldInstances": [{ "__identifier": "Integer", "__type": "Int", "__value": 0, "__tile": null, "defUid": 333, "realEditorValues": [] }],
-			"layerInstances": [
-				{
-					"__identifier": "Trees",
-					"__type": "Tiles",
-					"__cWid": 16,
-					"__cHei": 16,
-					"__gridSize": 16,
-					"__opacity": 1,
-					"__pxTotalOffsetX": 0,
-					"__pxTotalOffsetY": 0,
-					"__tilesetDefUid": 1,
-					"__tilesetRelPath": "../Fantasy Battle Pack 26-10-22/Tiles/FullTileset.png",
-					"iid": "3e8d5ee1-73f0-11ef-8b75-35bce0d41ae6",
-					"levelId": 958,
-					"layerDefUid": 301,
-					"pxOffsetX": 0,
-					"pxOffsetY": 0,
-					"visible": true,
-					"optionalRules": [],
-					"intGridCsv": [],
-					"autoLayerTiles": [],
-					"seed": 4887090,
-					"overrideTilesetUid": null,
-					"gridTiles": [],
-					"entityInstances": []
-				},
-				{
-					"__identifier": "Entities",
-					"__type": "Entities",
-					"__cWid": 16,
-					"__cHei": 16,
-					"__gridSize": 16,
-					"__opacity": 1,
-					"__pxTotalOffsetX": 0,
-					"__pxTotalOffsetY": 0,
-					"__tilesetDefUid": null,
-					"__tilesetRelPath": null,
-					"iid": "3e8d5ee2-73f0-11ef-8b75-cfefac1dce4b",
-					"levelId": 958,
-					"layerDefUid": 289,
-					"pxOffsetX": 0,
-					"pxOffsetY": 0,
-					"visible": true,
-					"optionalRules": [],
-					"intGridCsv": [],
-					"autoLayerTiles": [],
-					"seed": 9615215,
-					"overrideTilesetUid": null,
-					"gridTiles": [],
-					"entityInstances": []
-				},
-				{
-					"__identifier": "Bridges",
-					"__type": "IntGrid",
-					"__cWid": 16,
-					"__cHei": 16,
-					"__gridSize": 16,
-					"__opacity": 1,
-					"__pxTotalOffsetX": 0,
-					"__pxTotalOffsetY": 0,
-					"__tilesetDefUid": 1,
-					"__tilesetRelPath": "../Fantasy Battle Pack 26-10-22/Tiles/FullTileset.png",
-					"iid": "3e8d5ee3-73f0-11ef-8b75-170ccf66de66",
-					"levelId": 958,
-					"layerDefUid": 290,
-					"pxOffsetX": 0,
-					"pxOffsetY": 0,
-					"visible": true,
-					"optionalRules": [],
-					"intGridCsv": [
-						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-						0,0,0,0,0,0,0,0,0,0,0
-					],
-					"autoLayerTiles": [],
-					"seed": 9736082,
-					"overrideTilesetUid": null,
-					"gridTiles": [],
-					"entityInstances": []
-				},
-				{
-					"__identifier": "Ground",
-					"__type": "IntGrid",
-					"__cWid": 16,
-					"__cHei": 16,
-					"__gridSize": 16,
-					"__opacity": 1,
-					"__pxTotalOffsetX": 0,
-					"__pxTotalOffsetY": 0,
-					"__tilesetDefUid": 1,
-					"__tilesetRelPath": "../Fantasy Battle Pack 26-10-22/Tiles/FullTileset.png",
-					"iid": "3e8d5ee4-73f0-11ef-8b75-dd31dde1bbc9",
-					"levelId": 958,
-					"layerDefUid": 3,
-					"pxOffsetX": 0,
-					"pxOffsetY": 0,
-					"visible": true,
-					"optionalRules": [],
-					"intGridCsv": [
-						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-						0,0,0,0,0,0,0,0,0,0,0
-					],
-					"autoLayerTiles": [],
-					"seed": 739485,
-					"overrideTilesetUid": null,
-					"gridTiles": [],
-					"entityInstances": []
-				}
-			],
-			"__neighbours": [ { "levelIid": "d5ab0642-8990-11ee-a83b-b50c1be5a2ca", "dir": "s" }, { "levelIid": "ba96b5b0-8990-11ee-b369-6bec2cf1cf1a", "dir": "s" } ]
+			"__neighbours": [{ "levelIid": "d5ab0642-8990-11ee-a83b-b50c1be5a2ca", "dir": "w" }]
 		}
 	],
 	"worlds": [],

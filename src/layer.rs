@@ -1,8 +1,9 @@
 use bevy_asset::Assets;
 use bevy_core::Name;
-use bevy_ecs::entity::Entity;
+use bevy_ecs::entity::Entity as EcsEntity;
 use bevy_ecs::event::EventReader;
 use bevy_ecs::system::{Commands, Query, Res};
+use bevy_hierarchy::{BuildChildren, ChildBuild};
 use bevy_ldtk_asset::layer::Layer as LayerAsset;
 use bevy_ldtk_asset::layer_definition::LayerDefinition;
 use bevy_log::debug;
@@ -11,6 +12,7 @@ use bevy_render::view::Visibility;
 use bevy_transform::components::Transform;
 
 use crate::component::{DoFinalizeEvent, LdtkComponent, LdtkComponentExt};
+use crate::entity::Entity;
 use crate::int_grid::IntGrid;
 use crate::project_config::ProjectConfig;
 use crate::tiles::Tiles;
@@ -24,7 +26,7 @@ pub(crate) fn layer_finalize_on_event(
     layer_assets: Res<Assets<LayerAsset>>,
     config_assets: Res<Assets<ProjectConfig>>,
     layer_definitions: Res<Assets<LayerDefinition>>,
-    query: Query<(Entity, &Layer)>,
+    query: Query<(EcsEntity, &Layer)>,
 ) -> Result<()> {
     events.read().try_for_each(|event| -> Result<()> {
         let DoFinalizeEvent {
@@ -49,12 +51,12 @@ pub(crate) fn layer_finalize_on_event(
 
 fn finalize(
     commands: &mut Commands,
-    (entity, layer): (Entity, &Layer),
-    level_assets: &Assets<LayerAsset>,
+    (ecs_entity, layer): (EcsEntity, &Layer),
+    layer_assets: &Assets<LayerAsset>,
     config_assets: &Assets<ProjectConfig>,
     layer_definitions: &Assets<LayerDefinition>,
 ) -> Result<()> {
-    let layer_asset = level_assets
+    let layer_asset = layer_assets
         .get(layer.get_handle().id())
         .ok_or(bad_handle!(layer.get_handle()))?;
 
@@ -70,26 +72,23 @@ fn finalize(
 
     let visibility = Visibility::default();
 
-    let mut entity_commands = commands.entity(entity);
+    let mut entity_commands = commands.entity(ecs_entity);
 
     entity_commands.insert((name, transform, visibility));
 
-    if let Some(_entities_layer) = layer_asset.layer_type.get_entities_layer() {}
-    //if layer_asset.layer_type.is_entities_layer() {
-    //    entity_commands.with_children(|_parent| {
-    //        layer_asset..for_each(|entity_handle| {
-    //            if project_config
-    //                .load_pattern
-    //                .handle_matches_pattern(entity_handle)
-    //            {
-    //                //parent.spawn(Entity {
-    //                //    handle: entity_handle.clone(),
-    //                //    config: level.get_config_handle(),
-    //                //});
-    //            }
-    //        });
-    //    });
-    //}
+    if let Some(entities_layer) = layer_asset.layer_type.get_entities_layer() {
+        entity_commands.with_children(|parent| {
+            entities_layer
+                .entity_handles
+                .values()
+                .for_each(|entity_handle| {
+                    parent.spawn(Entity {
+                        handle: entity_handle.clone(),
+                        config: layer.get_config_handle(),
+                    });
+                });
+        });
+    }
 
     if let Some(tiles_layer) = layer_asset.layer_type.get_tiles_layer() {
         // TODO: Unguarded Assets::get(..) here. Probably fine, but should fix.
