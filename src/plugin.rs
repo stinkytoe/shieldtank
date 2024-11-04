@@ -1,17 +1,17 @@
 use bevy_app::{App, Plugin, Update};
 use bevy_asset::AssetApp;
 use bevy_ecs::system::IntoSystem;
+use bevy_ldtk_asset::entity::Entity as EntityAsset;
 use bevy_ldtk_asset::layer::Layer as LayerAsset;
 use bevy_ldtk_asset::level::Level as LevelAsset;
 use bevy_ldtk_asset::project::Project as ProjectAsset;
 use bevy_ldtk_asset::world::World as WorldAsset;
-
 use bevy_utils::error;
 
 use crate::component::{
     handle_ldtk_component_added, send_finalize_if_ready, AwaitingFinalize, DoFinalizeEvent,
 };
-use crate::entity::Entity;
+use crate::entity::{entity_finalize_on_event, Entity};
 use crate::layer::{layer_finalize_on_event, Layer};
 use crate::level::{level_finalize_on_event, Level};
 use crate::level_background::level_background_system;
@@ -32,6 +32,7 @@ impl Plugin for ShieldtankPlugin {
             .add_event::<DoFinalizeEvent<WorldAsset>>()
             .add_event::<DoFinalizeEvent<LevelAsset>>()
             .add_event::<DoFinalizeEvent<LayerAsset>>()
+            .add_event::<DoFinalizeEvent<EntityAsset>>()
             .register_asset_reflect::<ProjectConfig>()
             .register_type::<Project>()
             .register_type::<ProjectConfig>()
@@ -62,6 +63,10 @@ impl Plugin for ShieldtankPlugin {
                     layer_finalize_on_event.map(error),
                     //layer tiles
                     handle_tiles_system.map(error),
+                    //entity
+                    handle_ldtk_component_added::<EntityAsset>.map(error),
+                    send_finalize_if_ready::<EntityAsset>,
+                    entity_finalize_on_event.map(error),
                 ),
             );
     }
