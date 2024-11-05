@@ -1,0 +1,3 @@
+[submodule "examples/axe_man_adventure"]
+	path = examples/axe_man_adventure
+	url = http://github.com/stinkytoe/axe_man_adventure
