@@ -66,7 +66,7 @@ fn finalize(
 
     let name = Name::from(layer_asset.identifier.clone());
 
-    let transform = Transform::default().with_translation(
+    let transform = Transform::from_translation(
         Vec2::ZERO.extend(((layer_asset.index + 1) as f32) * project_config.layer_z_scale),
     );
 

@@ -18,6 +18,7 @@ use crate::level_background::level_background_system;
 use crate::project::{project_finalize_on_event, Project};
 use crate::project_config::{ProjectConfig, ProjectConfigLoader};
 use crate::tiles::handle_tiles_system;
+use crate::tileset_rectangle::handle_tileset_rectangle_system;
 use crate::world::{world_finalize_on_event, World};
 
 pub struct ShieldtankPlugin;
@@ -67,6 +68,8 @@ impl Plugin for ShieldtankPlugin {
                     handle_ldtk_component_added::<EntityAsset>.map(error),
                     send_finalize_if_ready::<EntityAsset>,
                     entity_finalize_on_event.map(error),
+                    //tileset_rectangle
+                    handle_tileset_rectangle_system.map(error),
                 ),
             );
     }

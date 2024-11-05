@@ -12,6 +12,7 @@ pub mod plugin;
 pub mod project;
 pub mod project_config;
 pub mod tiles;
+pub mod tileset_rectangle;
 pub mod world;
 
 pub use error::{Error, Result};
