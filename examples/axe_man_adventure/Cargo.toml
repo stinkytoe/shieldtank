@@ -1,0 +1,8 @@
+[package]
+name = "axe_man_adventure"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+shieldtank = { path = "../../" }
+bevy = "=0.15.0-rc.2"
