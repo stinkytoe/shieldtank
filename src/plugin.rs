@@ -4,6 +4,7 @@ use bevy_ecs::system::IntoSystem;
 use bevy_ldtk_asset::entity::Entity as EntityAsset;
 use bevy_ldtk_asset::layer::Layer as LayerAsset;
 use bevy_ldtk_asset::level::Level as LevelAsset;
+use bevy_ldtk_asset::plugin::BevyLdtkAssetPlugin;
 use bevy_ldtk_asset::project::Project as ProjectAsset;
 use bevy_ldtk_asset::world::World as WorldAsset;
 use bevy_utils::error;
@@ -26,6 +27,7 @@ pub struct ShieldtankPlugin;
 impl Plugin for ShieldtankPlugin {
     fn build(&self, app: &mut App) {
         app //
+            .add_plugins(BevyLdtkAssetPlugin)
             .init_asset::<ProjectConfig>()
             .init_asset_loader::<ProjectConfigLoader>()
             .insert_resource(AwaitingFinalize::default())
