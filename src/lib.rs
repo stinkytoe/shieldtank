@@ -11,6 +11,7 @@ pub mod load_pattern;
 pub mod plugin;
 pub mod project;
 pub mod project_config;
+pub mod query;
 pub mod tiles;
 pub mod tileset_rectangle;
 pub mod world;

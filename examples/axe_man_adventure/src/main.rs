@@ -1,18 +1,13 @@
 //#![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use bevy::prelude::*;
+use itertools::Itertools;
+use shieldtank::entity::EntityWithIdentifierExt;
+use shieldtank::query::LdtkQuery;
 use shieldtank::{plugin::ShieldtankPlugin, project_config::ProjectConfig};
 
 fn main() {
     let mut app = App::new();
-
-    //{
-    //    let default_project_config = ProjectConfig::default();
-    //    let default_ron_string =
-    //        ron::ser::to_string_pretty(&default_project_config, ron::ser::PrettyConfig::default())
-    //            .unwrap();
-    //    println!("{default_ron_string}");
-    //}
 
     app.add_plugins((
         DefaultPlugins
@@ -22,11 +17,18 @@ fn main() {
                     winit=off,\
                     bevy_ldtk_asset=debug,\
                     shieldtank=debug,\
-                    example=trace"
+                    axe_man_adventure=trace"
                     .into(),
                 ..default()
             })
-            .set(ImagePlugin::default_nearest()),
+            .set(ImagePlugin::default_nearest())
+            .set(WindowPlugin {
+                primary_window: Some(Window {
+                    mode: bevy::window::WindowMode::BorderlessFullscreen(MonitorSelection::Current),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            }),
         //WorldInspectorPlugin::default(),
         //BevyLdtkAssetPlugin,
         ShieldtankPlugin,
@@ -44,7 +46,6 @@ fn startup(
 ) {
     commands.spawn((
         Camera2d,
-        // good scale for a 1920x1080 canvas/window
         Transform::from_scale(Vec2::splat(0.4).extend(1.0)),
     ));
 
@@ -54,4 +55,16 @@ fn startup(
     });
 }
 
-fn update() {}
+fn update(entity_query: LdtkQuery) {
+    // TODO: Do our own at_most_one?
+    let Some(axe_man) = entity_query
+        .entities()
+        .filter_identifier("Axe_Man")
+        .at_most_one()
+        .unwrap()
+    else {
+        return;
+    };
+
+    debug!("axe_man: {axe_man:#?}");
+}
