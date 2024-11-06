@@ -18,8 +18,7 @@ pub mod world;
 pub use error::{Error, Result};
 
 // re-exports
-pub use bevy_ldtk_asset::entity::Entity as EntityAsset;
-pub use bevy_ldtk_asset::iid;
+pub use bevy_ldtk_asset;
 
 //
 //
