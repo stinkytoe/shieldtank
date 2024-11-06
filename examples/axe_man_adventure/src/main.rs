@@ -56,7 +56,6 @@ fn startup(
 }
 
 fn update(entity_query: LdtkQuery) {
-    // TODO: Do our own at_most_one?
     let Some(axe_man) = entity_query
         .entities()
         .filter_identifier("Axe_Man")
@@ -65,6 +64,4 @@ fn update(entity_query: LdtkQuery) {
     else {
         return;
     };
-
-    debug!("axe_man: {axe_man:#?}");
 }

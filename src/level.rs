@@ -1,9 +1,13 @@
 use bevy_asset::Assets;
 use bevy_core::Name;
+use bevy_ecs::change_detection::DetectChanges;
 use bevy_ecs::entity::Entity;
+use bevy_ecs::entity::Entity as EcsEntity; // NOTE: Is this a good idea?
 use bevy_ecs::event::EventReader;
 use bevy_ecs::system::{Commands, Query, Res};
+use bevy_ecs::world::Ref;
 use bevy_hierarchy::{BuildChildren, ChildBuild};
+use bevy_ldtk_asset::iid::Iid;
 use bevy_ldtk_asset::level::Level as LevelAsset;
 use bevy_log::debug;
 use bevy_render::view::Visibility;
@@ -13,9 +17,123 @@ use crate::component::{DoFinalizeEvent, LdtkComponent, LdtkComponentExt};
 use crate::layer::Layer;
 use crate::level_background::LevelBackground;
 use crate::project_config::ProjectConfig;
+use crate::query::LdtkQuery;
 use crate::{bad_handle, Result};
 
 pub type Level = LdtkComponent<LevelAsset>;
+
+pub type LevelData<'a> = (
+    EcsEntity,
+    Ref<'a, Level>,
+    Ref<'a, Visibility>,
+    Ref<'a, Transform>,
+    Option<Ref<'a, LevelBackground>>,
+);
+
+pub struct LevelItem<'a> {
+    pub asset: &'a LevelAsset,
+    pub data: LevelData<'a>,
+    pub query: &'a LdtkQuery<'a, 'a>,
+}
+
+impl LevelItem<'_> {
+    pub fn level_asset(&self) -> &LevelAsset {
+        self.asset
+    }
+
+    pub fn ecs_entity(&self) -> EcsEntity {
+        self.data.0
+    }
+
+    pub fn level(&self) -> &Level {
+        &self.data.1
+    }
+
+    pub fn visibility(&self) -> &Visibility {
+        &self.data.2
+    }
+
+    pub fn transform(&self) -> &Transform {
+        &self.data.3
+    }
+
+    pub fn level_background(&self) -> Option<&LevelBackground> {
+        self.data.4.as_deref()
+    }
+}
+
+impl std::fmt::Debug for LevelItem<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("EntityItem")
+            .field("ecs_entity", &self.data.0)
+            .field("identifier", &self.asset.identifier)
+            .field("iid", &self.asset.iid)
+            .finish()
+    }
+}
+
+impl LevelItem<'_> {}
+
+pub struct FilterIdentifier<'a, I>
+where
+    I: Iterator<Item = LevelItem<'a>>,
+{
+    iter: I,
+    identifier: &'a str,
+}
+
+impl<'a, I> std::fmt::Debug for FilterIdentifier<'a, I>
+where
+    I: Iterator<Item = LevelItem<'a>>,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("WithIdentifier")
+            //.field("iter", &self.iter)
+            .field("identifier", &self.identifier)
+            .finish()
+    }
+}
+
+impl<'a, I> FilterIdentifier<'a, I>
+where
+    I: Iterator<Item = LevelItem<'a>>,
+{
+    pub fn new(iter: I, identifier: &'a str) -> Self {
+        Self { iter, identifier }
+    }
+}
+
+impl<'a, I> Iterator for FilterIdentifier<'a, I>
+where
+    I: Iterator<Item = LevelItem<'a>>,
+{
+    type Item = LevelItem<'a>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter
+            .find(|item| item.asset.identifier == self.identifier)
+    }
+}
+
+pub trait LevelWithIdentifierExt<'a>: Iterator<Item = LevelItem<'a>> + Sized {
+    fn added(self) -> impl Iterator<Item = LevelItem<'a>> {
+        self.filter(|item| item.data.1.is_added())
+    }
+
+    fn changed(self) -> impl Iterator<Item = LevelItem<'a>> {
+        self.filter(|item| item.data.1.is_changed())
+    }
+
+    fn filter_identifier(self, identifier: &'a str) -> FilterIdentifier<'a, Self> {
+        FilterIdentifier::new(self, identifier)
+    }
+
+    fn find_iid(mut self, iid: Iid) -> Option<LevelItem<'a>> {
+        self.find(|item| item.asset.iid == iid)
+    }
+}
+
+impl<'a, I: Iterator<Item = LevelItem<'a>>> LevelWithIdentifierExt<'a> for I {}
 
 pub(crate) fn level_finalize_on_event(
     mut commands: Commands,

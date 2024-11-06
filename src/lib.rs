@@ -20,24 +20,3 @@ pub use error::{Error, Result};
 
 // re-exports
 pub use bevy_ldtk_asset;
-
-//
-//
-// ## Entity
-//  - Name
-//  -- from identifier
-//  -- Only on new, and if not present
-//  -- if changed, then asset path changed also and is now a different asset
-//
-//  - Visibility
-//  -- always visible
-//  -- Only on new, and if not present
-//
-//  - Transform
-//  -- Use location from asset;
-//  -- Only on new, and if not present
-//
-//  - TilesetRectangle
-//  -- from asset, if present
-//  -- always update
-//  -- systems use this to draw entity

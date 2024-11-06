@@ -1,9 +1,11 @@
-use bevy_asset::Assets;
+use bevy_asset::{Asset, Assets};
 use bevy_core::Name;
 use bevy_ecs::change_detection::DetectChanges;
+use bevy_ecs::component::Component;
 use bevy_ecs::entity::Entity as EcsEntity; // NOTE: Is this a good idea?
 use bevy_ecs::event::EventReader;
-use bevy_ecs::system::{Commands, Query, Res};
+use bevy_ecs::query::{self, QueryData};
+use bevy_ecs::system::{Commands, Query, Res, SystemParam};
 use bevy_ecs::world::Ref;
 use bevy_ldtk_asset::entity::Entity as EntityAsset;
 use bevy_ldtk_asset::iid::Iid;
@@ -18,29 +20,49 @@ use crate::{bad_handle, Result};
 
 pub type Entity = LdtkComponent<EntityAsset>;
 
-pub type EntityData = (
+pub struct EntityData2 {}
+
+pub type EntityData<'a> = (
     EcsEntity,
-    Ref<'static, Entity>,
-    Ref<'static, Visibility>,
-    Ref<'static, Transform>,
+    Ref<'a, Entity>,
+    Ref<'a, Visibility>,
+    Ref<'a, Transform>,
 );
 
 pub struct EntityItem<'a> {
-    pub ldtk_entity: &'a EntityAsset,
-    pub ecs_entity: EcsEntity,
-    pub shieldtank_entity: Ref<'a, Entity>,
-    pub visibility: Ref<'a, Visibility>,
-    pub transform: Ref<'a, Transform>,
+    pub asset: &'a EntityAsset,
+    pub data: EntityData<'a>,
     pub query: &'a LdtkQuery<'a, 'a>,
+}
+
+impl EntityItem<'_> {
+    pub fn entity_asset(&self) -> &EntityAsset {
+        self.asset
+    }
+
+    pub fn ecs_entity(&self) -> EcsEntity {
+        self.data.0
+    }
+
+    pub fn entity(&self) -> &Entity {
+        &self.data.1
+    }
+
+    pub fn visibility(&self) -> &Visibility {
+        &self.data.2
+    }
+
+    pub fn transform(&self) -> &Transform {
+        &self.data.3
+    }
 }
 
 impl std::fmt::Debug for EntityItem<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("EntityItem")
-            .field("ecs_entity", &self.ecs_entity)
-            .field("shieldtank_entity", &self.shieldtank_entity)
-            .field("ldtk_entity", &self.ldtk_entity)
-            //.field("query", &self.query)
+            .field("ecs_entity", &self.data.0)
+            .field("identifier", &self.asset.identifier)
+            .field("iid", &self.asset.iid)
             .finish()
     }
 }
@@ -84,17 +106,17 @@ where
 
     fn next(&mut self) -> Option<Self::Item> {
         self.iter
-            .find(|item| item.ldtk_entity.identifier == self.identifier)
+            .find(|item| item.asset.identifier == self.identifier)
     }
 }
 
 pub trait EntityWithIdentifierExt<'a>: Iterator<Item = EntityItem<'a>> + Sized {
     fn added(self) -> impl Iterator<Item = EntityItem<'a>> {
-        self.filter(|item| item.shieldtank_entity.is_added())
+        self.filter(|item| item.data.1.is_added())
     }
 
     fn changed(self) -> impl Iterator<Item = EntityItem<'a>> {
-        self.filter(|item| item.shieldtank_entity.is_changed())
+        self.filter(|item| item.data.1.is_changed())
     }
 
     fn filter_identifier(self, identifier: &'a str) -> FilterIdentifier<'a, Self> {
@@ -102,7 +124,7 @@ pub trait EntityWithIdentifierExt<'a>: Iterator<Item = EntityItem<'a>> + Sized {
     }
 
     fn find_iid(mut self, iid: Iid) -> Option<EntityItem<'a>> {
-        self.find(|item| item.ldtk_entity.iid == iid)
+        self.find(|item| item.asset.iid == iid)
     }
 }
 
