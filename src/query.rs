@@ -1,4 +1,5 @@
 use bevy_asset::Assets;
+use bevy_ecs::entity::Entity as EcsEntity;
 use bevy_ecs::system::{Query, Res, SystemParam};
 use bevy_ldtk_asset::entity::Entity as EntityAsset;
 use bevy_ldtk_asset::level::Level as LevelAsset;
@@ -10,40 +11,34 @@ use crate::{
 
 #[derive(SystemParam)]
 pub struct LdtkQuery<'w, 's> {
-    ldtk_levels: Res<'w, Assets<LevelAsset>>,
-    ldtk_entities: Res<'w, Assets<EntityAsset>>,
-    levels_query: Query<'w, 's, LevelData<'static>>,
-    entities_query: Query<'w, 's, EntityData<'static>>,
+    pub(crate) level_assets: Res<'w, Assets<LevelAsset>>,
+    pub(crate) entity_assets: Res<'w, Assets<EntityAsset>>,
+    pub(crate) levels_query: Query<'w, 's, LevelData<'static>>,
+    pub(crate) entities_query: Query<'w, 's, EntityData<'static>>,
 }
 
 impl LdtkQuery<'_, '_> {
     pub fn levels(&self) -> impl Iterator<Item = LevelItem> {
-        self.levels_query
-            .iter()
-            .filter_map(|data| {
-                self.ldtk_levels
-                    .get(data.1.handle.id())
-                    .map(|level_asset| (level_asset, data))
-            })
-            .map(|(level_asset, data)| LevelItem {
-                asset: level_asset,
-                data,
-                query: self,
-            })
+        LevelItem::make_entity_iterator(self)
     }
 
     pub fn entities(&self) -> impl Iterator<Item = EntityItem> {
+        EntityItem::make_entity_iterator(self)
+    }
+
+    pub fn get_entity(&self, ecs_entity: EcsEntity) -> Option<EntityItem> {
         self.entities_query
-            .iter()
-            .filter_map(|data| {
-                self.ldtk_entities
+            .get(ecs_entity)
+            .ok()
+            .and_then(|data| {
+                self.entity_assets
                     .get(data.1.handle.id())
-                    .map(|entity_asset| (entity_asset, data))
+                    .map(|asset| (asset, data))
             })
-            .map(|(entity_asset, data)| EntityItem {
-                asset: entity_asset,
+            .map(|(asset, data)| EntityItem {
+                asset,
                 data,
-                query: self,
+                _query: self,
             })
     }
 }

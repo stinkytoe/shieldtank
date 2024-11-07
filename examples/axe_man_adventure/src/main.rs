@@ -2,7 +2,8 @@
 
 use bevy::prelude::*;
 use itertools::Itertools;
-use shieldtank::entity::EntityWithIdentifierExt;
+use shieldtank::item::LdtkItemIteratorExt;
+use shieldtank::level::LevelItemIteratorExt;
 use shieldtank::query::LdtkQuery;
 use shieldtank::{plugin::ShieldtankPlugin, project_config::ProjectConfig};
 
@@ -55,13 +56,24 @@ fn startup(
     });
 }
 
-fn update(entity_query: LdtkQuery) {
-    let Some(axe_man) = entity_query
+fn update(ldtk_query: LdtkQuery) {
+    let Ok(Some(axe_man)) = ldtk_query
         .entities()
         .filter_identifier("Axe_Man")
         .at_most_one()
-        .unwrap()
     else {
         return;
     };
+
+    let Ok(Some(level)) = ldtk_query
+        .levels()
+        .contains_point(axe_man.global_location())
+        .at_most_one()
+    else {
+        return;
+    };
+
+    //let axe_man_location = axe_man.get_grid();
+
+    info!("{}", level.get_asset().identifier);
 }

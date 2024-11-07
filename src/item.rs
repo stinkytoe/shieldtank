@@ -1,0 +1,110 @@
+use bevy_ldtk_asset::iid::Iid;
+use bevy_ldtk_asset::ldtk_asset_trait::LdtkAsset;
+
+use crate::query::LdtkQuery;
+
+pub struct LdtkItem<'a, A, D>
+where
+    A: LdtkAsset,
+    D: 'a,
+{
+    pub(crate) asset: &'a A,
+    pub(crate) data: D,
+    pub(crate) _query: &'a LdtkQuery<'a, 'a>,
+}
+
+impl<'a, A, D> LdtkItem<'a, A, D>
+where
+    D: 'a,
+    A: LdtkAsset,
+{
+    pub fn get_asset(&self) -> &A {
+        self.asset
+    }
+
+    pub fn get_data(&self) -> &D {
+        &self.data
+    }
+}
+
+pub trait LdtkItemIteratorExt<'a, A, D>
+where
+    Self: Iterator<Item = LdtkItem<'a, A, D>> + Sized,
+    A: LdtkAsset,
+    D: 'a,
+{
+    fn filter_identifier(self, identifier: &'a str) -> LdtkItemFilterIdentifier<'a, A, D, Self> {
+        LdtkItemFilterIdentifier {
+            iter: self,
+            identifier,
+        }
+    }
+
+    fn find_iid(mut self, iid: Iid) -> Option<LdtkItem<'a, A, D>> {
+        self.find(|item| item.asset.iid() == iid)
+    }
+}
+
+pub struct LdtkItemFilterIdentifier<'a, A, D, I>
+where
+    A: LdtkAsset,
+    D: 'a,
+    I: Iterator<Item = LdtkItem<'a, A, D>>,
+{
+    iter: I,
+    identifier: &'a str,
+}
+
+impl<'a, A, D, I> Iterator for LdtkItemFilterIdentifier<'a, A, D, I>
+where
+    A: LdtkAsset,
+    D: 'a,
+    I: Iterator<Item = LdtkItem<'a, A, D>>,
+{
+    type Item = LdtkItem<'a, A, D>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter
+            .find(|item| item.asset.identifier() == self.identifier)
+    }
+}
+
+impl<'a, A, D, I> LdtkItemIteratorExt<'a, A, D> for I
+where
+    A: LdtkAsset,
+    D: 'a,
+    I: Iterator<Item = LdtkItem<'a, A, D>>,
+{
+}
+
+//#[derive(SystemParam)]
+//pub struct LdtkQuery<'w, 's> {
+//    pub(crate) entity_assets: Res<'w, Assets<EntityAsset>>,
+//    pub(crate) entities_query: Query<'w, 's, EntityData<'static>>,
+//}
+//
+//impl LdtkQuery<'_, '_> {
+//    pub fn entities(&self) -> impl Iterator<Item = EntityItem<'_>> {
+//        EntityItem::make_entity_iterator(self)
+//    }
+//}
+
+////////////////////////////////////////////////////////////////////////////////
+
+//fn test_system(ldtk_query: LdtkQuery) {
+//    let _x = ldtk_query
+//        .entities()
+//        .filter_identifier("Axe_Man")
+//        .find_iid(Iid::from_str("").unwrap());
+//}
+//
+//pub struct TestPlugin;
+//impl Plugin for TestPlugin {
+//    fn build(&self, app: &mut App) {
+//        app.add_systems(Update, test_system);
+//    }
+//}
+//
+//pub fn test_main() {
+//    App::new().add_plugins(TestPlugin);
+//}

@@ -4,6 +4,7 @@ pub mod component;
 pub mod entity;
 pub mod error;
 pub mod int_grid;
+pub mod item;
 pub mod layer;
 pub mod level;
 pub mod level_background;
