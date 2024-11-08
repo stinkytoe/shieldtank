@@ -57,7 +57,7 @@ fn startup(
 }
 
 fn update(ldtk_query: LdtkQuery) {
-    let Ok(Some(axe_man)) = ldtk_query
+    let Ok(Some(_axe_man)) = ldtk_query
         .entities()
         .filter_identifier("Axe_Man")
         .at_most_one()
@@ -65,13 +65,13 @@ fn update(ldtk_query: LdtkQuery) {
         return;
     };
 
-    let Ok(Some(level)) = ldtk_query
-        .levels()
-        .contains_point(axe_man.get_global_location())
-        .at_most_one()
-    else {
-        return;
-    };
+    //let Ok(Some(level)) = ldtk_query
+    //    .levels()
+    //    .contains_point(axe_man.get_global_location())
+    //    .at_most_one()
+    //else {
+    //    return;
+    //};
 
     //let axe_man_location = axe_man.get_grid();
 }

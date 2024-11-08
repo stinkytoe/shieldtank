@@ -104,35 +104,3 @@ where
     I: Iterator<Item = LdtkItem<'a, A, D>>,
 {
 }
-
-//#[derive(SystemParam)]
-//pub struct LdtkQuery<'w, 's> {
-//    pub(crate) entity_assets: Res<'w, Assets<EntityAsset>>,
-//    pub(crate) entities_query: Query<'w, 's, EntityData<'static>>,
-//}
-//
-//impl LdtkQuery<'_, '_> {
-//    pub fn entities(&self) -> impl Iterator<Item = EntityItem<'_>> {
-//        EntityItem::make_entity_iterator(self)
-//    }
-//}
-
-////////////////////////////////////////////////////////////////////////////////
-
-//fn test_system(ldtk_query: LdtkQuery) {
-//    let _x = ldtk_query
-//        .entities()
-//        .filter_identifier("Axe_Man")
-//        .find_iid(Iid::from_str("").unwrap());
-//}
-//
-//pub struct TestPlugin;
-//impl Plugin for TestPlugin {
-//    fn build(&self, app: &mut App) {
-//        app.add_systems(Update, test_system);
-//    }
-//}
-//
-//pub fn test_main() {
-//    App::new().add_plugins(TestPlugin);
-//}
