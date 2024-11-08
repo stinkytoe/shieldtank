@@ -13,10 +13,24 @@ where
     pub(crate) _query: &'a LdtkQuery<'a, 'a>,
 }
 
+impl<'a, A, D> std::fmt::Debug for LdtkItem<'a, A, D>
+where
+    A: LdtkAsset + std::fmt::Debug,
+    D: 'a,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("LdtkItem")
+            .field("asset", &self.asset)
+            //.field("data", &self.data)
+            //.field("_query", &self._query)
+            .finish()
+    }
+}
+
 impl<'a, A, D> LdtkItem<'a, A, D>
 where
-    D: 'a,
     A: LdtkAsset,
+    D: 'a,
 {
     pub fn get_asset(&self) -> &A {
         self.asset
@@ -53,6 +67,20 @@ where
 {
     iter: I,
     identifier: &'a str,
+}
+
+impl<'a, A, D, I> std::fmt::Debug for LdtkItemFilterIdentifier<'a, A, D, I>
+where
+    A: LdtkAsset,
+    D: 'a,
+    I: Iterator<Item = LdtkItem<'a, A, D>>,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("LdtkItemFilterIdentifier")
+            //.field("iter", &self.iter)
+            //.field("identifier", &self.identifier)
+            .finish()
+    }
 }
 
 impl<'a, A, D, I> Iterator for LdtkItemFilterIdentifier<'a, A, D, I>

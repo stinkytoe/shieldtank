@@ -1,5 +1,6 @@
 use bevy_asset::Assets;
 use bevy_core::Name;
+use bevy_ecs::change_detection::DetectChanges;
 use bevy_ecs::entity::Entity as EcsEntity;
 use bevy_ecs::event::EventReader;
 use bevy_ecs::system::{Commands, Query, Res};
@@ -37,7 +38,7 @@ impl LevelItem<'_> {
 }
 
 impl LevelItem<'_> {
-    pub(crate) fn make_entity_iterator<'a>(
+    pub(crate) fn make_level_iterator<'a>(
         query: &'a LdtkQuery,
     ) -> impl Iterator<Item = LevelItem<'a>> {
         query
@@ -55,9 +56,38 @@ impl LevelItem<'_> {
                 _query: query,
             })
     }
+
+    pub(crate) fn get_level<'a>(
+        query: &'a LdtkQuery,
+        ecs_entity: EcsEntity,
+    ) -> Option<LevelItem<'a>> {
+        query
+            .levels_query
+            .get(ecs_entity)
+            .ok()
+            .and_then(|data| {
+                query
+                    .level_assets
+                    .get(data.1.handle.id())
+                    .map(|asset| (asset, data))
+            })
+            .map(|(asset, data)| LevelItem {
+                asset,
+                data,
+                _query: query,
+            })
+    }
 }
 
 pub trait LevelItemIteratorExt<'a>: Iterator<Item = LevelItem<'a>> + Sized {
+    fn added(self) -> impl Iterator<Item = LevelItem<'a>> {
+        self.filter(|item| item.data.1.is_added())
+    }
+
+    fn changed(self) -> impl Iterator<Item = LevelItem<'a>> {
+        self.filter(|item| item.data.1.is_changed())
+    }
+
     fn contains_point(self, point: Vec2) -> impl Iterator<Item = LevelItem<'a>> {
         self.filter(move |item| {
             let p0 = item.transform().translation.truncate();
@@ -70,7 +100,6 @@ pub trait LevelItemIteratorExt<'a>: Iterator<Item = LevelItem<'a>> + Sized {
 }
 
 impl<'a, I: Iterator<Item = LevelItem<'a>>> LevelItemIteratorExt<'a> for I {}
-//
 
 pub(crate) fn level_finalize_on_event(
     mut commands: Commands,

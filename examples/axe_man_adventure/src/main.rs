@@ -67,13 +67,11 @@ fn update(ldtk_query: LdtkQuery) {
 
     let Ok(Some(level)) = ldtk_query
         .levels()
-        .contains_point(axe_man.global_location())
+        .contains_point(axe_man.get_global_location())
         .at_most_one()
     else {
         return;
     };
 
     //let axe_man_location = axe_man.get_grid();
-
-    info!("{}", level.get_asset().identifier);
 }

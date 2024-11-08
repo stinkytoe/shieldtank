@@ -3,6 +3,7 @@ use bevy_core::Name;
 use bevy_ecs::entity::Entity as EcsEntity;
 use bevy_ecs::event::EventReader;
 use bevy_ecs::system::{Commands, Query, Res};
+use bevy_ecs::world::Ref;
 use bevy_hierarchy::{BuildChildren, ChildBuild};
 use bevy_ldtk_asset::layer::Layer as LayerAsset;
 use bevy_ldtk_asset::layer_definition::LayerDefinition;
@@ -14,11 +15,63 @@ use bevy_transform::components::Transform;
 use crate::component::{DoFinalizeEvent, LdtkComponent, LdtkComponentExt};
 use crate::entity::Entity;
 use crate::int_grid::IntGrid;
+use crate::item::LdtkItem;
 use crate::project_config::ProjectConfig;
+use crate::query::LdtkQuery;
 use crate::tiles::Tiles;
 use crate::{bad_handle, Result};
 
 pub type Layer = LdtkComponent<LayerAsset>;
+pub type LayerItem<'a> = LdtkItem<'a, LayerAsset, LayerData<'a>>;
+pub type LayerData<'a> = (
+    EcsEntity,
+    Ref<'a, Layer>,
+    Ref<'a, Visibility>,
+    Ref<'a, Transform>,
+    Option<Ref<'a, Tiles>>,
+);
+
+impl LayerItem<'_> {
+    pub(crate) fn make_layer_iterator<'a>(
+        query: &'a LdtkQuery,
+    ) -> impl Iterator<Item = LayerItem<'a>> {
+        query
+            .layers_query
+            .iter()
+            .filter_map(|data| {
+                query
+                    .layer_assets
+                    .get(data.1.handle.id())
+                    .map(|asset| (asset, data))
+            })
+            .map(|(asset, data)| LayerItem {
+                asset,
+                data,
+                _query: query,
+            })
+    }
+
+    pub(crate) fn get_layer<'a>(
+        query: &'a LdtkQuery,
+        ecs_entity: EcsEntity,
+    ) -> Option<LayerItem<'a>> {
+        query
+            .layers_query
+            .get(ecs_entity)
+            .ok()
+            .and_then(|data| {
+                query
+                    .layer_assets
+                    .get(data.1.handle.id())
+                    .map(|asset| (asset, data))
+            })
+            .map(|(asset, data)| LayerItem {
+                asset,
+                data,
+                _query: query,
+            })
+    }
+}
 
 pub(crate) fn layer_finalize_on_event(
     mut commands: Commands,

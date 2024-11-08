@@ -2257,34 +2257,14 @@
 							"__tags": ["player"],
 							"__tile": { "tilesetUid": 288, "x": 0, "y": 0, "w": 32, "h": 32 },
 							"__smartColor": "#BE4A2F",
-							"iid": "e41ad760-25d0-11ef-bd94-e3313b674128",
+							"iid": "12f6bfc0-9b00-11ef-9b1f-9f6d35f20739",
 							"width": 16,
 							"height": 16,
 							"defUid": 287,
 							"px": [120,136],
 							"fieldInstances": [
-								{ "__identifier": "Swing", "__type": "Tile", "__value": { "tilesetUid": 288, "x": 32, "y": 64, "w": 32, "h": 32 }, "__tile": null, "defUid": 329, "realEditorValues": [{
-									"id": "V_String",
-									"params": ["32,64,32,32"]
-								}] },
-								{ "__identifier": "Swing2", "__type": "Array<Tile>", "__value": [
-									{ "tilesetUid": 288, "x": 0, "y": 64, "w": 32, "h": 32 },
-									{ "tilesetUid": 288, "x": 32, "y": 64, "w": 32, "h": 32 },
-									{ "tilesetUid": 288, "x": 64, "y": 64, "w": 32, "h": 32 },
-									{ "tilesetUid": 288, "x": 96, "y": 64, "w": 32, "h": 32 }
-								], "__tile": null, "defUid": 332, "realEditorValues": [ {
-									"id": "V_String",
-									"params": ["0,64,32,32"]
-								}, {
-									"id": "V_String",
-									"params": ["32,64,32,32"]
-								}, {
-									"id": "V_String",
-									"params": ["64,64,32,32"]
-								}, {
-									"id": "V_String",
-									"params": ["96,64,32,32"]
-								} ] }
+								{ "__identifier": "Swing", "__type": "Tile", "__value": { "tilesetUid": 288, "x": 24, "y": 56, "w": 48, "h": 32 }, "__tile": null, "defUid": 329, "realEditorValues": [] },
+								{ "__identifier": "Swing2", "__type": "Array<Tile>", "__value": [], "__tile": null, "defUid": 332, "realEditorValues": [] }
 							],
 							"__worldX": -136,
 							"__worldY": 8
