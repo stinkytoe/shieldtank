@@ -62,7 +62,7 @@ impl Tiles {
                 tile_image = image::imageops::flip_horizontal(&tile_image);
             }
 
-            let opacity = (tile.opacity * 255.0) as u16;
+            let opacity = ((layer_instance.opacity as f32) * tile.opacity * 255.0) as u16;
             tile_image.enumerate_pixels_mut().for_each(|(_, _, pixel)| {
                 let register: u16 = (opacity * (pixel[3] as u16)) / 255;
 
