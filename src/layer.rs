@@ -7,6 +7,7 @@ use bevy_ldtk_asset::layer_definition::LayerDefinition;
 use bevy_utils::error;
 
 use crate::component::{FinalizeEvent, LdtkComponent};
+use crate::impl_recurrent_identifer_iterator;
 use crate::int_grid::IntGrid;
 use crate::item::LdtkItem;
 use crate::tiles::Tiles;
@@ -14,6 +15,8 @@ use crate::{bad_ecs_entity, bad_handle, Result};
 
 pub type Layer = LdtkComponent<LayerAsset>;
 pub type LayerItem<'a> = LdtkItem<'a, LayerAsset>;
+
+impl_recurrent_identifer_iterator!(LayerAsset);
 
 pub struct LayerPlugin;
 impl Plugin for LayerPlugin {
