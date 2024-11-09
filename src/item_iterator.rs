@@ -26,3 +26,26 @@ where
     Asset: LdtkAsset + Sized + std::fmt::Debug,
 {
 }
+
+pub trait LdtkItemUniqueIdentifierIterator<Asset>
+where
+    Self: Iterator + Sized,
+    Self::Item: LdtkItemTrait<Asset>,
+    Asset: LdtkAsset + Sized + std::fmt::Debug,
+{
+    fn find_identifier(mut self, identifier: &str) -> Option<impl LdtkItemTrait<Asset>> {
+        self.find(|item| item.get_identifier() == identifier)
+    }
+}
+
+#[macro_export]
+macro_rules! impl_unique_identifer_iterator {
+    ($asset:tt) => {
+        impl<Iter> $crate::item_iterator::LdtkItemUniqueIdentifierIterator<$asset> for Iter
+        where
+            Iter: Iterator + Sized,
+            Iter::Item: $crate::item::LdtkItemTrait<$asset>,
+        {
+        }
+    };
+}

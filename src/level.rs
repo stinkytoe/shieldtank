@@ -8,10 +8,12 @@ use bevy_utils::error;
 use crate::component::{FinalizeEvent, LdtkComponent};
 use crate::item::LdtkItem;
 use crate::level_background::LevelBackground;
-use crate::{bad_ecs_entity, bad_handle, Result};
+use crate::{bad_ecs_entity, bad_handle, impl_unique_identifer_iterator, Result};
 
 pub type Level = LdtkComponent<LevelAsset>;
 pub type LevelItem<'a> = LdtkItem<'a, LevelAsset>;
+
+impl_unique_identifer_iterator!(LevelAsset);
 
 pub struct LevelPlugin;
 impl Plugin for LevelPlugin {

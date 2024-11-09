@@ -4,7 +4,7 @@ use std::str::FromStr;
 
 use bevy::prelude::*;
 use shieldtank::bevy_ldtk_asset::iid::Iid;
-use shieldtank::item_iterator::LdtkItemIterator;
+use shieldtank::item_iterator::{LdtkItemIterator, LdtkItemUniqueIdentifierIterator};
 use shieldtank::plugin::ShieldtankPlugins;
 use shieldtank::project_config::ProjectConfig;
 use shieldtank::query::LdtkQuery;
@@ -50,8 +50,8 @@ fn startup(
         Transform::from_scale(Vec2::splat(0.4).extend(1.0)),
     ));
 
-    commands.spawn(shieldtank::project::Project {
-        handle: asset_server.load("ldtk/axe_man_adventure.ldtk"),
+    commands.spawn(shieldtank::world::World {
+        handle: asset_server.load("ldtk/axe_man_adventure.ldtk#World"),
         config: asset_server.load("config/example.project_config.ron"),
     });
 }
@@ -59,6 +59,10 @@ fn startup(
 fn update(ldtk_query: LdtkQuery) {
     let axe_man_iid = Iid::from_str("12f6bfc0-9b00-11ef-9b1f-9f6d35f20739").unwrap();
     let Some(_axe_man) = ldtk_query.entities().find_iid(axe_man_iid) else {
+        return;
+    };
+
+    let Some(_level) = ldtk_query.levels().find_identifier("Peninsula_of_Pain") else {
         return;
     };
 }
