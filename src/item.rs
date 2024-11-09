@@ -208,14 +208,14 @@ where
 {
 }
 
-pub struct LdtkPlugin<Asset>
+pub struct LdtkAssetPlugin<Asset>
 where
     Asset: LdtkAsset + Sized,
 {
     _phantom: PhantomData<Asset>,
 }
 
-impl<Asset> Plugin for LdtkPlugin<Asset>
+impl<Asset> Plugin for LdtkAssetPlugin<Asset>
 where
     Asset: LdtkAsset + Sized + std::fmt::Debug,
 {
@@ -227,11 +227,13 @@ where
                 send_finalize_if_ready::<Asset>,
                 handle_finalize_event::<Asset>.map(error),
             ),
-        );
+        )
+        .insert_resource(AwaitingFinalize::<Asset>::default())
+        .add_event::<FinalizeEvent<Asset>>();
     }
 }
 
-impl<Asset> Default for LdtkPlugin<Asset>
+impl<Asset> Default for LdtkAssetPlugin<Asset>
 where
     Asset: LdtkAsset + Sized,
 {
@@ -242,7 +244,7 @@ where
     }
 }
 
-pub struct LdtkPluginChildSpawner<ParentAsset, ChildAsset>
+pub struct LdtkChildSpawnerPlugin<ParentAsset, ChildAsset>
 where
     ParentAsset: LdtkAsset + LdtkAssetWithChildren<ChildAsset>,
     ChildAsset: LdtkAsset,
@@ -250,7 +252,7 @@ where
     _phantom: PhantomData<(ParentAsset, ChildAsset)>,
 }
 
-impl<ParentAsset, ChildAsset> Plugin for LdtkPluginChildSpawner<ParentAsset, ChildAsset>
+impl<ParentAsset, ChildAsset> Plugin for LdtkChildSpawnerPlugin<ParentAsset, ChildAsset>
 where
     ParentAsset: LdtkAsset + LdtkAssetWithChildren<ChildAsset> + std::fmt::Debug,
     ChildAsset: LdtkAsset,
@@ -263,7 +265,7 @@ where
     }
 }
 
-impl<ParentAsset, ChildAsset> Default for LdtkPluginChildSpawner<ParentAsset, ChildAsset>
+impl<ParentAsset, ChildAsset> Default for LdtkChildSpawnerPlugin<ParentAsset, ChildAsset>
 where
     ParentAsset: LdtkAsset + LdtkAssetWithChildren<ChildAsset>,
     ChildAsset: LdtkAsset,

@@ -1,4 +1,6 @@
+use bevy_app::Plugin;
 use bevy_asset::Asset;
+use bevy_asset::AssetApp;
 use bevy_asset::AssetLoader;
 use bevy_asset::AsyncReadExt;
 use bevy_reflect::Reflect;
@@ -41,5 +43,15 @@ impl AssetLoader for ProjectConfigLoader {
 
     fn extensions(&self) -> &[&str] {
         &["project_config.ron"]
+    }
+}
+
+pub struct ProjectConfigPlugin;
+
+impl Plugin for ProjectConfigPlugin {
+    fn build(&self, app: &mut bevy_app::App) {
+        app.init_asset::<ProjectConfig>()
+            .init_asset_loader::<ProjectConfigLoader>()
+            .register_asset_reflect::<ProjectConfig>();
     }
 }

@@ -1,8 +1,11 @@
+use bevy_app::Plugin;
+use bevy_app::Update;
 use bevy_asset::Assets;
 use bevy_ecs::component::Component;
 use bevy_ecs::entity::Entity;
 use bevy_ecs::query::Changed;
 use bevy_ecs::system::Commands;
+use bevy_ecs::system::IntoSystem;
 use bevy_ecs::system::Query;
 use bevy_ecs::system::Res;
 use bevy_ldtk_asset::tileset_definition::TilesetDefinition;
@@ -10,6 +13,7 @@ use bevy_ldtk_asset::tileset_rectangle::TilesetRectangle as LdtkTilesetRectangle
 use bevy_log::trace;
 use bevy_reflect::Reflect;
 use bevy_sprite::{Anchor, Sprite};
+use bevy_utils::error;
 
 use crate::{bad_handle, Result};
 
@@ -51,4 +55,11 @@ pub(crate) fn handle_tileset_rectangle_system(
             Ok(())
         },
     )
+}
+
+pub struct TilesetRectangleSystem;
+impl Plugin for TilesetRectangleSystem {
+    fn build(&self, app: &mut bevy_app::App) {
+        app.add_systems(Update, handle_tileset_rectangle_system.map(error));
+    }
 }

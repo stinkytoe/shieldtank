@@ -1,3 +1,5 @@
+use bevy_app::Plugin;
+use bevy_app::Update;
 use bevy_asset::{Assets, Handle, RenderAssetUsages};
 use bevy_color::Color;
 use bevy_color::ColorToPacked;
@@ -5,6 +7,7 @@ use bevy_ecs::component::Component;
 use bevy_ecs::entity::Entity;
 use bevy_ecs::query::Changed;
 use bevy_ecs::system::Commands;
+use bevy_ecs::system::IntoSystem;
 use bevy_ecs::system::Query;
 use bevy_ecs::system::ResMut;
 use bevy_ldtk_asset::level::Level as LdtkLevel;
@@ -14,6 +17,7 @@ use bevy_math::Vec2;
 use bevy_reflect::Reflect;
 use bevy_render::texture::Image;
 use bevy_sprite::{Anchor, Sprite};
+use bevy_utils::error;
 
 use crate::{bad_handle, Result};
 
@@ -111,4 +115,11 @@ pub(crate) fn level_background_system(
         })?;
 
     Ok(())
+}
+
+pub struct LevelBackgroundPlugin;
+impl Plugin for LevelBackgroundPlugin {
+    fn build(&self, app: &mut bevy_app::App) {
+        app.add_systems(Update, level_background_system.map(error));
+    }
 }

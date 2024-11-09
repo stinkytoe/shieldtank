@@ -1,8 +1,11 @@
+use bevy_app::Plugin;
+use bevy_app::Update;
 use bevy_asset::{Assets, Handle, RenderAssetUsages};
 use bevy_ecs::component::Component;
 use bevy_ecs::entity::Entity;
 use bevy_ecs::query::Changed;
 use bevy_ecs::system::Commands;
+use bevy_ecs::system::IntoSystem;
 use bevy_ecs::system::Query;
 use bevy_ecs::system::{Res, ResMut};
 use bevy_ldtk_asset::layer::{Layer as LayerAsset, TilesLayer};
@@ -10,6 +13,7 @@ use bevy_ldtk_asset::tile_instance::TileInstance;
 use bevy_reflect::Reflect;
 use bevy_render::texture::Image;
 use bevy_sprite::{Anchor, Sprite};
+use bevy_utils::error;
 
 use crate::layer::Layer;
 use crate::{bad_handle, Error, Result};
@@ -106,4 +110,11 @@ pub(crate) fn handle_tiles_system(
 
             Ok(())
         })
+}
+
+pub struct TilesPlugin;
+impl Plugin for TilesPlugin {
+    fn build(&self, app: &mut bevy_app::App) {
+        app.add_systems(Update, handle_tiles_system.map(error));
+    }
 }
