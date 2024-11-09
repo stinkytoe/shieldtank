@@ -6,6 +6,7 @@ pub mod entity;
 pub mod error;
 pub mod int_grid;
 pub mod item;
+pub mod item_iterator;
 pub mod layer;
 pub mod level;
 pub mod level_background;

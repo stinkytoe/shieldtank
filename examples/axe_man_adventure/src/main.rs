@@ -4,7 +4,7 @@ use std::str::FromStr;
 
 use bevy::prelude::*;
 use shieldtank::bevy_ldtk_asset::iid::Iid;
-use shieldtank::item::LdtkItemIterator;
+use shieldtank::item_iterator::LdtkItemIterator;
 use shieldtank::plugin::ShieldtankPlugins;
 use shieldtank::project_config::ProjectConfig;
 use shieldtank::query::LdtkQuery;
