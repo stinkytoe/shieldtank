@@ -7,6 +7,7 @@ use bevy_ecs::query::Changed;
 use bevy_ecs::system::Commands;
 use bevy_ecs::system::Query;
 use bevy_ecs::system::ResMut;
+use bevy_ldtk_asset::level::Level as LdtkLevel;
 use bevy_ldtk_asset::level::LevelBackground as LdtkLevelBackground;
 use bevy_log::debug;
 use bevy_math::Vec2;
@@ -24,6 +25,17 @@ pub struct LevelBackground {
 }
 
 impl LevelBackground {
+    pub fn new(value: &LdtkLevel) -> Self {
+        let color = value.bg_color;
+        let size = value.size;
+        let background = value.background.clone();
+        LevelBackground {
+            color,
+            size,
+            background,
+        }
+    }
+
     fn generate_image(&self, assets: &mut Assets<Image>) -> Result<Handle<Image>> {
         let mut background_image = image::RgbaImage::new(self.size.x as u32, self.size.y as u32);
 
