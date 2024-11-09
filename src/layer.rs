@@ -33,9 +33,7 @@ pub(crate) fn layer_finalize_int_grid_and_tiles(
     query: Query<&Layer>,
 ) -> Result<()> {
     events.read().try_for_each(|event| -> Result<()> {
-        let FinalizeEvent {
-            entity: ecs_entity, ..
-        } = event;
+        let FinalizeEvent { ecs_entity, .. } = event;
 
         let component = query
             .get(*ecs_entity)

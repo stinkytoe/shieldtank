@@ -89,9 +89,7 @@ where
 {
     events.read().try_for_each(|event| -> Result<()> {
         trace!("FinalizeEvent: {event:?}");
-        let FinalizeEvent {
-            entity: ecs_entity, ..
-        } = event;
+        let FinalizeEvent { ecs_entity, .. } = event;
 
         let (ecs_entity, component) = query
             .get(*ecs_entity)

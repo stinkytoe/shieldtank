@@ -3,12 +3,8 @@
 use std::str::FromStr;
 
 use bevy::prelude::*;
-use itertools::Itertools;
 use shieldtank::bevy_ldtk_asset::iid::Iid;
-use shieldtank::entity::EntityItemIteratorExt;
-use shieldtank::item_iterator::{
-    LdtkItemIterator, LdtkItemRecurrentIdentifierIterator, LdtkItemUniqueIdentifierIterator,
-};
+use shieldtank::item_iterator::{LdtkItemIterator, LdtkItemUniqueIdentifierIterator};
 use shieldtank::plugin::ShieldtankPlugins;
 use shieldtank::project_config::ProjectConfig;
 use shieldtank::query::LdtkQuery;
@@ -22,6 +18,7 @@ fn main() {
                 level: bevy::log::Level::WARN,
                 filter: "wgpu_hal=off,\
                     winit=off,\
+                    bevy_winit=off,\
                     bevy_ldtk_asset=debug,\
                     shieldtank=debug,\
                     axe_man_adventure=trace"
@@ -63,24 +60,6 @@ fn startup(
 fn update(ldtk_query: LdtkQuery) {
     let axe_man_iid = Iid::from_str("12f6bfc0-9b00-11ef-9b1f-9f6d35f20739").unwrap();
     let Some(_axe_man) = ldtk_query.entities().find_iid(axe_man_iid) else {
-        return;
-    };
-
-    let Some(_axe_man) = ldtk_query
-        .entities()
-        .filter_identifier("Axe_Man")
-        .at_most_one()
-        .unwrap()
-    else {
-        return;
-    };
-
-    let Some(_axe_man) = ldtk_query
-        .entities()
-        .filter_tag("player")
-        .at_most_one()
-        .unwrap()
-    else {
         return;
     };
 

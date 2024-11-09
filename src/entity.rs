@@ -16,6 +16,29 @@ pub type EntityItem<'a> = LdtkItem<'a, EntityAsset>;
 
 impl_recurrent_identifer_iterator!(EntityAsset);
 
+pub trait EntityItemIteratorExt<'a>
+where
+    Self: Iterator<Item = EntityItem<'a>> + Sized,
+{
+    fn filter_tag(self, tag: &'a str) -> EntityFilterTagsIterator<'a, Self> {
+        EntityFilterTagsIterator { iter: self, tag }
+    }
+}
+
+impl<'a, Iter> std::fmt::Debug for EntityFilterTagsIterator<'a, Iter>
+where
+    Iter: Iterator<Item = EntityItem<'a>>,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("EntityFilterTagsIterator")
+            //.field("iter", &self.iter)
+            .field("tag", &self.tag)
+            .finish()
+    }
+}
+
+impl<'a, Iter> EntityItemIteratorExt<'a> for Iter where Iter: Iterator<Item = EntityItem<'a>> {}
+
 pub struct EntityFilterTagsIterator<'a, Iter>
 where
     Iter: Iterator<Item = EntityItem<'a>>,
@@ -40,29 +63,6 @@ where
     }
 }
 
-pub trait EntityItemIteratorExt<'a>
-where
-    Self: Iterator<Item = EntityItem<'a>> + Sized,
-{
-    fn filter_tag(self, tag: &'a str) -> EntityFilterTagsIterator<'a, Self> {
-        EntityFilterTagsIterator { iter: self, tag }
-    }
-}
-
-impl<'a, Iter> std::fmt::Debug for EntityFilterTagsIterator<'a, Iter>
-where
-    Iter: Iterator<Item = EntityItem<'a>>,
-{
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("EntityFilterTagsIterator")
-            //.field("iter", &self.iter)
-            .field("tag", &self.tag)
-            .finish()
-    }
-}
-
-impl<'a, Iter> EntityItemIteratorExt<'a> for Iter where Iter: Iterator<Item = EntityItem<'a>> {}
-
 pub struct EntityPlugin;
 impl Plugin for EntityPlugin {
     fn build(&self, app: &mut bevy_app::App) {
@@ -77,9 +77,7 @@ pub(crate) fn entity_finalize_tileset_rectangle(
     query: Query<&Entity>,
 ) -> Result<()> {
     events.read().try_for_each(|event| -> Result<()> {
-        let FinalizeEvent {
-            entity: ecs_entity, ..
-        } = event;
+        let FinalizeEvent { ecs_entity, .. } = event;
 
         let component = query
             .get(*ecs_entity)

@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 
 use bevy_asset::{Asset, AssetEvent, AssetServer, Handle};
 use bevy_ecs::component::Component;
-use bevy_ecs::entity::Entity;
+use bevy_ecs::entity::Entity as EcsEntity;
 use bevy_ecs::event::{Event, EventReader, EventWriter};
 use bevy_ecs::query::Changed;
 use bevy_ecs::system::Resource;
@@ -16,18 +16,18 @@ use crate::project_config::ProjectConfig;
 use crate::Result;
 
 #[derive(Component, Debug, Reflect)]
-pub struct LdtkComponent<A: Asset> {
-    pub handle: Handle<A>,
+pub struct LdtkComponent<Asset: LdtkAsset> {
+    pub handle: Handle<Asset>,
     pub config: Handle<ProjectConfig>,
 }
 
-impl<A: Asset> LdtkComponentExt<A> for LdtkComponent<A> {
+impl<Asset: LdtkAsset> LdtkComponentExt<Asset> for LdtkComponent<Asset> {
     fn is_loaded(&self, asset_server: &AssetServer) -> bool {
         asset_server.is_loaded_with_dependencies(self.handle.id())
             && asset_server.is_loaded_with_dependencies(self.config.id())
     }
 
-    fn get_handle(&self) -> Handle<A> {
+    fn get_handle(&self) -> Handle<Asset> {
         self.handle.clone()
     }
 
@@ -43,14 +43,14 @@ pub(crate) trait LdtkComponentExt<A: Asset> {
 }
 
 #[allow(clippy::too_many_arguments)]
-pub(crate) fn handle_ldtk_component_added<A: LdtkAsset>(
-    mut project_events: EventReader<AssetEvent<A>>,
+pub(crate) fn handle_ldtk_component_added<Asset: LdtkAsset>(
+    mut project_events: EventReader<AssetEvent<Asset>>,
     mut config_events: EventReader<AssetEvent<ProjectConfig>>,
-    mut awaiting_finalize: ResMut<AwaitingFinalize<A>>,
-    query: Query<(&LdtkComponent<A>, Entity)>,
-    query_changed: Query<(&LdtkComponent<A>, Entity), Changed<LdtkComponent<A>>>,
+    mut awaiting_finalize: ResMut<AwaitingFinalize<Asset>>,
+    query: Query<(&LdtkComponent<Asset>, EcsEntity)>,
+    query_changed: Query<(&LdtkComponent<Asset>, EcsEntity), Changed<LdtkComponent<Asset>>>,
 ) -> Result<()> {
-    let with_added_component_handle: HashSet<Entity> = project_events
+    let with_added_component_handle: HashSet<EcsEntity> = project_events
         .read()
         .filter_map(|event| match event {
             AssetEvent::Modified { id } => Some(*id),
@@ -65,7 +65,7 @@ pub(crate) fn handle_ldtk_component_added<A: LdtkAsset>(
         })
         .collect();
 
-    let with_added_config_handle: HashSet<Entity> = config_events
+    let with_added_config_handle: HashSet<EcsEntity> = config_events
         .read()
         .filter_map(|event| match event {
             AssetEvent::Modified { id } => Some(*id),
@@ -80,13 +80,13 @@ pub(crate) fn handle_ldtk_component_added<A: LdtkAsset>(
         })
         .collect();
 
-    let with_changed_component: HashSet<Entity> = query_changed
+    let with_changed_component: HashSet<EcsEntity> = query_changed
         .iter()
         .inspect(|(_, entity, ..)| trace!("Component changed for: {entity:?}"))
         .map(|(_, entity, ..)| entity)
         .collect();
 
-    let entities_to_finalize: HashSet<Entity> = with_added_component_handle
+    let entities_to_finalize: HashSet<EcsEntity> = with_added_component_handle
         .into_iter()
         .chain(with_added_config_handle)
         .chain(with_changed_component)
@@ -101,9 +101,9 @@ pub(crate) fn handle_ldtk_component_added<A: LdtkAsset>(
 }
 
 #[derive(Debug, Reflect, Resource)]
-pub(crate) struct AwaitingFinalize<A: LdtkAsset> {
-    pub(crate) map: HashSet<Entity>,
-    _phantom: PhantomData<A>,
+pub(crate) struct AwaitingFinalize<Asset: LdtkAsset> {
+    pub(crate) map: HashSet<EcsEntity>,
+    _phantom: PhantomData<Asset>,
 }
 
 impl<A: LdtkAsset> Default for AwaitingFinalize<A> {
@@ -117,24 +117,24 @@ impl<A: LdtkAsset> Default for AwaitingFinalize<A> {
 
 #[derive(Event, Debug, Reflect)]
 pub(crate) struct FinalizeEvent<A: Asset> {
-    pub entity: Entity,
+    pub ecs_entity: EcsEntity,
     _phantom: PhantomData<A>,
 }
 
 impl<A: Asset> FinalizeEvent<A> {
-    pub(crate) fn new(entity: Entity) -> Self {
+    pub(crate) fn new(entity: EcsEntity) -> Self {
         Self {
-            entity,
+            ecs_entity: entity,
             _phantom: PhantomData,
         }
     }
 }
 
-pub(crate) fn send_finalize_if_ready<A: LdtkAsset>(
+pub(crate) fn send_finalize_if_ready<Asset: LdtkAsset>(
     asset_server: Res<AssetServer>,
-    mut finalize_events: EventWriter<FinalizeEvent<A>>,
-    mut awaiting_finalize: ResMut<AwaitingFinalize<A>>,
-    query: Query<(Entity, &LdtkComponent<A>)>,
+    mut finalize_events: EventWriter<FinalizeEvent<Asset>>,
+    mut awaiting_finalize: ResMut<AwaitingFinalize<Asset>>,
+    query: Query<(EcsEntity, &LdtkComponent<Asset>)>,
 ) {
     awaiting_finalize.map.retain(|&entity| {
         trace!("waiting on entity: {entity:?}");

@@ -30,9 +30,7 @@ where
     ChildAsset: LdtkAsset,
 {
     events.read().try_for_each(|event| -> Result<()> {
-        let FinalizeEvent {
-            entity: ecs_entity, ..
-        } = event;
+        let FinalizeEvent { ecs_entity, .. } = event;
 
         let (parent_component, children) = parent_query.get(*ecs_entity).map_err(|e| {
             bad_ecs_entity!("bad entity when spawning children! {:?}! {e}", ecs_entity)

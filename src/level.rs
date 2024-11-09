@@ -29,9 +29,7 @@ pub(crate) fn level_finalize_on_event(
     query: Query<&Level>,
 ) -> Result<()> {
     events.read().try_for_each(|event| -> Result<()> {
-        let FinalizeEvent {
-            entity: ecs_entity, ..
-        } = event;
+        let FinalizeEvent { ecs_entity, .. } = event;
 
         let component = query
             .get(*ecs_entity)
