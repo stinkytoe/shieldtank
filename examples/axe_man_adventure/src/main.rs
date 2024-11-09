@@ -1,9 +1,10 @@
 //#![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
+use std::str::FromStr;
+
 use bevy::prelude::*;
-use itertools::Itertools;
-use shieldtank::item::LdtkItemIteratorExt;
-use shieldtank::level::LevelItemIteratorExt;
+use shieldtank::bevy_ldtk_asset::iid::Iid;
+use shieldtank::item::LdtkItemIterator;
 use shieldtank::query::LdtkQuery;
 use shieldtank::{plugin::ShieldtankPlugin, project_config::ProjectConfig};
 
@@ -50,28 +51,15 @@ fn startup(
         Transform::from_scale(Vec2::splat(0.4).extend(1.0)),
     ));
 
-    commands.spawn(shieldtank::world::World {
-        handle: asset_server.load("ldtk/axe_man_adventure.ldtk#World"),
+    commands.spawn(shieldtank::project::Project {
+        handle: asset_server.load("ldtk/axe_man_adventure.ldtk"),
         config: asset_server.load("config/example.project_config.ron"),
     });
 }
 
 fn update(ldtk_query: LdtkQuery) {
-    let Ok(Some(_axe_man)) = ldtk_query
-        .entities()
-        .filter_identifier("Axe_Man")
-        .at_most_one()
-    else {
+    let axe_man_iid = Iid::from_str("12f6bfc0-9b00-11ef-9b1f-9f6d35f20739").unwrap();
+    let Some(_axe_man) = ldtk_query.entities().find_iid(axe_man_iid) else {
         return;
     };
-
-    //let Ok(Some(level)) = ldtk_query
-    //    .levels()
-    //    .contains_point(axe_man.get_global_location())
-    //    .at_most_one()
-    //else {
-    //    return;
-    //};
-
-    //let axe_man_location = axe_man.get_grid();
 }

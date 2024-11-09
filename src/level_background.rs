@@ -37,7 +37,7 @@ impl LevelBackground {
         if let Some(background) = self.background.as_ref() {
             let ldtk_background_image = assets
                 .get(background.image.id())
-                .ok_or(bad_handle!(background.image))?
+                .ok_or(bad_handle!("bad handle! {:?}", background.image))?
                 .clone()
                 .try_into_dynamic()?;
 

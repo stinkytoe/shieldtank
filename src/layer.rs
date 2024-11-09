@@ -1,88 +1,38 @@
+use bevy_app::{Plugin, Update};
 use bevy_asset::Assets;
-use bevy_core::Name;
 use bevy_ecs::entity::Entity as EcsEntity;
 use bevy_ecs::event::EventReader;
-use bevy_ecs::system::{Commands, Query, Res};
-use bevy_ecs::world::Ref;
-use bevy_hierarchy::{BuildChildren, ChildBuild};
+use bevy_ecs::system::{Commands, IntoSystem, Query, Res};
 use bevy_ldtk_asset::layer::Layer as LayerAsset;
 use bevy_ldtk_asset::layer_definition::LayerDefinition;
 use bevy_log::debug;
-use bevy_math::Vec2;
-use bevy_render::view::Visibility;
-use bevy_transform::components::Transform;
+use bevy_utils::error;
 
-use crate::component::{DoFinalizeEvent, LdtkComponent, LdtkComponentExt};
-use crate::entity::Entity;
+use crate::component::{FinalizeEvent, LdtkComponent};
 use crate::int_grid::IntGrid;
 use crate::item::LdtkItem;
-use crate::project_config::ProjectConfig;
-use crate::query::LdtkQuery;
 use crate::tiles::Tiles;
 use crate::{bad_handle, Result};
 
 pub type Layer = LdtkComponent<LayerAsset>;
-pub type LayerItem<'a> = LdtkItem<'a, LayerAsset, LayerData<'a>>;
-pub type LayerData<'a> = (
-    EcsEntity,
-    Ref<'a, Layer>,
-    Ref<'a, Visibility>,
-    Ref<'a, Transform>,
-    Option<Ref<'a, Tiles>>,
-);
+pub type LayerItem<'a> = LdtkItem<'a, LayerAsset>;
 
-impl LayerItem<'_> {
-    pub(crate) fn make_layer_iterator<'a>(
-        query: &'a LdtkQuery,
-    ) -> impl Iterator<Item = LayerItem<'a>> {
-        query
-            .layers_query
-            .iter()
-            .filter_map(|data| {
-                query
-                    .layer_assets
-                    .get(data.1.handle.id())
-                    .map(|asset| (asset, data))
-            })
-            .map(|(asset, data)| LayerItem {
-                asset,
-                data,
-                _query: query,
-            })
-    }
-
-    pub(crate) fn get_layer<'a>(
-        query: &'a LdtkQuery,
-        ecs_entity: EcsEntity,
-    ) -> Option<LayerItem<'a>> {
-        query
-            .layers_query
-            .get(ecs_entity)
-            .ok()
-            .and_then(|data| {
-                query
-                    .layer_assets
-                    .get(data.1.handle.id())
-                    .map(|asset| (asset, data))
-            })
-            .map(|(asset, data)| LayerItem {
-                asset,
-                data,
-                _query: query,
-            })
+pub struct LayerPlugin;
+impl Plugin for LayerPlugin {
+    fn build(&self, app: &mut bevy_app::App) {
+        app.add_systems(Update, layer_finalize_on_event.map(error));
     }
 }
 
 pub(crate) fn layer_finalize_on_event(
     mut commands: Commands,
-    mut events: EventReader<DoFinalizeEvent<LayerAsset>>,
+    mut events: EventReader<FinalizeEvent<LayerAsset>>,
     layer_assets: Res<Assets<LayerAsset>>,
-    config_assets: Res<Assets<ProjectConfig>>,
     layer_definitions: Res<Assets<LayerDefinition>>,
     query: Query<(EcsEntity, &Layer)>,
 ) -> Result<()> {
     events.read().try_for_each(|event| -> Result<()> {
-        let DoFinalizeEvent {
+        let FinalizeEvent {
             entity: event_entity,
             ..
         } = event;
@@ -91,13 +41,7 @@ pub(crate) fn layer_finalize_on_event(
             .iter()
             .filter(|(entity, ..)| entity == event_entity)
             .try_for_each(|data| -> Result<()> {
-                finalize(
-                    &mut commands,
-                    data,
-                    &layer_assets,
-                    &config_assets,
-                    &layer_definitions,
-                )
+                finalize(&mut commands, data, &layer_assets, &layer_definitions)
             })
     })
 }
@@ -106,48 +50,22 @@ fn finalize(
     commands: &mut Commands,
     (ecs_entity, layer): (EcsEntity, &Layer),
     layer_assets: &Assets<LayerAsset>,
-    config_assets: &Assets<ProjectConfig>,
     layer_definitions: &Assets<LayerDefinition>,
 ) -> Result<()> {
     let layer_asset = layer_assets
-        .get(layer.get_handle().id())
-        .ok_or(bad_handle!(layer.get_handle()))?;
-
-    let project_config = config_assets
-        .get(layer.get_config_handle().id())
-        .ok_or(bad_handle!(layer.get_config_handle()))?;
-
-    let name = Name::from(layer_asset.identifier.clone());
-
-    let transform = Transform::from_translation(
-        Vec2::ZERO.extend(((layer_asset.index + 1) as f32) * project_config.layer_z_scale),
-    );
-
-    let visibility = Visibility::default();
+        .get(layer.handle.id())
+        .ok_or(bad_handle!("bad handle! {:?}", layer.handle))?;
 
     let mut entity_commands = commands.entity(ecs_entity);
-
-    entity_commands.insert((name, transform, visibility));
-
-    if let Some(entities_layer) = layer_asset.layer_type.get_entities_layer() {
-        entity_commands.with_children(|parent| {
-            entities_layer
-                .entity_handles
-                .values()
-                .for_each(|entity_handle| {
-                    parent.spawn(Entity {
-                        handle: entity_handle.clone(),
-                        config: layer.get_config_handle(),
-                    });
-                });
-        });
-    }
 
     if let Some(tiles_layer) = layer_asset.layer_type.get_tiles_layer() {
         // TODO: Unguarded Assets::get(..) here. Probably fine, but should fix.
         let layer_definition = layer_definitions
             .get(layer_asset.layer_definition.id())
-            .ok_or(bad_handle!(layer_asset.layer_definition))?;
+            .ok_or(bad_handle!(
+                "bad handle! {:?}",
+                layer_asset.layer_definition
+            ))?;
         let int_grid = IntGrid::from_layer(layer_asset, layer_definition)?;
         let tiles = Tiles::new(tiles_layer);
         entity_commands.insert((int_grid, tiles));

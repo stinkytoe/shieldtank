@@ -20,22 +20,23 @@ pub enum Error {
 
     #[error("Bad Int Grid! reason: {0}")]
     BadIntGrid(String),
+
+    #[error("Bad ecs entity! {0}")]
+    BadEcsEntity(String),
 }
 
 pub type Result<T> = core::result::Result<T, Error>;
 
 #[macro_export]
 macro_rules! bad_handle {
-    ($handle:expr) => {
-        $crate::Error::BadHandle(format!("{:?}", $handle.path()))
+    ($($args:tt)*) => {
+        $crate::error::Error::BadHandle(format!($($args)*))
     };
 }
-pub use bad_handle;
 
 #[macro_export]
-macro_rules! bad_entity {
-    ($entity:expr) => {
-        $crate::Error::BadEntity(format!("{:?}", $entity))
+macro_rules! bad_ecs_entity {
+    ($($args:tt)*) => {
+        $crate::error::Error::BadEcsEntity(format!($($args)*))
     };
 }
-pub use bad_entity;

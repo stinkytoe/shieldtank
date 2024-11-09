@@ -42,7 +42,7 @@ impl Tiles {
 
         let tileset_image = image_assets
             .get(tiles_layer.tileset_image.id())
-            .ok_or(bad_handle!(tiles_layer.tileset_image))?
+            .ok_or(bad_handle!("bad handle! {:?}", tiles_layer.tileset_image))?
             .clone() // TODO: Can we get rid of this clone somehow?
             .try_into_dynamic()?
             .to_rgba8();
@@ -94,7 +94,7 @@ pub(crate) fn handle_tiles_system(
         .try_for_each(|(entity, layer, tiles)| -> Result<()> {
             let asset = assets
                 .get(layer.handle.id())
-                .ok_or(bad_handle!(layer.handle))?;
+                .ok_or(bad_handle!("bad handle! {:?}", layer.handle))?;
             let image = tiles.generate_layer_image(&mut image_assets, asset)?;
 
             commands.entity(entity).insert(Sprite {
