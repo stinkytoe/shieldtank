@@ -19,7 +19,7 @@ use crate::world::World;
 #[derive(SystemParam)]
 pub struct LdtkQuery<'w, 's> {
     // For walking the tree
-    pub(crate) _parent_query: Query<'w, 's, &'static Parent>,
+    pub(crate) parent_query: Query<'w, 's, &'static Parent>,
     pub(crate) _children_query: Query<'w, 's, &'static Parent>,
     // For each component type
     pub(crate) _project_assets: Res<'w, Assets<ProjectAsset>>,

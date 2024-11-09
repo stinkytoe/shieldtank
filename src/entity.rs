@@ -7,12 +7,25 @@ use bevy_utils::error;
 
 use crate::component::{FinalizeEvent, LdtkComponent};
 use crate::impl_recurrent_identifer_iterator;
-use crate::item::LdtkItem;
+use crate::item::{LdtkItem, LdtkItemTrait};
+use crate::item_iterator::LdtkItemIterator;
+use crate::layer::LayerItem;
 use crate::tileset_rectangle::TilesetRectangle;
 use crate::{bad_ecs_entity, bad_handle, Result};
 
 pub type Entity = LdtkComponent<EntityAsset>;
 pub type EntityItem<'a> = LdtkItem<'a, EntityAsset>;
+
+impl EntityItem<'_> {
+    pub fn get_layer(&self) -> Option<LayerItem> {
+        self.query
+            .parent_query
+            .get(self.get_ecs_entity())
+            .ok()
+            .map(|parent| parent.get())
+            .and_then(|parent_ecs_entity| self.query.layers().find_ecs_entity(parent_ecs_entity))
+    }
+}
 
 impl_recurrent_identifer_iterator!(EntityAsset);
 
