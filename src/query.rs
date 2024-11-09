@@ -19,17 +19,17 @@ use crate::world::World;
 #[derive(SystemParam)]
 pub struct LdtkQuery<'w, 's> {
     // For walking the tree
-    pub(crate) parent_query: Query<'w, 's, &'static Parent>,
-    pub(crate) children_query: Query<'w, 's, &'static Parent>,
+    pub(crate) _parent_query: Query<'w, 's, &'static Parent>,
+    pub(crate) _children_query: Query<'w, 's, &'static Parent>,
     // For each component type
-    pub(crate) project_assets: Res<'w, Assets<ProjectAsset>>,
-    pub(crate) projects_query: Query<'w, 's, (EcsEntity, &'static Project)>,
-    pub(crate) level_assets: Res<'w, Assets<LevelAsset>>,
-    pub(crate) levels_query: Query<'w, 's, (EcsEntity, &'static Level)>,
-    pub(crate) world_assets: Res<'w, Assets<WorldAsset>>,
-    pub(crate) worlds_query: Query<'w, 's, (EcsEntity, &'static World)>,
-    pub(crate) layer_assets: Res<'w, Assets<LayerAsset>>,
-    pub(crate) layers_query: Query<'w, 's, (EcsEntity, &'static Layer)>,
+    pub(crate) _project_assets: Res<'w, Assets<ProjectAsset>>,
+    pub(crate) _projects_query: Query<'w, 's, (EcsEntity, &'static Project)>,
+    pub(crate) _level_assets: Res<'w, Assets<LevelAsset>>,
+    pub(crate) _levels_query: Query<'w, 's, (EcsEntity, &'static Level)>,
+    pub(crate) _world_assets: Res<'w, Assets<WorldAsset>>,
+    pub(crate) _worlds_query: Query<'w, 's, (EcsEntity, &'static World)>,
+    pub(crate) _layer_assets: Res<'w, Assets<LayerAsset>>,
+    pub(crate) _layers_query: Query<'w, 's, (EcsEntity, &'static Layer)>,
     pub(crate) entity_assets: Res<'w, Assets<EntityAsset>>,
     pub(crate) entities_query: Query<'w, 's, (EcsEntity, &'static Entity)>,
 }
