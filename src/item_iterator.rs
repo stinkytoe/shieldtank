@@ -11,7 +11,7 @@ where
     Self: Iterator<Item = LdtkItem<'a, Asset>> + Sized,
     Asset: LdtkAsset + Sized + std::fmt::Debug,
 {
-    fn find_iid(mut self, iid: Iid) -> Option<impl LdtkItemTrait<Asset>> {
+    fn find_iid(mut self, iid: Iid) -> Option<LdtkItem<'a, Asset>> {
         self.find(|item| item.get_iid() == iid)
     }
 
@@ -27,13 +27,12 @@ where
 {
 }
 
-pub trait LdtkItemUniqueIdentifierIterator<Asset>
+pub trait LdtkItemUniqueIdentifierIterator<'a, Asset>
 where
-    Self: Iterator + Sized,
-    Self::Item: LdtkItemTrait<Asset>,
+    Self: Iterator<Item = LdtkItem<'a, Asset>> + Sized,
     Asset: LdtkAsset + Sized + std::fmt::Debug,
 {
-    fn find_identifier(mut self, identifier: &str) -> Option<impl LdtkItemTrait<Asset>> {
+    fn find_identifier(mut self, identifier: &str) -> Option<LdtkItem<'a, Asset>> {
         self.find(|item| item.get_identifier() == identifier)
     }
 }
@@ -41,10 +40,9 @@ where
 #[macro_export]
 macro_rules! impl_unique_identifer_iterator {
     ($asset:tt) => {
-        impl<Iter> $crate::item_iterator::LdtkItemUniqueIdentifierIterator<$asset> for Iter
+        impl<'a, Iter> $crate::item_iterator::LdtkItemUniqueIdentifierIterator<'a, $asset> for Iter
         where
-            Iter: Iterator + Sized,
-            Iter::Item: $crate::item::LdtkItemTrait<$asset>,
+            Iter: Iterator<Item = LdtkItem<'a, $asset>> + Sized,
         {
         }
     };
@@ -52,8 +50,7 @@ macro_rules! impl_unique_identifer_iterator {
 
 pub trait LdtkItemRecurrentIdentifierIterator<'a, Asset>
 where
-    Self: Iterator + Sized,
-    Self::Item: LdtkItemTrait<Asset>,
+    Self: Iterator<Item = LdtkItem<'a, Asset>> + Sized,
     Asset: LdtkAsset + Sized + std::fmt::Debug,
 {
     fn filter_identifier(self, identifier: &'a str) -> LdtkItemFilterIdentifier<'a, Asset, Self> {
@@ -110,8 +107,7 @@ macro_rules! impl_recurrent_identifer_iterator {
         impl<'a, Iter> $crate::item_iterator::LdtkItemRecurrentIdentifierIterator<'a, $asset>
             for Iter
         where
-            Iter: Iterator + Sized,
-            Iter::Item: $crate::item::LdtkItemTrait<$asset>,
+            Iter: Iterator<Item = LdtkItem<'a, $asset>> + Sized,
         {
         }
     };
