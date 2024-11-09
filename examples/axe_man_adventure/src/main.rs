@@ -5,8 +5,9 @@ use std::str::FromStr;
 use bevy::prelude::*;
 use shieldtank::bevy_ldtk_asset::iid::Iid;
 use shieldtank::item::LdtkItemIterator;
+use shieldtank::plugin::ShieldtankPlugins;
+use shieldtank::project_config::ProjectConfig;
 use shieldtank::query::LdtkQuery;
-use shieldtank::{plugin::ShieldtankPlugin, project_config::ProjectConfig};
 
 fn main() {
     let mut app = App::new();
@@ -31,9 +32,7 @@ fn main() {
                 }),
                 ..Default::default()
             }),
-        //WorldInspectorPlugin::default(),
-        //BevyLdtkAssetPlugin,
-        ShieldtankPlugin,
+        ShieldtankPlugins,
     ))
     .add_systems(Startup, startup)
     .add_systems(Update, update);
