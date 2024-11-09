@@ -7,8 +7,9 @@ use bevy_ldtk_asset::plugin::BevyLdtkAssetPlugin;
 use bevy_ldtk_asset::project::Project as ProjectAsset;
 use bevy_ldtk_asset::world::World as WorldAsset;
 
+use crate::child_spawner::LdtkChildSpawnerPlugin;
 use crate::entity::EntityPlugin;
-use crate::item::{LdtkAssetPlugin, LdtkChildSpawnerPlugin};
+use crate::item::LdtkAssetPlugin;
 use crate::layer::LayerPlugin;
 use crate::level::LevelPlugin;
 use crate::level_background::LevelBackgroundPlugin;

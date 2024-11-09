@@ -1,5 +1,6 @@
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
+pub mod child_spawner;
 pub mod component;
 pub mod entity;
 pub mod error;
