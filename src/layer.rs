@@ -23,7 +23,7 @@ impl LayerItem<'_> {
         self.query.int_grid_query.get(self.get_ecs_entity()).ok()
     }
 
-    pub fn get_level(&self) -> Option<LevelItem> {
+    pub fn get_level(&self) -> Option<LevelItem<'_>> {
         self.query
             .parent_query
             .get(self.get_ecs_entity())

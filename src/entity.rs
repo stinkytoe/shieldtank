@@ -12,6 +12,7 @@ use crate::impl_recurrent_identifer_iterator;
 use crate::item::{LdtkItem, LdtkItemTrait};
 use crate::item_iterator::LdtkItemIterator;
 use crate::layer::LayerItem;
+use crate::level::LevelItem;
 use crate::tileset_rectangle::TilesetRectangle;
 use crate::{bad_ecs_entity, bad_handle, Result};
 
@@ -50,13 +51,50 @@ impl EntityItem<'_> {
             .map(|(location, layer)| location / layer.asset.grid_cell_size)
     }
 
-    pub fn get_layer(&self) -> Option<LayerItem> {
+    pub fn get_layer(&self) -> Option<LayerItem<'_>> {
         self.query
             .parent_query
             .get(self.get_ecs_entity())
             .ok()
             .map(|parent| parent.get())
             .and_then(|parent_ecs_entity| self.query.layers().find_ecs_entity(parent_ecs_entity))
+    }
+
+    /// Returns the location of this entity on its containing layer.
+    ///
+    /// If there is no parent layer, or if we don't have a Transform component, then this returns
+    /// None. Otherwise it returns the location on the layer in pixel space, wrapped in Ok(..)
+    pub fn get_layer_location(&self) -> Option<Vec2> {
+        Some(self.get_transform()?.translation.truncate())
+    }
+
+    /// Returns the location of this entity on its containing layer.
+    ///
+    /// If there is no parent layer, or grantparent level, or if we don't have a Transform component,
+    /// then this returns None. Otherwise it returns the location on the layer in pixel space, wrapped in Ok(..)
+    pub fn get_level_location(&self) -> Option<Vec2> {
+        let layer_location = self.get_layer_location()?;
+        let layer_offset = self.get_layer()?.get_transform()?.translation.truncate();
+
+        Some(layer_offset + layer_location)
+    }
+
+    pub fn get_level(&self) -> Option<LevelItem<'_>> {
+        let layer_ecs_entity = self
+            .query
+            .parent_query
+            .get(self.get_ecs_entity())
+            .ok()
+            .map(|parent| parent.get())?;
+
+        let level_ecs_entity = self
+            .query
+            .parent_query
+            .get(layer_ecs_entity)
+            .ok()
+            .map(|parent| parent.get())?;
+
+        self.query.levels().find_ecs_entity(level_ecs_entity)
     }
 }
 
