@@ -2,7 +2,6 @@
 
 use std::str::FromStr;
 
-use bevy::input::keyboard::KeyboardInput;
 use bevy::math::I64Vec2;
 use bevy::prelude::*;
 use shieldtank::bevy_ldtk_asset::iid::Iid;
@@ -75,13 +74,7 @@ fn update(
 
     debug!("The Axe Man has performed an action! {player_action:?}");
 
-    let attempted_move = match player_action {
-        PlayerAction::MoveNorth => Some(I64Vec2::new(0, -1)),
-        PlayerAction::MoveEast => Some(I64Vec2::new(1, 0)),
-        PlayerAction::MoveSouth => Some(I64Vec2::new(0, 1)),
-        PlayerAction::MoveWest => Some(I64Vec2::new(-1, 0)),
-        PlayerAction::Interact => None,
-    };
+    let attempted_move = player_action.to_move_attempt();
 
     if let Some(move_direction) = attempted_move {
         let attempted_move_location = get_global_location_for_grid_move(&axe_man, move_direction)?;
@@ -149,6 +142,18 @@ enum PlayerAction {
     MoveSouth,
     MoveWest,
     Interact,
+}
+
+impl PlayerAction {
+    fn to_move_attempt(&self) -> Option<I64Vec2> {
+        match self {
+            PlayerAction::MoveNorth => Some(I64Vec2::new(0, -1)),
+            PlayerAction::MoveEast => Some(I64Vec2::new(1, 0)),
+            PlayerAction::MoveSouth => Some(I64Vec2::new(0, 1)),
+            PlayerAction::MoveWest => Some(I64Vec2::new(-1, 0)),
+            PlayerAction::Interact => None,
+        }
+    }
 }
 
 fn get_player_action(keyboard_input: &ButtonInput<KeyCode>) -> Option<PlayerAction> {
