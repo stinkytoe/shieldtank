@@ -20,7 +20,7 @@ pub type Entity = LdtkComponent<EntityAsset>;
 pub type EntityItem<'a> = LdtkItem<'a, EntityAsset>;
 
 impl EntityItem<'_> {
-    pub fn get_grid_coordinates(&self) -> Option<I64Vec2> {
+    pub fn get_grid_location(&self) -> Option<I64Vec2> {
         self.query
             .transform_query
             .get(self.get_ecs_entity())
@@ -79,6 +79,18 @@ impl EntityItem<'_> {
         Some(layer_offset + layer_location)
     }
 
+    pub fn get_local_location(&self) -> Option<Vec2> {
+        let transform = self.get_transform()?;
+
+        Some(transform.translation.truncate())
+    }
+
+    pub fn get_global_location(&self) -> Option<Vec2> {
+        let global_transform = self.get_global_transform()?;
+
+        Some(global_transform.translation().truncate())
+    }
+
     pub fn get_level(&self) -> Option<LevelItem<'_>> {
         let layer_ecs_entity = self
             .query
@@ -109,6 +121,16 @@ where
     }
 }
 
+impl<'a, Iter> EntityItemIteratorExt<'a> for Iter where Iter: Iterator<Item = EntityItem<'a>> {}
+
+pub struct EntityFilterTagsIterator<'a, Iter>
+where
+    Iter: Iterator<Item = EntityItem<'a>>,
+{
+    iter: Iter,
+    tag: &'a str,
+}
+
 impl<'a, Iter> std::fmt::Debug for EntityFilterTagsIterator<'a, Iter>
 where
     Iter: Iterator<Item = EntityItem<'a>>,
@@ -119,16 +141,6 @@ where
             .field("tag", &self.tag)
             .finish()
     }
-}
-
-impl<'a, Iter> EntityItemIteratorExt<'a> for Iter where Iter: Iterator<Item = EntityItem<'a>> {}
-
-pub struct EntityFilterTagsIterator<'a, Iter>
-where
-    Iter: Iterator<Item = EntityItem<'a>>,
-{
-    iter: Iter,
-    tag: &'a str,
 }
 
 impl<'a, Iter> Iterator for EntityFilterTagsIterator<'a, Iter>

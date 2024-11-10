@@ -10,6 +10,7 @@ use bevy_ecs::world::Ref;
 use bevy_ldtk_asset::iid::Iid;
 use bevy_ldtk_asset::ldtk_asset_trait::LdtkAsset;
 use bevy_log::{debug, trace};
+use bevy_math::Vec2;
 use bevy_render::view::Visibility;
 use bevy_transform::components::{GlobalTransform, Transform};
 use bevy_utils::error;
@@ -92,6 +93,22 @@ where
             .global_transform_query
             .get(self.get_ecs_entity())
             .ok()
+    }
+
+    fn global_location_to_local_location(&self, global_location: Vec2) -> Option<Vec2> {
+        let offset = self.get_global_transform()?.translation().truncate();
+
+        Some(global_location - offset)
+    }
+
+    fn relative_location_to<OtherAsset>(&self, item: &LdtkItem<OtherAsset>) -> Option<Vec2>
+    where
+        OtherAsset: LdtkAsset + std::fmt::Debug,
+    {
+        let our_global_location = self.get_global_transform()?.translation().truncate();
+        let their_global_location = item.get_global_transform()?.translation().truncate();
+
+        Some(their_global_location - our_global_location)
     }
 }
 

@@ -1,6 +1,7 @@
 use bevy_ecs::component::Component;
 use bevy_ldtk_asset::layer::{Layer as LayerAsset, LayerType, TilesLayer};
 use bevy_ldtk_asset::layer_definition::{IntGridValue, LayerDefinition};
+use bevy_log::debug;
 use bevy_math::I64Vec2;
 use bevy_reflect::Reflect;
 use bevy_utils::HashMap;
@@ -49,12 +50,18 @@ impl IntGrid {
 
         let values = int_grid
             .iter()
-            .filter(|&&value| value != 0)
             .enumerate()
+            .filter(|(_, value)| **value != 0)
             .map(|(index, value)| (index as i64, value))
             .map(|(index, &value)| {
+                debug!("index: {index}");
+
+                let grid = I64Vec2::new(index % columns, index / columns);
+
+                debug!("grid: {grid}");
+
                 Ok((
-                    I64Vec2::new(index % columns, index / columns),
+                    grid,
                     int_grid_values
                         .iter()
                         .find(|int_grid_value| int_grid_value.value == value)

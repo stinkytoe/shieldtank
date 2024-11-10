@@ -4,6 +4,7 @@ use bevy_ecs::event::EventReader;
 use bevy_ecs::system::{Commands, IntoSystem, Query, Res};
 use bevy_ldtk_asset::layer::Layer as LayerAsset;
 use bevy_ldtk_asset::layer_definition::LayerDefinition;
+use bevy_math::{I64Vec2, Vec2};
 use bevy_utils::error;
 
 use crate::component::{FinalizeEvent, LdtkComponent};
@@ -19,6 +20,16 @@ pub type Layer = LdtkComponent<LayerAsset>;
 pub type LayerItem<'a> = LdtkItem<'a, LayerAsset>;
 
 impl LayerItem<'_> {
+    pub fn local_location_to_grid(&self, local_location: Vec2) -> Option<I64Vec2> {
+        let local_location = local_location.as_i64vec2() * I64Vec2::new(1, -1);
+
+        let local_grid = local_location / self.asset.grid_cell_size;
+
+        ((local_grid.x >= 0 && local_grid.y >= 0)
+            && (local_grid.x < self.asset.grid_size.x && local_grid.y < self.asset.grid_size.y))
+            .then_some(local_grid)
+    }
+
     pub fn get_int_grid(&self) -> Option<&IntGrid> {
         self.query.int_grid_query.get(self.get_ecs_entity()).ok()
     }

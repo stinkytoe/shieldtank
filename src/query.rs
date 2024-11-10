@@ -1,18 +1,21 @@
 use bevy_asset::Assets;
 use bevy_ecs::entity::Entity as EcsEntity;
 use bevy_ecs::system::{Query, Res, SystemParam};
-use bevy_hierarchy::Parent;
+use bevy_hierarchy::{Children, Parent};
 use bevy_ldtk_asset::entity::Entity as EntityAsset;
 use bevy_ldtk_asset::layer::Layer as LayerAsset;
+use bevy_ldtk_asset::layer_definition::IntGridValue;
 use bevy_ldtk_asset::level::Level as LevelAsset;
 use bevy_ldtk_asset::project::Project as ProjectAsset;
 use bevy_ldtk_asset::world::World as WorldAsset;
+use bevy_math::Vec2;
 use bevy_transform::components::{GlobalTransform, Transform};
 
 use crate::entity::{Entity, EntityItem};
 use crate::int_grid::IntGrid;
+use crate::item::LdtkItemTrait;
 use crate::layer::{Layer, LayerItem};
-use crate::level::{Level, LevelItem};
+use crate::level::{Level, LevelItem, LevelItemIteratorExt};
 use crate::project::Project;
 use crate::world::World;
 //use crate::layer::{LayerData, LayerItem};
@@ -22,7 +25,7 @@ use crate::world::World;
 pub struct LdtkQuery<'w, 's> {
     // For walking the tree
     pub(crate) parent_query: Query<'w, 's, &'static Parent>,
-    pub(crate) _children_query: Query<'w, 's, &'static Parent>,
+    pub(crate) children_query: Query<'w, 's, &'static Children>,
     // Various important components
     pub(crate) transform_query: Query<'w, 's, &'static Transform>,
     pub(crate) global_transform_query: Query<'w, 's, &'static GlobalTransform>,
@@ -89,4 +92,28 @@ impl LdtkQuery<'_, '_> {
     //    LayerItem::get_layer(self, ecs_entity)
     //}
     //
+}
+
+impl LdtkQuery<'_, '_> {
+    pub fn int_grid_value_at_global_location(&self, global_location: Vec2) -> Option<IntGridValue> {
+        let mut levels: Vec<_> = self
+            .levels()
+            .filter_global_location(global_location)
+            .collect();
+
+        // unwrap is OK here because the above collect wouldn't have yielded anything that didn't
+        // have a global_transform component.
+        #[allow(clippy::unwrap_used)]
+        levels.sort_by(|a, b| {
+            let a_z = a.get_global_transform().unwrap().translation().z;
+            let b_z = b.get_global_transform().unwrap().translation().z;
+            // intentionally reversed, so we will search nearest to farthest when looking down in
+            // the world from above.
+            b_z.partial_cmp(&a_z).unwrap()
+        });
+
+        levels
+            .iter()
+            .find_map(|level_item| level_item.int_grid_value_at_global_location(global_location))
+    }
 }
