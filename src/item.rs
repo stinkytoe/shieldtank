@@ -11,7 +11,7 @@ use bevy_ldtk_asset::iid::Iid;
 use bevy_ldtk_asset::ldtk_asset_trait::LdtkAsset;
 use bevy_log::{debug, trace};
 use bevy_render::view::Visibility;
-use bevy_transform::components::Transform;
+use bevy_transform::components::{GlobalTransform, Transform};
 use bevy_utils::error;
 
 use crate::component::handle_ldtk_component_added;
@@ -63,6 +63,10 @@ where
     fn get_identifier(&self) -> &str {
         self.asset.get_identifier()
     }
+
+    fn get_query(&self) -> &LdtkQuery {
+        self.query
+    }
 }
 
 pub trait LdtkItemTrait<Asset>
@@ -74,8 +78,21 @@ where
     fn get_asset(&self) -> &Asset;
     fn get_iid(&self) -> Iid;
     fn get_identifier(&self) -> &str;
-    //fn get_transform(&self) -> &Ref<Transform>;
-    //fn get_query(&self) -> &LdtkQuery;
+    fn get_query(&self) -> &LdtkQuery;
+
+    fn get_transform(&self) -> Option<&Transform> {
+        self.get_query()
+            .transform_query
+            .get(self.get_ecs_entity())
+            .ok()
+    }
+
+    fn get_global_transform(&self) -> Option<&GlobalTransform> {
+        self.get_query()
+            .global_transform_query
+            .get(self.get_ecs_entity())
+            .ok()
+    }
 }
 
 fn handle_finalize_event<Asset>(
