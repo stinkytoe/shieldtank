@@ -3,6 +3,8 @@ use bevy_asset::Assets;
 use bevy_ecs::event::EventReader;
 use bevy_ecs::system::{Commands, IntoSystem, Query, Res};
 use bevy_ldtk_asset::entity::Entity as EntityAsset;
+use bevy_log::debug;
+use bevy_math::{I64Vec2, Vec2};
 use bevy_utils::error;
 
 use crate::component::{FinalizeEvent, LdtkComponent};
@@ -17,6 +19,37 @@ pub type Entity = LdtkComponent<EntityAsset>;
 pub type EntityItem<'a> = LdtkItem<'a, EntityAsset>;
 
 impl EntityItem<'_> {
+    pub fn get_grid_coordinates(&self) -> Option<I64Vec2> {
+        self.query
+            .transform_query
+            .get(self.get_ecs_entity())
+            // TODO: Add an inspect(..) step here to print an error if failed
+            .ok()
+            .map(|transform| transform.translation.truncate() * Vec2::new(1.0, -1.0))
+            .and_then(|location| Some((location, self.get_layer()?)))
+            .map(|(translation, layer)| {
+                let anchor = self.asset.anchor.as_vec();
+                debug!("get_grid_coordinates anchor {anchor}");
+                let size = layer.asset.grid_cell_size;
+                debug!("get_grid_coordinates grid_cell_size {size}");
+                // NOTE: If there are any rounding shennanigans, look here first
+                let ax_times_size = ((size as f32) * -anchor.x) as i64;
+                let ay_times_size = ((size as f32) * anchor.y) as i64;
+
+                let x = ax_times_size - size / 2;
+                let y = ay_times_size - size / 2;
+
+                let offset = I64Vec2::new(x, y);
+
+                (translation.as_i64vec2() + offset, layer)
+            })
+            .filter(|(location, layer)| {
+                let total_grid_size = layer.asset.grid_size * layer.asset.grid_cell_size;
+                location.x < total_grid_size.x && location.y < total_grid_size.y
+            })
+            .map(|(location, layer)| location / layer.asset.grid_cell_size)
+    }
+
     pub fn get_layer(&self) -> Option<LayerItem> {
         self.query
             .parent_query

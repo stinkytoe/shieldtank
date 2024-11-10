@@ -9,12 +9,29 @@ use bevy_utils::error;
 use crate::component::{FinalizeEvent, LdtkComponent};
 use crate::impl_recurrent_identifer_iterator;
 use crate::int_grid::IntGrid;
-use crate::item::LdtkItem;
+use crate::item::{LdtkItem, LdtkItemTrait};
+use crate::item_iterator::LdtkItemIterator;
+use crate::level::LevelItem;
 use crate::tiles::Tiles;
 use crate::{bad_ecs_entity, bad_handle, Result};
 
 pub type Layer = LdtkComponent<LayerAsset>;
 pub type LayerItem<'a> = LdtkItem<'a, LayerAsset>;
+
+impl LayerItem<'_> {
+    pub fn get_int_grid(&self) -> Option<&IntGrid> {
+        self.query.int_grid_query.get(self.get_ecs_entity()).ok()
+    }
+
+    pub fn get_level(&self) -> Option<LevelItem> {
+        self.query
+            .parent_query
+            .get(self.get_ecs_entity())
+            .ok()
+            .map(|parent| parent.get())
+            .and_then(|parent_ecs_entity| self.query.levels().find_ecs_entity(parent_ecs_entity))
+    }
+}
 
 impl_recurrent_identifer_iterator!(LayerAsset);
 

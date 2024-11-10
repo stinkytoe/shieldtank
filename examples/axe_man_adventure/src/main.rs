@@ -58,12 +58,31 @@ fn startup(
 }
 
 fn update(ldtk_query: LdtkQuery) {
-    let axe_man_iid = Iid::from_str("12f6bfc0-9b00-11ef-9b1f-9f6d35f20739").unwrap();
-    let Some(_axe_man) = ldtk_query.entities().find_iid(axe_man_iid) else {
+    let axe_man_iid = Iid::from_str("a0170640-9b00-11ef-aa23-11f9c6be2b6e").unwrap();
+    let Some(axe_man) = ldtk_query.entities().find_iid(axe_man_iid) else {
+        warn!("Failed to get axe_man! Maybe not loaded yet?");
         return;
     };
 
-    let Some(_level) = ldtk_query.levels().find_identifier("Peninsula_of_Pain") else {
+    let Some(layer) = axe_man.get_layer() else {
+        error!("Failed to get axe_man's layer!");
         return;
     };
+
+    let Some(int_grid) = layer.get_int_grid() else {
+        error!("Failed to get axe_man's int_grid!");
+        return;
+    };
+
+    let Some(grid) = axe_man.get_grid_coordinates() else {
+        error!("Failed to get axe_man's grid!");
+        return;
+    };
+
+    let Some(int_grid_value) = int_grid.get(grid) else {
+        error!("Failed to get axe_man's int grid value!");
+        return;
+    };
+
+    debug!("{int_grid_value:?}");
 }

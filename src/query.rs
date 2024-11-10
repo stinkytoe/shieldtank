@@ -7,8 +7,10 @@ use bevy_ldtk_asset::layer::Layer as LayerAsset;
 use bevy_ldtk_asset::level::Level as LevelAsset;
 use bevy_ldtk_asset::project::Project as ProjectAsset;
 use bevy_ldtk_asset::world::World as WorldAsset;
+use bevy_transform::components::Transform;
 
 use crate::entity::{Entity, EntityItem};
+use crate::int_grid::IntGrid;
 use crate::layer::{Layer, LayerItem};
 use crate::level::{Level, LevelItem};
 use crate::project::Project;
@@ -21,6 +23,9 @@ pub struct LdtkQuery<'w, 's> {
     // For walking the tree
     pub(crate) parent_query: Query<'w, 's, &'static Parent>,
     pub(crate) _children_query: Query<'w, 's, &'static Parent>,
+    // Various important components
+    pub(crate) transform_query: Query<'w, 's, &'static Transform>,
+    pub(crate) int_grid_query: Query<'w, 's, &'static IntGrid>,
     // For each component type
     pub(crate) _project_assets: Res<'w, Assets<ProjectAsset>>,
     pub(crate) _projects_query: Query<'w, 's, (EcsEntity, &'static Project)>,
