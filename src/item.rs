@@ -16,11 +16,13 @@ use bevy_sprite::Sprite;
 use bevy_transform::components::{GlobalTransform, Transform};
 use bevy_utils::error;
 
+use crate::asset_translation::LdtkAssetTranslation;
 use crate::component::handle_ldtk_component_added;
 use crate::component::send_finalize_if_ready;
 use crate::component::AwaitingFinalize;
 use crate::component::FinalizeEvent;
 use crate::component::LdtkComponent;
+use crate::project_config::ProjectConfig;
 use crate::query::LdtkQuery;
 use crate::{bad_ecs_entity, bad_handle, Result};
 
@@ -126,10 +128,11 @@ fn handle_finalize_event<Asset>(
     mut commands: Commands,
     mut events: EventReader<FinalizeEvent<Asset>>,
     assets: Res<Assets<Asset>>,
+    configs: Res<Assets<ProjectConfig>>,
     query: Query<(EcsEntity, Ref<'static, LdtkComponent<Asset>>)>,
 ) -> Result<()>
 where
-    Asset: LdtkAsset + std::fmt::Debug,
+    Asset: LdtkAsset + LdtkAssetTranslation + std::fmt::Debug,
 {
     events.read().try_for_each(|event| -> Result<()> {
         trace!("FinalizeEvent: {event:?}");
@@ -145,10 +148,14 @@ where
             component.handle
         ))?;
 
+        let config = configs
+            .get(component.config.id())
+            .ok_or(bad_handle!("Bad config handle! {:?}", component.config))?;
+
         let name = asset.get_identifier().to_string();
         commands.entity(ecs_entity).insert(Name::new(name));
 
-        let translation = asset.get_translation();
+        let translation = asset.get_translation(config);
         commands
             .entity(ecs_entity)
             .insert(Transform::from_translation(translation));
@@ -170,7 +177,7 @@ where
 
 impl<Asset> Plugin for LdtkAssetPlugin<Asset>
 where
-    Asset: LdtkAsset + Sized + std::fmt::Debug,
+    Asset: LdtkAsset + LdtkAssetTranslation + Sized + std::fmt::Debug,
 {
     fn build(&self, app: &mut bevy_app::App) {
         app.add_systems(
