@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use bevy_asset::{Asset, AssetEvent, AssetServer, Handle};
+use bevy_asset::{AssetEvent, AssetServer, Handle};
 use bevy_ecs::component::Component;
 use bevy_ecs::entity::Entity as EcsEntity;
 use bevy_ecs::event::{Event, EventReader, EventWriter};
@@ -36,9 +36,9 @@ impl<Asset: LdtkAsset> LdtkComponentExt<Asset> for LdtkComponent<Asset> {
     }
 }
 
-pub(crate) trait LdtkComponentExt<A: Asset> {
+pub(crate) trait LdtkComponentExt<Asset: LdtkAsset> {
     fn is_loaded(&self, asset_server: &AssetServer) -> bool;
-    fn get_handle(&self) -> Handle<A>;
+    fn get_handle(&self) -> Handle<Asset>;
     fn get_config_handle(&self) -> Handle<ProjectConfig>;
 }
 
@@ -106,7 +106,7 @@ pub(crate) struct AwaitingFinalize<Asset: LdtkAsset> {
     _phantom: PhantomData<Asset>,
 }
 
-impl<A: LdtkAsset> Default for AwaitingFinalize<A> {
+impl<Asset: LdtkAsset> Default for AwaitingFinalize<Asset> {
     fn default() -> Self {
         Self {
             map: Default::default(),
@@ -116,12 +116,12 @@ impl<A: LdtkAsset> Default for AwaitingFinalize<A> {
 }
 
 #[derive(Event, Debug, Reflect)]
-pub(crate) struct FinalizeEvent<A: Asset> {
+pub(crate) struct FinalizeEvent<Asset: LdtkAsset> {
     pub ecs_entity: EcsEntity,
-    _phantom: PhantomData<A>,
+    _phantom: PhantomData<Asset>,
 }
 
-impl<A: Asset> FinalizeEvent<A> {
+impl<Asset: LdtkAsset> FinalizeEvent<Asset> {
     pub(crate) fn new(entity: EcsEntity) -> Self {
         Self {
             ecs_entity: entity,

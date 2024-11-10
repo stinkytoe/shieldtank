@@ -1,5 +1,5 @@
-use bevy_asset::Asset;
 use bevy_asset::Handle;
+use bevy_ldtk_asset::ldtk_asset_trait::LdtkAsset;
 use bevy_log::debug;
 use bevy_reflect::Reflect;
 use serde::Deserialize;
@@ -14,7 +14,7 @@ pub enum LoadPattern {
 }
 
 impl LoadPattern {
-    pub fn handle_matches_pattern<A: Asset>(&self, handle: &Handle<A>) -> bool {
+    pub fn handle_matches_pattern<Asset: LdtkAsset>(&self, handle: &Handle<Asset>) -> bool {
         match self {
             LoadPattern::All => true,
             LoadPattern::None => false,
