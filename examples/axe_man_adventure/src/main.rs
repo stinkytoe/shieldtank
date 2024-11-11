@@ -60,7 +60,7 @@ fn startup(
     ));
 
     commands.spawn(shieldtank::world::World {
-        handle: asset_server.load("ldtk/axe_man_adventure.ldtk#World"),
+        handle: asset_server.load("ldtk/axe_man_adventure.ldtk#worlds:World"),
         config: asset_server.load("config/example.project_config.ron"),
     });
 }
