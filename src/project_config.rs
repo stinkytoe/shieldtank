@@ -14,16 +14,16 @@ use crate::{Error, Result};
 #[derive(Asset, Debug, Reflect, Serialize, Deserialize)]
 pub struct ProjectConfig {
     pub load_pattern: LoadPattern,
-    pub layer_z_factor: f32,
-    pub level_z_factor: f32,
+    pub layer_z_scale: f32,
+    pub level_z_scale: f32,
 }
 
 impl Default for ProjectConfig {
     fn default() -> Self {
         Self {
             load_pattern: Default::default(),
-            layer_z_factor: 0.1,
-            level_z_factor: 1.0,
+            layer_z_scale: 0.1,
+            level_z_scale: 1.0,
         }
     }
 }

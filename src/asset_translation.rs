@@ -18,7 +18,7 @@ use bevy_ldtk_asset::layer::Layer as LayerAsset;
 impl LdtkAssetTranslation for LayerAsset {
     fn get_translation(&self, project_config: &ProjectConfig) -> Vec3 {
         let z = (self.index + 1) as f32;
-        let z = z * project_config.layer_z_factor;
+        let z = z * project_config.layer_z_scale;
         self.location.extend(z)
     }
 }
@@ -27,7 +27,7 @@ use bevy_ldtk_asset::level::Level as LevelAsset;
 impl LdtkAssetTranslation for LevelAsset {
     fn get_translation(&self, project_config: &ProjectConfig) -> Vec3 {
         let z = (self.index + 1) as f32;
-        let z = z * project_config.layer_z_factor;
+        let z = z * project_config.layer_z_scale;
         self.location.extend(z)
     }
 }
