@@ -20,6 +20,19 @@ pub type LevelItem<'a> = LdtkItem<'a, LevelAsset>;
 impl_unique_identifer_iterator!(LevelAsset);
 
 impl LevelItem<'_> {
+    pub fn layers(&self) -> impl Iterator<Item = LayerItem> {
+        let children_component = self.query.children_query.get(self.get_ecs_entity());
+
+        match children_component {
+            Ok(children) => either::Left(children.iter().filter_map(|child_ecs_entity| {
+                self.query.layers().find_ecs_entity(*child_ecs_entity)
+            })),
+            Err(_) => either::Right([].into_iter()),
+        }
+    }
+}
+
+impl LevelItem<'_> {
     /// Checks if a global location is in this level's bounds
     ///
     /// We define the region as:

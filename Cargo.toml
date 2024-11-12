@@ -19,6 +19,7 @@ bevy_tasks = "=0.15.0-rc.3"
 bevy_transform = "=0.15.0-rc.3"
 bevy_utils = "=0.15.0-rc.3"
 bevy_ldtk_asset = { git = "https://github.com/stinkytoe/bevy_ldtk_asset", branch = "rc_0.5.0" }
+either = "1.13"
 image = "0.25"
 regex = "1.11"
 ron = "0.8"
