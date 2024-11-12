@@ -5,6 +5,7 @@ pub mod child_spawner;
 pub mod component;
 pub mod entity;
 pub mod error;
+pub mod field_instances;
 pub mod int_grid;
 pub mod item;
 pub mod item_iterator;

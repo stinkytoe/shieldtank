@@ -8,6 +8,7 @@ use bevy::prelude::*;
 use shieldtank::bevy_ldtk_asset::field_instance::FieldInstanceType;
 use shieldtank::bevy_ldtk_asset::iid::Iid;
 use shieldtank::entity::{EntityItem, EntityItemIteratorExt};
+use shieldtank::field_instances::LdtkItemFieldInstancesExt;
 use shieldtank::item::LdtkItemTrait;
 use shieldtank::item_iterator::{LdtkItemIterator, LdtkItemRecurrentIdentifierIterator};
 use shieldtank::level::LevelItemIteratorExt;
@@ -153,11 +154,7 @@ fn player_action(
 
                 // TODO: This needs to be WAY! simpler!
                 let axe_man_dead_tile = axe_man
-                    .get_asset()
-                    .field_instances
-                    .iter()
-                    .find(|tile| &tile.identifier == "Dead")
-                    .as_ref()
+                    .get_field_instance("Dead")
                     .and_then(|field_instance| {
                         let FieldInstanceType::Tile(tile) = &field_instance.field_instance_type
                         else {
@@ -175,11 +172,7 @@ fn player_action(
                     .insert(axe_man_dead_tile);
 
                 let enemy_stab_tile = entity_at_move_location
-                    .get_asset()
-                    .field_instances
-                    .iter()
-                    .find(|tile| &tile.identifier == "Stab")
-                    .as_ref()
+                    .get_field_instance("Stab")
                     .and_then(|field_instance| {
                         let FieldInstanceType::Tile(tile) = &field_instance.field_instance_type
                         else {
@@ -197,7 +190,7 @@ fn player_action(
                     .insert(enemy_stab_tile);
 
                 message_board_writer.send(post_to_billboard!(
-                    "Our here, The Axe Man, was slain by the vile Green Lancer!"
+                    "Our hero, The Axe Man, was slain by the vile Green Lancer!"
                 ));
             }
         } else {
@@ -218,12 +211,8 @@ fn player_action(
                         .filter_global_location(attempted_move_location)
                         .next()?;
 
-                    let FieldInstanceType::String(level_name) = &level
-                        .asset
-                        .field_instances
-                        .iter()
-                        .find(|field_instance| field_instance.identifier == "Name")?
-                        .field_instance_type
+                    let FieldInstanceType::String(level_name) =
+                        &level.get_field_instance("Name")?.field_instance_type
                     else {
                         return None;
                     };
@@ -424,10 +413,14 @@ enum PlayerAction {
 
 impl PlayerAction {
     fn from_keyboard_input(keyboard_input: &ButtonInput<KeyCode>) -> Option<Self> {
-        let move_north = keyboard_input.just_pressed(KeyCode::ArrowUp);
-        let move_east = keyboard_input.just_pressed(KeyCode::ArrowRight);
-        let move_south = keyboard_input.just_pressed(KeyCode::ArrowDown);
-        let move_west = keyboard_input.just_pressed(KeyCode::ArrowLeft);
+        let move_north = keyboard_input.just_pressed(KeyCode::ArrowUp)
+            | keyboard_input.just_pressed(KeyCode::KeyW);
+        let move_east = keyboard_input.just_pressed(KeyCode::ArrowRight)
+            | keyboard_input.just_pressed(KeyCode::KeyD);
+        let move_south = keyboard_input.just_pressed(KeyCode::ArrowDown)
+            | keyboard_input.just_pressed(KeyCode::KeyS);
+        let move_west = keyboard_input.just_pressed(KeyCode::ArrowLeft)
+            | keyboard_input.just_pressed(KeyCode::KeyA);
         let interact = keyboard_input.just_pressed(KeyCode::Space);
 
         match (move_north, move_east, move_south, move_west, interact) {
