@@ -11,7 +11,7 @@
 	"iid": "d5ab0640-8990-11ee-a83b-7da29036a93f",
 	"jsonVersion": "1.5.3",
 	"appBuildId": 473703,
-	"nextUid": 1605,
+	"nextUid": 1607,
 	"identifierStyle": "Capitalize",
 	"toc": [],
 	"worldLayout": "Free",
@@ -4805,6 +4805,43 @@
 					"allowedRefsEntityUid": null,
 					"allowedRefTags": [],
 					"tilesetUid": 288
+				},
+				{
+					"identifier": "Float",
+					"doc": null,
+					"__type": "Float",
+					"uid": 1606,
+					"type": "F_Float",
+					"isArray": false,
+					"canBeNull": false,
+					"arrayMinLength": null,
+					"arrayMaxLength": null,
+					"editorDisplayMode": "Hidden",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": null
 				}
 			]
 		},
@@ -5148,6 +5185,43 @@
 			"allowedRefsEntityUid": null,
 			"allowedRefTags": [],
 			"tilesetUid": null
+		},
+		{
+			"identifier": "Float",
+			"doc": null,
+			"__type": "Float",
+			"uid": 1605,
+			"type": "F_Float",
+			"isArray": false,
+			"canBeNull": false,
+			"arrayMinLength": null,
+			"arrayMaxLength": null,
+			"editorDisplayMode": "Hidden",
+			"editorDisplayScale": 1,
+			"editorDisplayPos": "Above",
+			"editorLinkStyle": "StraightArrow",
+			"editorDisplayColor": null,
+			"editorAlwaysShow": false,
+			"editorShowInWorld": true,
+			"editorCutLongValues": true,
+			"editorTextSuffix": null,
+			"editorTextPrefix": null,
+			"useForSmartColor": false,
+			"exportToToc": false,
+			"searchable": false,
+			"min": null,
+			"max": null,
+			"regex": null,
+			"acceptFileTypes": null,
+			"defaultOverride": null,
+			"textLanguageMode": null,
+			"symmetricalRef": false,
+			"autoChainRef": true,
+			"allowOutOfLevelRef": true,
+			"allowedRefs": "OnlySame",
+			"allowedRefsEntityUid": null,
+			"allowedRefTags": [],
+			"tilesetUid": null
 		}
 	] },
 	"levels": [
@@ -5170,10 +5244,13 @@
 			"__smartColor": "#737CFF",
 			"__bgPos": null,
 			"externalRelPath": null,
-			"fieldInstances": [{ "__identifier": "Name", "__type": "String", "__value": "Island of Thieves", "__tile": null, "defUid": 962, "realEditorValues": [{
-				"id": "V_String",
-				"params": ["Island of Thieves"]
-			}] }],
+			"fieldInstances": [
+				{ "__identifier": "Name", "__type": "String", "__value": "Island of Thieves", "__tile": null, "defUid": 962, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Island of Thieves"]
+				}] },
+				{ "__identifier": "Float", "__type": "Float", "__value": 0, "__tile": null, "defUid": 1605, "realEditorValues": [] }
+			],
 			"layerInstances": [
 				{
 					"__identifier": "Trees",
@@ -5276,7 +5353,8 @@
 							"px": [136,136],
 							"fieldInstances": [
 								{ "__identifier": "Swing", "__type": "Tile", "__value": { "tilesetUid": 288, "x": 24, "y": 56, "w": 48, "h": 32 }, "__tile": null, "defUid": 329, "realEditorValues": [] },
-								{ "__identifier": "Dead", "__type": "Tile", "__value": { "tilesetUid": 288, "x": 32, "y": 96, "w": 32, "h": 32 }, "__tile": null, "defUid": 963, "realEditorValues": [] }
+								{ "__identifier": "Dead", "__type": "Tile", "__value": { "tilesetUid": 288, "x": 32, "y": 96, "w": 32, "h": 32 }, "__tile": null, "defUid": 963, "realEditorValues": [] },
+								{ "__identifier": "Float", "__type": "Float", "__value": 0, "__tile": null, "defUid": 1606, "realEditorValues": [] }
 							],
 							"__worldX": -120,
 							"__worldY": 8
@@ -6042,10 +6120,13 @@
 			"__smartColor": "#D973FF",
 			"__bgPos": null,
 			"externalRelPath": null,
-			"fieldInstances": [{ "__identifier": "Name", "__type": "String", "__value": "Peninsula of Pain", "__tile": null, "defUid": 962, "realEditorValues": [{
-				"id": "V_String",
-				"params": ["Peninsula of Pain"]
-			}] }],
+			"fieldInstances": [
+				{ "__identifier": "Name", "__type": "String", "__value": "Peninsula of Pain", "__tile": null, "defUid": 962, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Peninsula of Pain"]
+				}] },
+				{ "__identifier": "Float", "__type": "Float", "__value": 0, "__tile": null, "defUid": 1605, "realEditorValues": [] }
+			],
 			"layerInstances": [
 				{
 					"__identifier": "Trees",

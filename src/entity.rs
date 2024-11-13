@@ -3,6 +3,7 @@ use bevy_asset::Assets;
 use bevy_ecs::event::EventReader;
 use bevy_ecs::system::{Commands, IntoSystem, Query, Res};
 use bevy_ldtk_asset::entity::Entity as EntityAsset;
+use bevy_ldtk_asset::ldtk_asset_trait::LdtkAssetWithFieldInstances;
 use bevy_math::{Rect, Vec2};
 use bevy_utils::error;
 
@@ -98,6 +99,20 @@ impl EntityItem<'_> {
         let relative_location = global_location - self_global_location;
 
         self.get_region().contains(relative_location)
+    }
+
+    pub fn get_field_tile(&self, identifier: &str) -> Option<TilesetRectangle> {
+        self.get_asset()
+            .get_field_instance(identifier)?
+            .get_tile()
+            .map(|value| TilesetRectangle {
+                anchor: self.get_asset().anchor,
+                tile: value.clone(),
+            })
+    }
+
+    pub fn has_tag(&self, tag: &str) -> bool {
+        self.get_asset().has_tag(tag)
     }
 }
 

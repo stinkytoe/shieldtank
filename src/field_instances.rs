@@ -12,6 +12,13 @@ where
     fn get_field_instance(&self, identifier: &str) -> Option<&FieldInstance> {
         self.get_asset().get_field_instance(identifier)
     }
+
+    fn get_field_string(&self, identifier: &str) -> Option<&str> {
+        self.get_asset()
+            .get_field_instance(identifier)?
+            .get_string()
+            .map(|value| value.as_str())
+    }
 }
 
 impl<'a, Asset> LdtkItemFieldInstancesExt<Asset> for LdtkItem<'a, Asset> where

@@ -5,7 +5,6 @@ use std::str::FromStr;
 use bevy::color::palettes::tailwind::GRAY_500;
 use bevy::math::I64Vec2;
 use bevy::prelude::*;
-use shieldtank::bevy_ldtk_asset::field_instance::FieldInstanceType;
 use shieldtank::bevy_ldtk_asset::iid::Iid;
 use shieldtank::entity::{EntityItem, EntityItemIteratorExt};
 use shieldtank::field_instances::LdtkItemFieldInstancesExt;
@@ -15,7 +14,6 @@ use shieldtank::level::LevelItemIteratorExt;
 use shieldtank::plugin::ShieldtankPlugins;
 use shieldtank::project_config::ProjectConfig;
 use shieldtank::query::LdtkQuery;
-use shieldtank::tileset_rectangle::TilesetRectangle;
 
 const AXE_MAN_IID: &str = "a0170640-9b00-11ef-aa23-11f9c6be2b6e";
 
@@ -142,48 +140,19 @@ fn player_action(
 
         if let Some(entity_at_move_location) = entity_at_move_location {
             // TODO: it should be easier to check if an EntityItem has a tag
-            if entity_at_move_location
-                .get_asset()
-                .tags
-                .contains(&"Enemy".to_string())
-            {
+            if entity_at_move_location.has_tag("Enemy") {
                 debug!(
                     "The Axe Man has bumped into an enemy! {}",
                     entity_at_move_location.get_identifier()
                 );
 
-                // TODO: This needs to be WAY! simpler!
-                let axe_man_dead_tile = axe_man
-                    .get_field_instance("Dead")
-                    .and_then(|field_instance| {
-                        let FieldInstanceType::Tile(tile) = &field_instance.field_instance_type
-                        else {
-                            return None;
-                        };
-                        tile.as_ref()
-                    })
-                    .map(|tile| TilesetRectangle {
-                        anchor: axe_man.get_asset().anchor,
-                        tile: tile.clone(),
-                    })?;
+                let axe_man_dead_tile = axe_man.get_field_tile("Dead")?;
 
                 commands
                     .entity(axe_man.get_ecs_entity())
                     .insert(axe_man_dead_tile);
 
-                let enemy_stab_tile = entity_at_move_location
-                    .get_field_instance("Stab")
-                    .and_then(|field_instance| {
-                        let FieldInstanceType::Tile(tile) = &field_instance.field_instance_type
-                        else {
-                            return None;
-                        };
-                        tile.as_ref()
-                    })
-                    .map(|tile| TilesetRectangle {
-                        anchor: axe_man.get_asset().anchor,
-                        tile: tile.clone(),
-                    })?;
+                let enemy_stab_tile = entity_at_move_location.get_field_tile("Stab")?;
 
                 commands
                     .entity(entity_at_move_location.get_ecs_entity())
@@ -211,16 +180,12 @@ fn player_action(
                         .filter_global_location(attempted_move_location)
                         .next()?;
 
-                    let FieldInstanceType::String(level_name) =
-                        &level.get_field_instance("Name")?.field_instance_type
-                    else {
-                        return None;
-                    };
+                    let level_name = level.get_field_string("Name")?;
 
                     message_board_writer.send(post_to_billboard!(
                         "The Axe Man is walking on some {} on the {}!",
                         int_grid_value_at_attempted_move_location,
-                        level_name.as_ref().unwrap()
+                        level_name
                     ));
                     true
                 }
