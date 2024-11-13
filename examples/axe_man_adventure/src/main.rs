@@ -27,8 +27,8 @@ struct MessageBoard;
 struct MessageBoardEvent(String);
 
 macro_rules! post_to_billboard {
-    ($($message:tt)*) => {
-        MessageBoardEvent(format!($($message)*))
+    ($board:expr, $($message:tt)*) => {
+        $board.send(MessageBoardEvent(format!($($message)*)))
     };
 }
 
@@ -158,9 +158,10 @@ fn player_action(
                     .entity(entity_at_move_location.get_ecs_entity())
                     .insert(enemy_stab_tile);
 
-                message_board_writer.send(post_to_billboard!(
+                post_to_billboard!(
+                    message_board_writer,
                     "Our hero, The Axe Man, was slain by the vile Green Lancer!"
-                ));
+                );
             }
         } else {
             let int_grid_value_at_attempted_move_location = ldtk_query
@@ -169,9 +170,10 @@ fn player_action(
 
             let terrain_is_movable = match int_grid_value_at_attempted_move_location.as_str() {
                 "bridge" => {
-                    message_board_writer.send(post_to_billboard!(
+                    post_to_billboard!(
+                        message_board_writer,
                         "The Axe Man is crossing the Bridge of Woe!"
-                    ));
+                    );
                     true
                 }
                 "grass" | "dirt" => {
@@ -182,24 +184,27 @@ fn player_action(
 
                     let level_name = level.get_field_string("Name")?;
 
-                    message_board_writer.send(post_to_billboard!(
+                    post_to_billboard!(
+                        message_board_writer,
                         "The Axe Man is walking on some {} on the {}!",
                         int_grid_value_at_attempted_move_location,
                         level_name
-                    ));
+                    );
                     true
                 }
                 "water" => {
-                    message_board_writer.send(post_to_billboard!(
+                    post_to_billboard!(
+                        message_board_writer,
                         "The Axe Man, though virtuous, is just a man and cannot walk on water!"
-                    ));
+                    );
                     false
                 }
                 _ => {
-                    message_board_writer.send(post_to_billboard!(
+                    post_to_billboard!(
+                        message_board_writer,
                         "The Axe Man is refusing to walk on some dubious unknown terrain! {}",
                         int_grid_value_at_attempted_move_location
-                    ));
+                    );
                     false
                 }
             };
