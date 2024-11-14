@@ -6,6 +6,7 @@ use bevy::color::palettes::tailwind::GRAY_500;
 use bevy::math::I64Vec2;
 use bevy::prelude::*;
 use shieldtank::bevy_ldtk_asset::iid::Iid;
+use shieldtank::commands::LdtkCommands;
 use shieldtank::entity::{EntityItem, EntityItemIteratorExt};
 use shieldtank::field_instances::LdtkItemFieldInstancesExt;
 use shieldtank::item::LdtkItemTrait;
@@ -96,8 +97,8 @@ fn startup(
     commands.spawn((
         Text::new("The Axe Man begins his adventure!"),
         TextFont {
-            font: asset_server.load("fonts/Shadowed Germanica.ttf"),
-            font_size: 40.0,
+            font: asset_server.load("fonts/Primitive.ttf"),
+            font_size: 30.0,
             ..Default::default()
         },
         TextColor(GRAY_500.into()),
@@ -114,10 +115,11 @@ fn startup(
 }
 
 fn player_action(
-    mut commands: Commands,
+    //mut commands: Commands,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut message_board_writer: EventWriter<MessageBoardEvent>,
     ldtk_query: LdtkQuery,
+    mut ldtk_commands: LdtkCommands,
     mut player_facing: ResMut<PlayerFacing>,
 ) -> Option<()> {
     let player_action = PlayerAction::from_keyboard_input(&keyboard_input)?;
@@ -139,24 +141,19 @@ fn player_action(
             .next();
 
         if let Some(entity_at_move_location) = entity_at_move_location {
-            // TODO: it should be easier to check if an EntityItem has a tag
             if entity_at_move_location.has_tag("Enemy") {
                 debug!(
                     "The Axe Man has bumped into an enemy! {}",
                     entity_at_move_location.get_identifier()
                 );
 
-                let axe_man_dead_tile = axe_man.get_field_tile("Dead")?;
+                ldtk_commands
+                    .entity(&axe_man)
+                    .set_tile_to_field_instance("Dead");
 
-                commands
-                    .entity(axe_man.get_ecs_entity())
-                    .insert(axe_man_dead_tile);
-
-                let enemy_stab_tile = entity_at_move_location.get_field_tile("Stab")?;
-
-                commands
-                    .entity(entity_at_move_location.get_ecs_entity())
-                    .insert(enemy_stab_tile);
+                ldtk_commands
+                    .entity(&entity_at_move_location)
+                    .set_tile_to_field_instance("Stab");
 
                 post_to_billboard!(
                     message_board_writer,
@@ -226,12 +223,11 @@ fn player_action(
                     *player_facing = PlayerFacing::Right;
                 }
 
-                let new_transform =
-                    axe_man_transform.with_translation(axe_man_transform.translation + offset);
+                let new_translation = axe_man_transform.translation + offset;
 
-                commands
-                    .entity(axe_man.get_ecs_entity())
-                    .insert(new_transform);
+                ldtk_commands
+                    .entity(&axe_man)
+                    .set_translation(new_translation);
             }
         }
     }
@@ -240,81 +236,34 @@ fn player_action(
 }
 
 fn animate_water(
-    mut commands: Commands,
     time: Res<Time>,
     mut animation_timer: ResMut<AnimationTimer>,
     mut animation_frame: Local<usize>,
     ldtk_query: LdtkQuery,
+    mut ldtk_commands: LdtkCommands,
 ) -> Option<()> {
     animation_timer.0.tick(time.delta());
+
     if animation_timer.0.just_finished() {
-        *animation_frame = (*animation_frame + 1) % 4;
+        *animation_frame += 1;
+        *animation_frame %= 4;
 
         for level in ldtk_query.levels() {
-            let water_1 = level.layers().filter_identifier("Water1").next()?;
-            let water_2 = level.layers().filter_identifier("Water2").next()?;
-            let water_3 = level.layers().filter_identifier("Water3").next()?;
-            let water_4 = level.layers().filter_identifier("Water4").next()?;
-
-            match *animation_frame {
-                0 => {
-                    commands
-                        .entity(water_1.get_ecs_entity())
-                        .insert(Visibility::Visible);
-                    commands
-                        .entity(water_2.get_ecs_entity())
-                        .insert(Visibility::Hidden);
-                    commands
-                        .entity(water_3.get_ecs_entity())
-                        .insert(Visibility::Hidden);
-                    commands
-                        .entity(water_4.get_ecs_entity())
-                        .insert(Visibility::Hidden);
-                }
-                1 => {
-                    commands
-                        .entity(water_1.get_ecs_entity())
-                        .insert(Visibility::Hidden);
-                    commands
-                        .entity(water_2.get_ecs_entity())
-                        .insert(Visibility::Visible);
-                    commands
-                        .entity(water_3.get_ecs_entity())
-                        .insert(Visibility::Hidden);
-                    commands
-                        .entity(water_4.get_ecs_entity())
-                        .insert(Visibility::Hidden);
-                }
-                2 => {
-                    commands
-                        .entity(water_1.get_ecs_entity())
-                        .insert(Visibility::Hidden);
-                    commands
-                        .entity(water_2.get_ecs_entity())
-                        .insert(Visibility::Hidden);
-                    commands
-                        .entity(water_3.get_ecs_entity())
-                        .insert(Visibility::Visible);
-                    commands
-                        .entity(water_4.get_ecs_entity())
-                        .insert(Visibility::Hidden);
-                }
-                3 => {
-                    commands
-                        .entity(water_1.get_ecs_entity())
-                        .insert(Visibility::Hidden);
-                    commands
-                        .entity(water_2.get_ecs_entity())
-                        .insert(Visibility::Hidden);
-                    commands
-                        .entity(water_3.get_ecs_entity())
-                        .insert(Visibility::Hidden);
-                    commands
-                        .entity(water_4.get_ecs_entity())
-                        .insert(Visibility::Visible);
-                }
-                _ => unreachable!(),
-            }
+            ["Water1", "Water2", "Water3", "Water4"]
+                .into_iter()
+                .filter_map(|identifier| level.layers().filter_identifier(identifier).next())
+                .enumerate()
+                .map(|(index, layer)| {
+                    let visibility = if *animation_frame == index {
+                        Visibility::Visible
+                    } else {
+                        Visibility::Hidden
+                    };
+                    (layer, visibility)
+                })
+                .for_each(|(layer, visibility)| {
+                    ldtk_commands.layer(&layer).set_visibility(visibility);
+                });
         }
     };
 
