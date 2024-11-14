@@ -1,6 +1,7 @@
 use bevy_asset::Assets;
 use bevy_ecs::entity::Entity as EcsEntity;
 use bevy_ecs::system::{Query, Res, SystemParam};
+use bevy_ecs::world::Ref;
 use bevy_hierarchy::{Children, Parent};
 use bevy_ldtk_asset::entity::Entity as EntityAsset;
 use bevy_ldtk_asset::layer::Layer as LayerAsset;
@@ -34,15 +35,15 @@ pub struct LdtkQuery<'w, 's> {
     pub(crate) sprite_query: Query<'w, 's, &'static Sprite>,
     // For each component type
     pub(crate) _project_assets: Res<'w, Assets<ProjectAsset>>,
-    pub(crate) _projects_query: Query<'w, 's, (EcsEntity, &'static Project)>,
+    pub(crate) _projects_query: Query<'w, 's, (EcsEntity, Ref<'static, Project>)>,
     pub(crate) _world_assets: Res<'w, Assets<WorldAsset>>,
-    pub(crate) _worlds_query: Query<'w, 's, (EcsEntity, &'static World)>,
+    pub(crate) _worlds_query: Query<'w, 's, (EcsEntity, Ref<'static, World>)>,
     pub(crate) level_assets: Res<'w, Assets<LevelAsset>>,
-    pub(crate) levels_query: Query<'w, 's, (EcsEntity, &'static Level)>,
+    pub(crate) levels_query: Query<'w, 's, (EcsEntity, Ref<'static, Level>)>,
     pub(crate) layer_assets: Res<'w, Assets<LayerAsset>>,
-    pub(crate) layers_query: Query<'w, 's, (EcsEntity, &'static Layer)>,
+    pub(crate) layers_query: Query<'w, 's, (EcsEntity, Ref<'static, Layer>)>,
     pub(crate) entity_assets: Res<'w, Assets<EntityAsset>>,
-    pub(crate) entities_query: Query<'w, 's, (EcsEntity, &'static Entity)>,
+    pub(crate) entities_query: Query<'w, 's, (EcsEntity, Ref<'static, Entity>)>,
 }
 
 impl LdtkQuery<'_, '_> {
@@ -50,10 +51,15 @@ impl LdtkQuery<'_, '_> {
         self.levels_query
             .iter()
             .filter_map(|(ecs_entity, component)| {
-                Some((ecs_entity, self.level_assets.get(component.handle.id())?))
+                Some((
+                    ecs_entity,
+                    self.level_assets.get(component.handle.id())?,
+                    component,
+                ))
             })
-            .map(|(ecs_entity, asset)| LevelItem {
+            .map(|(ecs_entity, asset, component)| LevelItem {
                 asset,
+                component,
                 ecs_entity,
                 query: self,
             })
@@ -63,10 +69,15 @@ impl LdtkQuery<'_, '_> {
         self.layers_query
             .iter()
             .filter_map(|(ecs_entity, component)| {
-                Some((ecs_entity, self.layer_assets.get(component.handle.id())?))
+                Some((
+                    ecs_entity,
+                    self.layer_assets.get(component.handle.id())?,
+                    component,
+                ))
             })
-            .map(|(ecs_entity, asset)| LayerItem {
+            .map(|(ecs_entity, asset, component)| LayerItem {
                 asset,
+                component,
                 ecs_entity,
                 query: self,
             })
@@ -77,10 +88,15 @@ impl LdtkQuery<'_, '_> {
         self.entities_query
             .iter()
             .filter_map(|(ecs_entity, component)| {
-                Some((ecs_entity, self.entity_assets.get(component.handle.id())?))
+                Some((
+                    ecs_entity,
+                    self.entity_assets.get(component.handle.id())?,
+                    component,
+                ))
             })
-            .map(|(ecs_entity, asset)| EntityItem {
+            .map(|(ecs_entity, asset, component)| EntityItem {
                 asset,
+                component,
                 ecs_entity,
                 query: self,
             })

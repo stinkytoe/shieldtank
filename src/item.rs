@@ -31,6 +31,7 @@ where
     Asset: LdtkAsset + Sized + std::fmt::Debug,
 {
     pub asset: &'a Asset,
+    pub component: Ref<'a, LdtkComponent<Asset>>,
     pub ecs_entity: EcsEntity,
     pub query: &'a LdtkQuery<'a, 'a>,
 }

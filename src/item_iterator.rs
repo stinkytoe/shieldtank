@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use bevy_ecs::entity::Entity as EcsEntity;
+use bevy_ecs::{change_detection::DetectChanges, entity::Entity as EcsEntity};
 use bevy_ldtk_asset::iid::Iid;
 use bevy_ldtk_asset::ldtk_asset_trait::LdtkAsset;
 
@@ -17,6 +17,19 @@ where
 
     fn find_ecs_entity(mut self, ecs_entity: EcsEntity) -> Option<LdtkItem<'a, Asset>> {
         self.find(|item| item.get_ecs_entity() == ecs_entity)
+    }
+
+    fn filter_added(self) -> impl Iterator<Item = LdtkItem<'a, Asset>> {
+        self.filter(|item| item.component.is_added())
+    }
+
+    fn filter_changed(self) -> impl Iterator<Item = LdtkItem<'a, Asset>> {
+        self.filter(|item| item.component.is_changed())
+    }
+
+    fn filter_changed_not_added(self) -> impl Iterator<Item = LdtkItem<'a, Asset>> {
+        self.filter(|item| !item.component.is_added())
+            .filter_changed()
     }
 }
 
