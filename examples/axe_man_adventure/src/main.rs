@@ -1,11 +1,7 @@
-//#![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
-
-use std::str::FromStr;
-
 use bevy::color::palettes::tailwind::GRAY_500;
 use bevy::math::I64Vec2;
 use bevy::prelude::*;
-use shieldtank::bevy_ldtk_asset::iid::Iid;
+use shieldtank::bevy_ldtk_asset::iid::{iid, Iid};
 use shieldtank::commands::LdtkCommands;
 use shieldtank::entity::{EntityItem, EntityItemIteratorExt};
 use shieldtank::field_instances::LdtkItemFieldInstancesExt;
@@ -16,7 +12,7 @@ use shieldtank::plugin::ShieldtankPlugins;
 use shieldtank::project_config::ProjectConfig;
 use shieldtank::query::LdtkQuery;
 
-const AXE_MAN_IID: &str = "a0170640-9b00-11ef-aa23-11f9c6be2b6e";
+const AXE_MAN_IID: Iid = iid!("a0170640-9b00-11ef-aa23-11f9c6be2b6e");
 
 #[derive(Resource)]
 struct AnimationTimer(Timer);
@@ -26,6 +22,9 @@ struct MessageBoard;
 
 #[derive(Event)]
 struct MessageBoardEvent(String);
+
+#[derive(Event)]
+struct PlayerMoveEvent(I64Vec2);
 
 macro_rules! post_to_billboard {
     ($board:expr, $($message:tt)*) => {
@@ -59,17 +58,18 @@ fn main() {
             }),
         ShieldtankPlugins,
     ))
-    .insert_resource(PlayerFacing::Right)
     .insert_resource(AnimationTimer(Timer::from_seconds(
         0.250,
         TimerMode::Repeating,
     )))
     .add_event::<MessageBoardEvent>()
+    .add_event::<PlayerMoveEvent>()
     .add_systems(Startup, startup)
     .add_systems(
         Update,
         (
             player_action.pipe(option_handler_system),
+            player_movement.pipe(option_handler_system),
             animate_water.pipe(option_handler_system),
             animate_axe_man.pipe(option_handler_system),
             update_message_board,
@@ -117,23 +117,32 @@ fn startup(
 fn player_action(
     //mut commands: Commands,
     keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut message_board_writer: EventWriter<MessageBoardEvent>,
-    ldtk_query: LdtkQuery,
-    mut ldtk_commands: LdtkCommands,
-    mut player_facing: ResMut<PlayerFacing>,
+    mut player_move_events: EventWriter<PlayerMoveEvent>,
 ) -> Option<()> {
     let player_action = PlayerAction::from_keyboard_input(&keyboard_input)?;
-
-    let axe_man = ldtk_query
-        .entities()
-        .find_iid(Iid::from_str(AXE_MAN_IID).unwrap())?;
 
     debug!("The Axe Man has performed an action! {player_action:?}");
 
     let attempted_move = player_action.to_move_attempt();
 
     if let Some(move_direction) = attempted_move {
-        let attempted_move_location = get_global_location_for_grid_move(&axe_man, move_direction)?;
+        player_move_events.send(PlayerMoveEvent(move_direction));
+    }
+
+    Some(())
+}
+
+fn player_movement(
+    mut player_move_events: EventReader<PlayerMoveEvent>,
+    mut message_board_writer: EventWriter<MessageBoardEvent>,
+    ldtk_query: LdtkQuery,
+    mut ldtk_commands: LdtkCommands,
+) -> Option<()> {
+    for event in player_move_events.read() {
+        let PlayerMoveEvent(move_direction) = event;
+
+        let axe_man = ldtk_query.entities().find_iid(AXE_MAN_IID)?;
+        let attempted_move_location = get_global_location_for_grid_move(&axe_man, *move_direction)?;
 
         let entity_at_move_location = ldtk_query
             .entities()
@@ -159,7 +168,7 @@ fn player_action(
                     message_board_writer,
                     "Our hero, The Axe Man, was slain by the vile Green Lancer!"
                 );
-            }
+            };
         } else {
             let int_grid_value_at_attempted_move_location = ldtk_query
                 .int_grid_value_at_global_location(attempted_move_location)?
@@ -183,7 +192,7 @@ fn player_action(
 
                     post_to_billboard!(
                         message_board_writer,
-                        "The Axe Man is walking on some {} on the {}!",
+                        "The Axe Man is walking on {} on the {}!",
                         int_grid_value_at_attempted_move_location,
                         level_name
                     );
@@ -215,13 +224,13 @@ fn player_action(
                 .as_vec2()
                 .extend(0.0);
 
-                if player_action == PlayerAction::MoveWest {
-                    *player_facing = PlayerFacing::Left;
-                }
-
-                if player_action == PlayerAction::MoveEast {
-                    *player_facing = PlayerFacing::Right;
-                }
+                //if player_action == PlayerAction::MoveWest {
+                //    *player_facing = PlayerFacing::Left;
+                //}
+                //
+                //if player_action == PlayerAction::MoveEast {
+                //    *player_facing = PlayerFacing::Right;
+                //}
 
                 let new_translation = axe_man_transform.translation + offset;
 
@@ -229,7 +238,7 @@ fn player_action(
                     .entity(&axe_man)
                     .set_translation(new_translation);
             }
-        }
+        };
     }
 
     Some(())
@@ -270,30 +279,7 @@ fn animate_water(
     Some(())
 }
 
-fn animate_axe_man(
-    mut commands: Commands,
-    player_facing: ResMut<PlayerFacing>,
-    ldtk_query: LdtkQuery,
-) -> Option<()> {
-    if player_facing.is_changed() {
-        let axe_man = ldtk_query
-            .entities()
-            .find_iid(Iid::from_str(AXE_MAN_IID).unwrap())?;
-
-        let flip_x = match *player_facing {
-            PlayerFacing::Left => true,
-            PlayerFacing::Right => false,
-        };
-
-        let mut axe_man_sprite = axe_man.get_sprite()?.clone();
-
-        axe_man_sprite.flip_x = flip_x;
-
-        commands
-            .entity(axe_man.get_ecs_entity())
-            .insert(axe_man_sprite);
-    }
-
+fn animate_axe_man() -> Option<()> {
     Some(())
 }
 
@@ -351,12 +337,6 @@ impl PlayerAction {
             _ => None,
         }
     }
-}
-
-#[derive(Debug, Resource)]
-enum PlayerFacing {
-    Left,
-    Right,
 }
 
 impl PlayerAction {
