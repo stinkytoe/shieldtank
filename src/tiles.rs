@@ -52,7 +52,7 @@ impl Tiles {
             .to_rgba8();
 
         self.tiles.iter().for_each(|tile| {
-            let corner = tile.corner.as_uvec2();
+            let corner = tile.source.as_uvec2();
             let size = layer_instance.grid_size.as_uvec2();
             let mut tile_image =
                 image::imageops::crop_imm(&tileset_image, corner.x, corner.y, size.x, size.y)
@@ -73,7 +73,7 @@ impl Tiles {
                 pixel[3] = register as u8;
             });
 
-            let location = tile.location.as_i64vec2();
+            let location = tile.offset;
             image::imageops::overlay(&mut layer_image, &tile_image, location.x, location.y);
         });
 

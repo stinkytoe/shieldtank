@@ -79,8 +79,8 @@ impl LevelBackground {
             image::imageops::overlay(
                 &mut background_image,
                 &scale,
-                background.corner.x as i64,
-                background.corner.y as i64,
+                background.corner.x,
+                background.corner.y,
             );
         }
 
