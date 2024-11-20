@@ -86,10 +86,11 @@ fn startup(
 ) {
     commands.spawn((
         Camera2d,
-        Transform::from_scale(Vec2::splat(0.4).extend(1.0)),
+        Transform::from_scale(Vec2::splat(0.4).extend(1.0))
+            .with_translation((0.0, -128.0, 1000.0).into()),
     ));
 
-    commands.spawn(shieldtank::world::World {
+    commands.spawn(shieldtank::world::WorldComponent {
         handle: asset_server.load("ldtk/axe_man_adventure.ldtk#worlds:World"),
         config: asset_server.load("config/example.project_config.ron"),
     });
