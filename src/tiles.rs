@@ -16,7 +16,7 @@ use bevy_render::texture::Image;
 use bevy_sprite::{Anchor, Sprite};
 use bevy_utils::error;
 
-use crate::layer::Layer;
+use crate::layer::LayerComponent;
 use crate::{bad_handle, Error, Result};
 
 #[derive(Component, Debug, Reflect)]
@@ -92,7 +92,7 @@ pub(crate) fn handle_tiles_system(
     mut commands: Commands,
     assets: Res<Assets<LayerAsset>>,
     mut image_assets: ResMut<Assets<Image>>,
-    query: Query<(Entity, &Layer, &Tiles), Changed<Tiles>>,
+    query: Query<(Entity, &LayerComponent, &Tiles), Changed<Tiles>>,
 ) -> Result<()> {
     query
         .iter()

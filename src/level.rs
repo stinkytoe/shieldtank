@@ -15,7 +15,7 @@ use crate::layer::LayerItem;
 use crate::level_background::LevelBackground;
 use crate::{bad_ecs_entity, bad_handle, impl_unique_identifer_iterator, Result};
 
-pub type Level = LdtkComponent<LevelAsset>;
+pub type LevelComponent = LdtkComponent<LevelAsset>;
 pub type LevelItem<'a> = LdtkItem<'a, LevelAsset>;
 
 impl_unique_identifer_iterator!(LevelAsset);
@@ -138,7 +138,7 @@ pub(crate) fn level_finalize_on_event(
     mut commands: Commands,
     mut events: EventReader<FinalizeEvent<LevelAsset>>,
     level_assets: Res<Assets<LevelAsset>>,
-    query: Query<&Level>,
+    query: Query<&LevelComponent>,
 ) -> Result<()> {
     events.read().try_for_each(|event| -> Result<()> {
         let FinalizeEvent { ecs_entity, .. } = event;

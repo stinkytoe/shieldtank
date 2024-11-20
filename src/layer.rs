@@ -16,7 +16,7 @@ use crate::level::LevelItem;
 use crate::tiles::Tiles;
 use crate::{bad_ecs_entity, bad_handle, Result};
 
-pub type Layer = LdtkComponent<LayerAsset>;
+pub type LayerComponent = LdtkComponent<LayerAsset>;
 pub type LayerItem<'a> = LdtkItem<'a, LayerAsset>;
 
 impl LayerItem<'_> {
@@ -58,7 +58,7 @@ pub(crate) fn layer_finalize_int_grid_and_tiles(
     mut events: EventReader<FinalizeEvent<LayerAsset>>,
     layer_assets: Res<Assets<LayerAsset>>,
     layer_definitions: Res<Assets<LayerDefinition>>,
-    query: Query<&Layer>,
+    query: Query<&LayerComponent>,
 ) -> Result<()> {
     events.read().try_for_each(|event| -> Result<()> {
         let FinalizeEvent { ecs_entity, .. } = event;

@@ -16,7 +16,7 @@ use crate::level::LevelItem;
 use crate::tileset_rectangle::TilesetRectangle;
 use crate::{bad_ecs_entity, bad_handle, Result};
 
-pub type Entity = LdtkComponent<EntityAsset>;
+pub type EntityComponent = LdtkComponent<EntityAsset>;
 pub type EntityItem<'a> = LdtkItem<'a, EntityAsset>;
 
 impl EntityItem<'_> {
@@ -244,7 +244,7 @@ pub(crate) fn entity_finalize_tileset_rectangle(
     mut commands: Commands,
     mut events: EventReader<FinalizeEvent<EntityAsset>>,
     entity_assets: Res<Assets<EntityAsset>>,
-    query: Query<&Entity>,
+    query: Query<&EntityComponent>,
 ) -> Result<()> {
     events.read().try_for_each(|event| -> Result<()> {
         let FinalizeEvent { ecs_entity, .. } = event;

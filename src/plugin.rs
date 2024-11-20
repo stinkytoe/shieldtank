@@ -22,7 +22,7 @@ pub struct ShieldtankPlugins;
 
 impl PluginGroup for ShieldtankPlugins {
     fn build(self) -> PluginGroupBuilder {
-        PluginGroupBuilder::start::<Self>()
+        let builder = PluginGroupBuilder::start::<Self>()
             .add(BevyLdtkAssetPlugin)
             .add(EntityPlugin)
             .add(LayerPlugin)
@@ -40,6 +40,14 @@ impl PluginGroup for ShieldtankPlugins {
             .add(ProjectConfigPlugin)
             .add(TilesetRectangleSystem)
             .add(TilesPlugin)
-            .add(WorldPlugin)
+            .add(WorldPlugin);
+
+        #[cfg(feature = "gridvania_toolkit")]
+        let builder = {
+            use crate::gridvania::GridvaniaPlugin;
+            builder.add(GridvaniaPlugin)
+        };
+
+        builder
     }
 }

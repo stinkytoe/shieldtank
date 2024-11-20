@@ -13,12 +13,12 @@ use bevy_math::Vec2;
 use bevy_sprite::Sprite;
 use bevy_transform::components::{GlobalTransform, Transform};
 
-use crate::entity::{Entity, EntityItem};
+use crate::entity::{EntityComponent, EntityItem};
 use crate::int_grid::IntGrid;
 use crate::item::LdtkItemTrait;
-use crate::layer::{Layer, LayerItem};
-use crate::level::{Level, LevelItem, LevelItemIteratorExt};
-use crate::project::Project;
+use crate::layer::{LayerComponent, LayerItem};
+use crate::level::{LevelComponent, LevelItem, LevelItemIteratorExt};
+use crate::project::ProjectComponent;
 use crate::world::{WorldComponent, WorldItem};
 //use crate::layer::{LayerData, LayerItem};
 //use crate::level::{LevelData, LevelItem};
@@ -35,15 +35,15 @@ pub struct LdtkQuery<'w, 's> {
     pub(crate) sprite_query: Query<'w, 's, &'static Sprite>,
     // For each component type
     pub(crate) _project_assets: Res<'w, Assets<ProjectAsset>>,
-    pub(crate) _projects_query: Query<'w, 's, (EcsEntity, Ref<'static, Project>)>,
+    pub(crate) _projects_query: Query<'w, 's, (EcsEntity, Ref<'static, ProjectComponent>)>,
     pub(crate) world_assets: Res<'w, Assets<WorldAsset>>,
     pub(crate) worlds_query: Query<'w, 's, (EcsEntity, Ref<'static, WorldComponent>)>,
     pub(crate) level_assets: Res<'w, Assets<LevelAsset>>,
-    pub(crate) levels_query: Query<'w, 's, (EcsEntity, Ref<'static, Level>)>,
+    pub(crate) levels_query: Query<'w, 's, (EcsEntity, Ref<'static, LevelComponent>)>,
     pub(crate) layer_assets: Res<'w, Assets<LayerAsset>>,
-    pub(crate) layers_query: Query<'w, 's, (EcsEntity, Ref<'static, Layer>)>,
+    pub(crate) layers_query: Query<'w, 's, (EcsEntity, Ref<'static, LayerComponent>)>,
     pub(crate) entity_assets: Res<'w, Assets<EntityAsset>>,
-    pub(crate) entities_query: Query<'w, 's, (EcsEntity, Ref<'static, Entity>)>,
+    pub(crate) entities_query: Query<'w, 's, (EcsEntity, Ref<'static, EntityComponent>)>,
 }
 
 impl LdtkQuery<'_, '_> {
