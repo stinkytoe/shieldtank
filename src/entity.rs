@@ -4,7 +4,7 @@ use bevy_ecs::event::EventReader;
 use bevy_ecs::system::{Commands, IntoSystem, Query, Res};
 use bevy_ldtk_asset::entity::Entity as EntityAsset;
 use bevy_ldtk_asset::ldtk_asset_trait::LdtkAssetWithFieldInstances;
-use bevy_math::{Rect, Vec2};
+use bevy_math::{I64Vec2, Rect, Vec2};
 use bevy_utils::error;
 
 use crate::component::{FinalizeEvent, LdtkComponent};
@@ -31,29 +31,53 @@ impl EntityItem<'_> {
 
     /// Returns the location of this entity on its containing layer.
     ///
+    /// Coordinates are in screen space: positive left, and negative down.
+    ///
     /// If there is no parent layer, or if we don't have a Transform component, then this returns
-    /// None. Otherwise it returns the location on the layer in pixel space, wrapped in Ok(..)
-    pub fn get_layer_location(&self) -> Option<Vec2> {
+    /// None.
+    ///
+    /// NOTE: This is not necessarily 'in-bounds'.
+    pub fn get_layer_local_location(&self) -> Option<Vec2> {
         Some(self.get_transform()?.translation.truncate())
+    }
+
+    /// Returns the grid coordinates of the entity on its containing layer.
+    ///
+    /// Coordinates are in grid space: positive left, and positive down.
+    ///
+    /// If there is no parent layer, or if we don't have a Transform component, then this returns
+    /// None.
+    ///
+    /// NOTE: This is not necessarily 'in-bounds'.
+    pub fn get_layer_local_grid(&self) -> Option<I64Vec2> {
+        let layer_location = self.get_layer_local_location()?.as_i64vec2();
+        let layer_location = layer_location * I64Vec2::new(1, -1);
+
+        let layer = self.get_layer()?;
+
+        let layer_grid_cell_size = layer.get_asset().grid_cell_size;
+
+        Some(layer_location / layer_grid_cell_size)
     }
 
     /// Returns the location of this entity on its containing layer.
     ///
+    /// Coordinates are in screen space: positive left, and negative down.
+    ///
     /// If there is no parent layer, or grantparent level, or if we don't have a Transform component,
     /// then this returns None. Otherwise it returns the location on the layer in pixel space, wrapped in Ok(..)
-    pub fn get_level_location(&self) -> Option<Vec2> {
-        let layer_location = self.get_layer_location()?;
+    pub fn get_level_local_location(&self) -> Option<Vec2> {
+        let layer_location = self.get_layer_local_location()?;
         let layer_offset = self.get_layer()?.get_transform()?.translation.truncate();
 
         Some(layer_offset + layer_location)
     }
 
-    pub fn get_local_location(&self) -> Option<Vec2> {
-        let transform = self.get_transform()?;
-
-        Some(transform.translation.truncate())
-    }
-
+    /// Returns the location of this entity in global space.
+    ///
+    /// Coordinates are in screen space: positive left, and negative down.
+    ///
+    /// If entity does not have a GlobalTransform component, then this returns None.
     pub fn get_global_location(&self) -> Option<Vec2> {
         let global_transform = self.get_global_transform()?;
 
