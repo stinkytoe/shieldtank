@@ -8,7 +8,8 @@ use bevy_math::{Rect, Vec2};
 use bevy_utils::error;
 
 use crate::component::{FinalizeEvent, LdtkComponent};
-use crate::item::{LdtkItem, LdtkItemTrait};
+use crate::item::LdtkItem;
+use crate::item::LdtkItemTrait;
 use crate::item_iterator::LdtkItemIterator;
 use crate::layer::LayerItem;
 use crate::level_background::LevelBackground;
@@ -21,14 +22,14 @@ impl_unique_identifer_iterator!(LevelAsset);
 
 impl LevelItem<'_> {
     pub fn layers(&self) -> impl Iterator<Item = LayerItem> {
-        let children_component = self.query.children_query.get(self.get_ecs_entity());
-
-        match children_component {
-            Ok(children) => either::Left(children.iter().filter_map(|child_ecs_entity| {
-                self.query.layers().find_ecs_entity(*child_ecs_entity)
-            })),
-            Err(_) => either::Right([].into_iter()),
-        }
+        self.query
+            .layers()
+            .filter_map(|item| {
+                let ecs_entity = item.get_ecs_entity();
+                Some((item, self.query.parent_query.get(ecs_entity).ok()?))
+            })
+            .filter(|(_, parent)| parent.get() == self.get_ecs_entity())
+            .map(|(item, _)| item)
     }
 }
 
