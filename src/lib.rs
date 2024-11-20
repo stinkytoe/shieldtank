@@ -27,8 +27,5 @@ pub mod world;
 
 pub use error::{Error, Result};
 
-#[cfg(feature = "gridvania_toolkit")]
-pub mod gridvania;
-
 // re-exports
 pub use bevy_ldtk_asset;
