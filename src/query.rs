@@ -19,7 +19,7 @@ use crate::item::LdtkItemTrait;
 use crate::layer::{Layer, LayerItem};
 use crate::level::{Level, LevelItem, LevelItemIteratorExt};
 use crate::project::Project;
-use crate::world::World;
+use crate::world::{WorldComponent, WorldItem};
 //use crate::layer::{LayerData, LayerItem};
 //use crate::level::{LevelData, LevelItem};
 
@@ -36,8 +36,8 @@ pub struct LdtkQuery<'w, 's> {
     // For each component type
     pub(crate) _project_assets: Res<'w, Assets<ProjectAsset>>,
     pub(crate) _projects_query: Query<'w, 's, (EcsEntity, Ref<'static, Project>)>,
-    pub(crate) _world_assets: Res<'w, Assets<WorldAsset>>,
-    pub(crate) _worlds_query: Query<'w, 's, (EcsEntity, Ref<'static, World>)>,
+    pub(crate) world_assets: Res<'w, Assets<WorldAsset>>,
+    pub(crate) worlds_query: Query<'w, 's, (EcsEntity, Ref<'static, WorldComponent>)>,
     pub(crate) level_assets: Res<'w, Assets<LevelAsset>>,
     pub(crate) levels_query: Query<'w, 's, (EcsEntity, Ref<'static, Level>)>,
     pub(crate) layer_assets: Res<'w, Assets<LayerAsset>>,
@@ -47,6 +47,31 @@ pub struct LdtkQuery<'w, 's> {
 }
 
 impl LdtkQuery<'_, '_> {
+    pub fn worlds(&self) -> impl Iterator<Item = WorldItem> {
+        self.worlds_query
+            .iter()
+            .filter_map(|(ecs_entity, component)| {
+                Some((
+                    ecs_entity,
+                    self.world_assets.get(component.handle.id())?,
+                    component,
+                ))
+            })
+            //.inspect(|(_, asset, component)| {
+            //    debug!("query: world asset: {:?}", asset.identifier);
+            //    debug!(
+            //        "query: world component is added: {:?}",
+            //        component.is_added()
+            //    );
+            //})
+            .map(|(ecs_entity, asset, component)| WorldItem {
+                asset,
+                component,
+                ecs_entity,
+                query: self,
+            })
+    }
+
     pub fn levels(&self) -> impl Iterator<Item = LevelItem> {
         self.levels_query
             .iter()
