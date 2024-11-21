@@ -104,7 +104,7 @@ impl EntityItem<'_> {
 
     // NOTE: This might not correlate with the sprite image!
     pub fn get_region(&self) -> Rect {
-        let size = self.get_asset().size;
+        let size = self.get_asset().size.as_vec2();
         let anchor = self.get_asset().anchor.as_vec();
         let x = -anchor.x - 0.5;
         let y = -anchor.y + 0.5;
