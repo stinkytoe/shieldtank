@@ -18,8 +18,9 @@ use crate::int_grid::IntGrid;
 use crate::item::LdtkItemTrait;
 use crate::layer::{LayerComponent, LayerItem};
 use crate::level::{LevelComponent, LevelItem, LevelItemIteratorExt};
-use crate::project::ProjectComponent;
+use crate::project::{ProjectComponent, ProjectItem};
 use crate::world::{WorldComponent, WorldItem};
+use crate::{bad_ecs_entity, bad_handle, Result};
 //use crate::layer::{LayerData, LayerItem};
 //use crate::level::{LevelData, LevelItem};
 
@@ -34,8 +35,8 @@ pub struct LdtkQuery<'w, 's> {
     pub(crate) int_grid_query: Query<'w, 's, &'static IntGrid>,
     pub(crate) sprite_query: Query<'w, 's, &'static Sprite>,
     // For each component type
-    pub(crate) _project_assets: Res<'w, Assets<ProjectAsset>>,
-    pub(crate) _projects_query: Query<'w, 's, (EcsEntity, Ref<'static, ProjectComponent>)>,
+    pub(crate) project_assets: Res<'w, Assets<ProjectAsset>>,
+    pub(crate) projects_query: Query<'w, 's, (EcsEntity, Ref<'static, ProjectComponent>)>,
     pub(crate) world_assets: Res<'w, Assets<WorldAsset>>,
     pub(crate) worlds_query: Query<'w, 's, (EcsEntity, Ref<'static, WorldComponent>)>,
     pub(crate) level_assets: Res<'w, Assets<LevelAsset>>,
@@ -46,95 +47,67 @@ pub struct LdtkQuery<'w, 's> {
     pub(crate) entities_query: Query<'w, 's, (EcsEntity, Ref<'static, EntityComponent>)>,
 }
 
+macro_rules! define_iterator {
+    ($name:tt, $result_item:ident, $query_field:tt, $assets_field:tt) => {
+        pub fn $name(&self) -> impl Iterator<Item = $result_item> {
+            self.$query_field
+                .iter()
+                .filter_map(|(ecs_entity, component)| {
+                    Some((
+                        ecs_entity,
+                        self.$assets_field.get(component.handle.id())?,
+                        component,
+                    ))
+                })
+                .map(|(ecs_entity, asset, component)| $result_item {
+                    asset,
+                    component,
+                    ecs_entity,
+                    query: self,
+                })
+        }
+    };
+}
+
 impl LdtkQuery<'_, '_> {
-    pub fn worlds(&self) -> impl Iterator<Item = WorldItem> {
-        self.worlds_query
-            .iter()
-            .filter_map(|(ecs_entity, component)| {
-                Some((
-                    ecs_entity,
-                    self.world_assets.get(component.handle.id())?,
-                    component,
-                ))
-            })
-            //.inspect(|(_, asset, component)| {
-            //    debug!("query: world asset: {:?}", asset.identifier);
-            //    debug!(
-            //        "query: world component is added: {:?}",
-            //        component.is_added()
-            //    );
-            //})
-            .map(|(ecs_entity, asset, component)| WorldItem {
-                asset,
-                component,
-                ecs_entity,
-                query: self,
-            })
-    }
+    define_iterator!(projects, ProjectItem, projects_query, project_assets);
+    define_iterator!(worlds, WorldItem, worlds_query, world_assets);
+    define_iterator!(levels, LevelItem, levels_query, level_assets);
+    define_iterator!(layers, LayerItem, layers_query, layer_assets);
+    define_iterator!(entities, EntityItem, entities_query, entity_assets);
+}
 
-    pub fn levels(&self) -> impl Iterator<Item = LevelItem> {
-        self.levels_query
-            .iter()
-            .filter_map(|(ecs_entity, component)| {
-                Some((
-                    ecs_entity,
-                    self.level_assets.get(component.handle.id())?,
+macro_rules! define_getter {
+    ($name:tt, $result_item:ident, $query_field:tt, $assets_field:tt) => {
+        pub fn $name(&self, ecs_entity: EcsEntity) -> Result<$result_item> {
+            self.$query_field
+                .get(ecs_entity)
+                .map_err(|e| bad_ecs_entity!("{e} {ecs_entity:?}"))
+                .and_then(|(ecs_entity, component)| {
+                    Ok((
+                        ecs_entity,
+                        self.$assets_field
+                            .get(component.handle.id())
+                            .ok_or(bad_handle!("{:?}", component.handle))?,
+                        component,
+                    ))
+                })
+                .map(|(ecs_entity, asset, component)| $result_item {
+                    asset,
                     component,
-                ))
-            })
-            .map(|(ecs_entity, asset, component)| LevelItem {
-                asset,
-                component,
-                ecs_entity,
-                query: self,
-            })
-    }
+                    ecs_entity,
+                    query: self,
+                })
+        }
+    };
+}
 
-    pub fn layers(&self) -> impl Iterator<Item = LayerItem> {
-        self.layers_query
-            .iter()
-            .filter_map(|(ecs_entity, component)| {
-                Some((
-                    ecs_entity,
-                    self.layer_assets.get(component.handle.id())?,
-                    component,
-                ))
-            })
-            .map(|(ecs_entity, asset, component)| LayerItem {
-                asset,
-                component,
-                ecs_entity,
-                query: self,
-            })
-    }
-
-    pub fn entities(&self) -> impl Iterator<Item = EntityItem> {
-        //EntityItem::make_entity_iterator(self)
-        self.entities_query
-            .iter()
-            .filter_map(|(ecs_entity, component)| {
-                Some((
-                    ecs_entity,
-                    self.entity_assets.get(component.handle.id())?,
-                    component,
-                ))
-            })
-            .map(|(ecs_entity, asset, component)| EntityItem {
-                asset,
-                component,
-                ecs_entity,
-                query: self,
-            })
-    }
-    //
-    //pub fn get_level(&self, ecs_entity: EcsEntity) -> Option<LevelItem> {
-    //    LevelItem::get_level(self, ecs_entity)
-    //}
-    //
-    //pub fn get_layer(&self, ecs_entity: EcsEntity) -> Option<LayerItem> {
-    //    LayerItem::get_layer(self, ecs_entity)
-    //}
-    //
+impl LdtkQuery<'_, '_> {
+    define_getter!(get_project, ProjectItem, projects_query, project_assets);
+    define_getter!(get_world, WorldItem, worlds_query, world_assets);
+    define_getter!(get_level, LevelItem, levels_query, level_assets);
+    define_getter!(get_layer, LayerItem, layers_query, layer_assets);
+    define_getter!(get_entity, EntityItem, entities_query, entity_assets);
 }
 
 impl LdtkQuery<'_, '_> {

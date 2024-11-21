@@ -1,6 +1,7 @@
 use bevy::color::palettes::tailwind::GRAY_500;
 use bevy::math::I64Vec2;
 use bevy::prelude::*;
+use bevy::utils::error;
 use shieldtank::bevy_ldtk_asset::iid::{iid, Iid};
 use shieldtank::commands::LdtkCommands;
 use shieldtank::entity::{EntityItem, EntityItemIteratorExt};
@@ -9,13 +10,22 @@ use shieldtank::item::LdtkItemTrait;
 use shieldtank::item_iterator::{LdtkItemIterator, LdtkItemRecurrentIdentifierIterator};
 use shieldtank::level::LevelItemIteratorExt;
 use shieldtank::plugin::ShieldtankPlugins;
-use shieldtank::project_config::ProjectConfig;
 use shieldtank::query::LdtkQuery;
 
 const AXE_MAN_IID: Iid = iid!("a0170640-9b00-11ef-aa23-11f9c6be2b6e");
 
 #[derive(Resource)]
 struct AnimationTimer(Timer);
+
+#[derive(Debug, Default, Resource)]
+struct Player(Option<Entity>);
+
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, States)]
+enum GameState {
+    #[default]
+    WaitingOnPlayer,
+    Playing,
+}
 
 #[derive(Component)]
 struct MessageBoard;
@@ -62,28 +72,31 @@ fn main() {
         0.250,
         TimerMode::Repeating,
     )))
+    .init_resource::<Player>()
+    .init_state::<GameState>()
     .add_event::<MessageBoardEvent>()
     .add_event::<PlayerMoveEvent>()
-    .add_systems(Startup, startup)
+    .add_systems(OnEnter(GameState::WaitingOnPlayer), startup)
+    .add_systems(
+        Update,
+        wait_on_player.run_if(in_state(GameState::WaitingOnPlayer)),
+    )
     .add_systems(
         Update,
         (
-            player_action.pipe(option_handler_system),
-            player_movement.pipe(option_handler_system),
-            animate_water.pipe(option_handler_system),
-            animate_axe_man.pipe(option_handler_system),
+            player_movement.map(error),
+            player_action.map(error),
+            animate_water,
+            animate_axe_man,
             update_message_board,
-        ),
+        )
+            .run_if(in_state(GameState::Playing)),
     );
 
     app.run();
 }
 
-fn startup(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut _project_configs: ResMut<Assets<ProjectConfig>>,
-) {
+fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         Camera2d,
         Transform::from_scale(Vec2::splat(0.4).extend(1.0))
@@ -115,12 +128,26 @@ fn startup(
     ));
 }
 
+fn wait_on_player(
+    mut player_res: ResMut<Player>,
+    mut next_state: ResMut<NextState<GameState>>,
+    ldtk_query: LdtkQuery,
+) {
+    if let Some(player_item) = ldtk_query.entities().find_iid(AXE_MAN_IID) {
+        *player_res = Player(Some(player_item.get_ecs_entity()));
+        next_state.set(GameState::Playing);
+
+        info!("Axe man initialized!");
+    }
+}
+
 fn player_action(
-    //mut commands: Commands,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut player_move_events: EventWriter<PlayerMoveEvent>,
-) -> Option<()> {
-    let player_action = PlayerAction::from_keyboard_input(&keyboard_input)?;
+) -> anyhow::Result<()> {
+    let Some(player_action) = PlayerAction::from_keyboard_input(&keyboard_input) else {
+        return Ok(());
+    };
 
     debug!("The Axe Man has performed an action! {player_action:?}");
 
@@ -130,27 +157,32 @@ fn player_action(
         player_move_events.send(PlayerMoveEvent(move_direction));
     }
 
-    Some(())
+    Ok(())
 }
 
 fn player_movement(
     mut player_move_events: EventReader<PlayerMoveEvent>,
     mut message_board_writer: EventWriter<MessageBoardEvent>,
+    player: Res<Player>,
     ldtk_query: LdtkQuery,
     mut ldtk_commands: LdtkCommands,
-) -> Option<()> {
+) -> anyhow::Result<()> {
     for event in player_move_events.read() {
         let PlayerMoveEvent(move_direction) = event;
 
-        let axe_man = ldtk_query.entities().find_iid(AXE_MAN_IID)?;
-        let attempted_move_location = get_global_location_for_grid_move(&axe_man, *move_direction)?;
+        let axe_man = ldtk_query.get_entity(player.0.unwrap())?;
 
-        let entity_at_move_location = ldtk_query
+        let Some(attempted_move_location) =
+            get_global_location_for_grid_move(&axe_man, *move_direction)
+        else {
+            return Ok(());
+        };
+
+        if let Some(entity_at_move_location) = ldtk_query
             .entities()
             .filter_global_location(attempted_move_location)
-            .next();
-
-        if let Some(entity_at_move_location) = entity_at_move_location {
+            .next()
+        {
             if entity_at_move_location.has_tag("Enemy") {
                 debug!(
                     "The Axe Man has bumped into an enemy! {}",
@@ -170,79 +202,86 @@ fn player_movement(
                     "Our hero, The Axe Man, was slain by the vile Green Lancer!"
                 );
             };
-        } else {
-            let int_grid_value_at_attempted_move_location = ldtk_query
-                .int_grid_value_at_global_location(attempted_move_location)?
-                .identifier?;
 
-            let terrain_is_movable = match int_grid_value_at_attempted_move_location.as_str() {
-                "bridge" => {
-                    post_to_billboard!(
-                        message_board_writer,
-                        "The Axe Man is crossing the Bridge of Woe!"
-                    );
-                    true
-                }
-                "grass" | "dirt" => {
-                    let level = ldtk_query
-                        .levels()
-                        .filter_global_location(attempted_move_location)
-                        .next()?;
+            return Ok(());
+        }
 
-                    let level_name = level.get_field_string("Name")?;
+        let Some(int_grid) = ldtk_query.int_grid_value_at_global_location(attempted_move_location)
+        else {
+            return Ok(());
+        };
 
-                    post_to_billboard!(
-                        message_board_writer,
-                        "The Axe Man is walking on {} on the {}!",
-                        int_grid_value_at_attempted_move_location,
-                        level_name
-                    );
-                    true
-                }
-                "water" => {
-                    post_to_billboard!(
-                        message_board_writer,
-                        "The Axe Man, though virtuous, is just a man and cannot walk on water!"
-                    );
-                    false
-                }
-                _ => {
-                    post_to_billboard!(
-                        message_board_writer,
-                        "The Axe Man is refusing to walk on some dubious unknown terrain! {}",
-                        int_grid_value_at_attempted_move_location
-                    );
-                    false
-                }
-            };
+        let Some(int_grid_value_at_attempted_move_location) = int_grid.identifier else {
+            return Ok(());
+        };
 
-            if terrain_is_movable {
-                let axe_man_transform = axe_man.get_transform()?;
-                let axe_man_layer = axe_man.get_layer()?;
-                let offset = (move_direction
-                    * axe_man_layer.get_asset().grid_cell_size
-                    * I64Vec2::new(1, -1))
-                .as_vec2()
-                .extend(0.0);
+        let terrain_is_movable = match int_grid_value_at_attempted_move_location.as_str() {
+            "bridge" => {
+                post_to_billboard!(
+                    message_board_writer,
+                    "The Axe Man is crossing the Bridge of Woe!"
+                );
+                true
+            }
+            "grass" | "dirt" => {
+                let Some(level) = ldtk_query
+                    .levels()
+                    .filter_global_location(attempted_move_location)
+                    .next()
+                else {
+                    return Ok(());
+                };
 
-                //if player_action == PlayerAction::MoveWest {
-                //    *player_facing = PlayerFacing::Left;
-                //}
-                //
-                //if player_action == PlayerAction::MoveEast {
-                //    *player_facing = PlayerFacing::Right;
-                //}
+                let Some(level_name) = level.get_field_string("Name") else {
+                    return Ok(());
+                };
 
-                let new_translation = axe_man_transform.translation + offset;
-
-                ldtk_commands
-                    .entity(&axe_man)
-                    .set_translation(new_translation);
+                post_to_billboard!(
+                    message_board_writer,
+                    "The Axe Man is walking on {} on the {}!",
+                    int_grid_value_at_attempted_move_location,
+                    level_name
+                );
+                true
+            }
+            "water" => {
+                post_to_billboard!(
+                    message_board_writer,
+                    "The Axe Man, though virtuous, is just a man and cannot walk on water!"
+                );
+                false
+            }
+            _ => {
+                post_to_billboard!(
+                    message_board_writer,
+                    "The Axe Man is refusing to walk on some dubious unknown terrain! {}",
+                    int_grid_value_at_attempted_move_location
+                );
+                false
             }
         };
+
+        if terrain_is_movable {
+            let (Some(axe_man_layer), Some(axe_man_transform)) =
+                (axe_man.get_layer(), axe_man.get_transform())
+            else {
+                return Ok(());
+            };
+
+            let offset =
+                (move_direction * axe_man_layer.get_asset().grid_cell_size * I64Vec2::new(1, -1))
+                    .as_vec2()
+                    .extend(0.0);
+
+            let new_translation = axe_man_transform.translation + offset;
+
+            ldtk_commands
+                .entity(&axe_man)
+                .set_translation(new_translation);
+        }
     }
 
-    Some(())
+    Ok(())
 }
 
 fn animate_water(
@@ -251,7 +290,7 @@ fn animate_water(
     mut animation_frame: Local<usize>,
     ldtk_query: LdtkQuery,
     mut ldtk_commands: LdtkCommands,
-) -> Option<()> {
+) {
     animation_timer.0.tick(time.delta());
 
     if animation_timer.0.just_finished() {
@@ -276,13 +315,9 @@ fn animate_water(
                 });
         }
     };
-
-    Some(())
 }
 
-fn animate_axe_man() -> Option<()> {
-    Some(())
-}
+fn animate_axe_man() {}
 
 fn update_message_board(
     mut message_board_posts: EventReader<MessageBoardEvent>,
@@ -294,8 +329,6 @@ fn update_message_board(
             message_board_query.single_mut().0 = post.clone();
         });
 }
-
-fn option_handler_system(In(_result): In<Option<()>>) {}
 
 // TODO: Add this to the interface somehow...
 fn get_global_location_for_grid_move(entity_item: &EntityItem, grid_move: I64Vec2) -> Option<Vec2> {
