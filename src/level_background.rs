@@ -31,7 +31,7 @@ pub struct LevelBackground {
 impl LevelBackground {
     pub fn new(value: &LdtkLevel) -> Self {
         let color = value.bg_color;
-        let size = value.size;
+        let size = value.size.as_vec2();
         let background = value.background.clone();
         LevelBackground {
             color,

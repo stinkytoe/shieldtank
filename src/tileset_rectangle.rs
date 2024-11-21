@@ -11,6 +11,7 @@ use bevy_ecs::system::Res;
 use bevy_ldtk_asset::tileset_definition::TilesetDefinition;
 use bevy_ldtk_asset::tileset_rectangle::TilesetRectangle as LdtkTilesetRectangle;
 use bevy_log::trace;
+use bevy_math::Rect;
 use bevy_reflect::Reflect;
 use bevy_sprite::{Anchor, Sprite};
 use bevy_utils::error;
@@ -40,8 +41,12 @@ pub(crate) fn handle_tileset_rectangle_system(
             };
 
             let anchor = *anchor;
-            let custom_size = Some(tile.size);
-            let rect = Some(tile.region);
+            let custom_size = Some(tile.size.as_vec2());
+
+            let corner = tile.corner.as_vec2();
+            let size = tile.size.as_vec2();
+
+            let rect = Some(Rect::from_corners(corner, corner + size));
 
             commands.entity(entity).insert(Sprite {
                 image,

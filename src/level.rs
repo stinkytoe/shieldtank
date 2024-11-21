@@ -47,7 +47,7 @@ impl LevelItem<'_> {
         };
 
         let p0 = global_transform.translation().truncate();
-        let p1 = p0 + self.asset.size * Vec2::new(1.0, -1.0);
+        let p1 = p0 + self.asset.size.as_vec2() * Vec2::new(1.0, -1.0);
 
         Rect::from_corners(p0, p1).contains(global_location)
     }
