@@ -1,5 +1,5 @@
 use bevy_ldtk_asset::ldtk_asset_trait::LdtkAsset;
-use bevy_math::Vec3;
+use bevy_math::{Vec2, Vec3};
 
 use crate::project_config::ProjectConfig;
 
@@ -10,7 +10,7 @@ pub trait LdtkAssetTranslation: LdtkAsset {
 use bevy_ldtk_asset::entity::Entity as EntityAsset;
 impl LdtkAssetTranslation for EntityAsset {
     fn get_translation(&self, _project_config: &ProjectConfig) -> Vec3 {
-        self.location.extend(0.0)
+        (Vec2::new(1.0, -1.0) * self.location.as_vec2()).extend(0.0)
     }
 }
 
@@ -19,7 +19,7 @@ impl LdtkAssetTranslation for LayerAsset {
     fn get_translation(&self, project_config: &ProjectConfig) -> Vec3 {
         let z = (self.index + 1) as f32;
         let z = z * project_config.layer_z_scale;
-        self.location.extend(z)
+        (Vec2::new(1.0, -1.0) * self.location.as_vec2()).extend(z)
     }
 }
 
@@ -28,7 +28,7 @@ impl LdtkAssetTranslation for LevelAsset {
     fn get_translation(&self, project_config: &ProjectConfig) -> Vec3 {
         let z = (self.index + 1) as f32;
         let z = z * project_config.layer_z_scale;
-        self.location.extend(z)
+        (Vec2::new(1.0, -1.0) * self.location.as_vec2()).extend(z)
     }
 }
 
