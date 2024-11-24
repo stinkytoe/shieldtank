@@ -11,7 +11,7 @@
 	"iid": "d5ab0640-8990-11ee-a83b-7da29036a93f",
 	"jsonVersion": "1.5.3",
 	"appBuildId": 473703,
-	"nextUid": 1750,
+	"nextUid": 1882,
 	"identifierStyle": "Capitalize",
 	"toc": [],
 	"worldLayout": "GridVania",
@@ -79,39 +79,7 @@
 					"isOptional": false,
 					"rules": [
 						{
-							"uid": 1730,
-							"active": true,
-							"size": 3,
-							"tileRectsIds": [ [150], [170], [151], [171] ],
-							"alpha": 1,
-							"chance": 1,
-							"breakOnMatch": true,
-							"pattern": [0,-1,0,-1,1,-1,0,-1,0],
-							"flipX": false,
-							"flipY": false,
-							"xModulo": 1,
-							"yModulo": 1,
-							"xOffset": 0,
-							"yOffset": 0,
-							"tileXOffset": 0,
-							"tileYOffset": 0,
-							"tileRandomXMin": 0,
-							"tileRandomXMax": 0,
-							"tileRandomYMin": 0,
-							"tileRandomYMax": 0,
-							"checker": "None",
-							"tileMode": "Single",
-							"pivotX": 0,
-							"pivotY": 0,
-							"outOfBoundsValue": 1,
-							"invalidated": false,
-							"perlinActive": false,
-							"perlinSeed": 5737535,
-							"perlinScale": 0.2,
-							"perlinOctaves": 2
-						},
-						{
-							"uid": 1731,
+							"uid": 1862,
 							"active": true,
 							"size": 3,
 							"tileRectsIds": [[196]],
@@ -138,12 +106,12 @@
 							"outOfBoundsValue": 1,
 							"invalidated": false,
 							"perlinActive": false,
-							"perlinSeed": 1081746,
+							"perlinSeed": 9263456,
 							"perlinScale": 0.2,
 							"perlinOctaves": 2
 						},
 						{
-							"uid": 1732,
+							"uid": 1863,
 							"active": true,
 							"size": 3,
 							"tileRectsIds": [[195]],
@@ -170,12 +138,12 @@
 							"outOfBoundsValue": 1,
 							"invalidated": false,
 							"perlinActive": false,
-							"perlinSeed": 7702370,
+							"perlinSeed": 3709720,
 							"perlinScale": 0.2,
 							"perlinOctaves": 2
 						},
 						{
-							"uid": 1733,
+							"uid": 1864,
 							"active": true,
 							"size": 3,
 							"tileRectsIds": [[152]],
@@ -202,12 +170,12 @@
 							"outOfBoundsValue": 1,
 							"invalidated": false,
 							"perlinActive": false,
-							"perlinSeed": 4688477,
+							"perlinSeed": 2066221,
 							"perlinScale": 0.2,
 							"perlinOctaves": 2
 						},
 						{
-							"uid": 1734,
+							"uid": 1865,
 							"active": true,
 							"size": 3,
 							"tileRectsIds": [[154]],
@@ -234,12 +202,12 @@
 							"outOfBoundsValue": 1,
 							"invalidated": false,
 							"perlinActive": false,
-							"perlinSeed": 8592213,
+							"perlinSeed": 3366479,
 							"perlinScale": 0.2,
 							"perlinOctaves": 2
 						},
 						{
-							"uid": 1735,
+							"uid": 1866,
 							"active": true,
 							"size": 3,
 							"tileRectsIds": [[194]],
@@ -266,12 +234,12 @@
 							"outOfBoundsValue": 1,
 							"invalidated": false,
 							"perlinActive": false,
-							"perlinSeed": 935431,
+							"perlinSeed": 4085197,
 							"perlinScale": 0.2,
 							"perlinOctaves": 2
 						},
 						{
-							"uid": 1736,
+							"uid": 1867,
 							"active": true,
 							"size": 3,
 							"tileRectsIds": [[192]],
@@ -298,12 +266,12 @@
 							"outOfBoundsValue": 1,
 							"invalidated": false,
 							"perlinActive": false,
-							"perlinSeed": 1511938,
+							"perlinSeed": 8449954,
 							"perlinScale": 0.2,
 							"perlinOctaves": 2
 						},
 						{
-							"uid": 1737,
+							"uid": 1868,
 							"active": true,
 							"size": 3,
 							"tileRectsIds": [[153]],
@@ -330,12 +298,12 @@
 							"outOfBoundsValue": 1,
 							"invalidated": false,
 							"perlinActive": false,
-							"perlinSeed": 3549217,
+							"perlinSeed": 3095984,
 							"perlinScale": 0.2,
 							"perlinOctaves": 2
 						},
 						{
-							"uid": 1738,
+							"uid": 1869,
 							"active": true,
 							"size": 3,
 							"tileRectsIds": [[174]],
@@ -362,12 +330,12 @@
 							"outOfBoundsValue": 1,
 							"invalidated": false,
 							"perlinActive": false,
-							"perlinSeed": 8021659,
+							"perlinSeed": 3434840,
 							"perlinScale": 0.2,
 							"perlinOctaves": 2
 						},
 						{
-							"uid": 1739,
+							"uid": 1870,
 							"active": true,
 							"size": 3,
 							"tileRectsIds": [[193]],
@@ -394,12 +362,12 @@
 							"outOfBoundsValue": 1,
 							"invalidated": false,
 							"perlinActive": false,
-							"perlinSeed": 2816993,
+							"perlinSeed": 5253994,
 							"perlinScale": 0.2,
 							"perlinOctaves": 2
 						},
 						{
-							"uid": 1740,
+							"uid": 1871,
 							"active": true,
 							"size": 3,
 							"tileRectsIds": [[172]],
@@ -426,12 +394,12 @@
 							"outOfBoundsValue": 1,
 							"invalidated": false,
 							"perlinActive": false,
-							"perlinSeed": 4510117,
+							"perlinSeed": 3965946,
 							"perlinScale": 0.2,
 							"perlinOctaves": 2
 						},
 						{
-							"uid": 1741,
+							"uid": 1872,
 							"active": true,
 							"size": 3,
 							"tileRectsIds": [[176]],
@@ -458,12 +426,12 @@
 							"outOfBoundsValue": 1,
 							"invalidated": false,
 							"perlinActive": false,
-							"perlinSeed": 9471626,
+							"perlinSeed": 9274633,
 							"perlinScale": 0.2,
 							"perlinOctaves": 2
 						},
 						{
-							"uid": 1742,
+							"uid": 1873,
 							"active": true,
 							"size": 3,
 							"tileRectsIds": [[175]],
@@ -490,12 +458,12 @@
 							"outOfBoundsValue": 1,
 							"invalidated": false,
 							"perlinActive": false,
-							"perlinSeed": 8307809,
+							"perlinSeed": 114895,
 							"perlinScale": 0.2,
 							"perlinOctaves": 2
 						},
 						{
-							"uid": 1743,
+							"uid": 1874,
 							"active": true,
 							"size": 3,
 							"tileRectsIds": [[155]],
@@ -522,12 +490,12 @@
 							"outOfBoundsValue": 1,
 							"invalidated": false,
 							"perlinActive": false,
-							"perlinSeed": 6557987,
+							"perlinSeed": 3925401,
 							"perlinScale": 0.2,
 							"perlinOctaves": 2
 						},
 						{
-							"uid": 1744,
+							"uid": 1875,
 							"active": true,
 							"size": 3,
 							"tileRectsIds": [[156]],
@@ -554,12 +522,12 @@
 							"outOfBoundsValue": 1,
 							"invalidated": false,
 							"perlinActive": false,
-							"perlinSeed": 6792600,
+							"perlinSeed": 9937317,
 							"perlinScale": 0.2,
 							"perlinOctaves": 2
 						},
 						{
-							"uid": 1745,
+							"uid": 1876,
 							"active": true,
 							"size": 1,
 							"tileRectsIds": [[173]],
@@ -586,7 +554,7 @@
 							"outOfBoundsValue": 1,
 							"invalidated": false,
 							"perlinActive": false,
-							"perlinSeed": 8509613,
+							"perlinSeed": 7561771,
 							"perlinScale": 0.2,
 							"perlinOctaves": 2
 						}
@@ -5603,6 +5571,117 @@
 					"tilesetUid": 288
 				},
 				{
+					"identifier": "AttackProfile",
+					"doc": null,
+					"__type": "Array<Tile>",
+					"uid": 1879,
+					"type": "F_Tile",
+					"isArray": true,
+					"canBeNull": false,
+					"arrayMinLength": 4,
+					"arrayMaxLength": 4,
+					"editorDisplayMode": "EntityTile",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": 288
+				},
+				{
+					"identifier": "AttackNorth",
+					"doc": null,
+					"__type": "Array<Tile>",
+					"uid": 1880,
+					"type": "F_Tile",
+					"isArray": true,
+					"canBeNull": false,
+					"arrayMinLength": 4,
+					"arrayMaxLength": 4,
+					"editorDisplayMode": "EntityTile",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": 288
+				},
+				{
+					"identifier": "AttackSouth",
+					"doc": null,
+					"__type": "Array<Tile>",
+					"uid": 1881,
+					"type": "F_Tile",
+					"isArray": true,
+					"canBeNull": false,
+					"arrayMinLength": 4,
+					"arrayMaxLength": 4,
+					"editorDisplayMode": "EntityTile",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": 288
+				},
+				{
 					"identifier": "Name",
 					"doc": null,
 					"__type": "String",
@@ -5676,46 +5755,6 @@
 			"pivotY": 0.5,
 			"fieldDefs": [
 				{
-					"identifier": "Dead",
-					"doc": null,
-					"__type": "Tile",
-					"uid": 964,
-					"type": "F_Tile",
-					"isArray": false,
-					"canBeNull": true,
-					"arrayMinLength": null,
-					"arrayMaxLength": null,
-					"editorDisplayMode": "Hidden",
-					"editorDisplayScale": 1,
-					"editorDisplayPos": "Above",
-					"editorLinkStyle": "StraightArrow",
-					"editorDisplayColor": null,
-					"editorAlwaysShow": false,
-					"editorShowInWorld": true,
-					"editorCutLongValues": true,
-					"editorTextSuffix": null,
-					"editorTextPrefix": null,
-					"useForSmartColor": false,
-					"exportToToc": false,
-					"searchable": false,
-					"min": null,
-					"max": null,
-					"regex": null,
-					"acceptFileTypes": null,
-					"defaultOverride": {
-						"id": "V_String",
-						"params": ["64,96,32,32"]
-					},
-					"textLanguageMode": null,
-					"symmetricalRef": false,
-					"autoChainRef": true,
-					"allowOutOfLevelRef": true,
-					"allowedRefs": "OnlySame",
-					"allowedRefsEntityUid": null,
-					"allowedRefTags": [],
-					"tilesetUid": 303
-				},
-				{
 					"identifier": "IdleProfile",
 					"doc": null,
 					"__type": "Array<Tile>",
@@ -5751,6 +5790,43 @@
 					"allowedRefsEntityUid": null,
 					"allowedRefTags": [],
 					"tilesetUid": 303
+				},
+				{
+					"identifier": "Name",
+					"doc": null,
+					"__type": "String",
+					"uid": 1877,
+					"type": "F_String",
+					"isArray": false,
+					"canBeNull": true,
+					"arrayMinLength": null,
+					"arrayMaxLength": null,
+					"editorDisplayMode": "Hidden",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": null
 				}
 			]
 		},
@@ -5789,86 +5865,6 @@
 			"pivotY": 0.5,
 			"fieldDefs": [
 				{
-					"identifier": "Dead",
-					"doc": null,
-					"__type": "Tile",
-					"uid": 961,
-					"type": "F_Tile",
-					"isArray": false,
-					"canBeNull": true,
-					"arrayMinLength": null,
-					"arrayMaxLength": null,
-					"editorDisplayMode": "Hidden",
-					"editorDisplayScale": 1,
-					"editorDisplayPos": "Above",
-					"editorLinkStyle": "StraightArrow",
-					"editorDisplayColor": null,
-					"editorAlwaysShow": false,
-					"editorShowInWorld": true,
-					"editorCutLongValues": true,
-					"editorTextSuffix": null,
-					"editorTextPrefix": null,
-					"useForSmartColor": false,
-					"exportToToc": false,
-					"searchable": false,
-					"min": null,
-					"max": null,
-					"regex": null,
-					"acceptFileTypes": null,
-					"defaultOverride": {
-						"id": "V_String",
-						"params": ["32,96,40,32"]
-					},
-					"textLanguageMode": null,
-					"symmetricalRef": false,
-					"autoChainRef": true,
-					"allowOutOfLevelRef": true,
-					"allowedRefs": "OnlySame",
-					"allowedRefsEntityUid": null,
-					"allowedRefTags": [],
-					"tilesetUid": 331
-				},
-				{
-					"identifier": "Stab",
-					"doc": null,
-					"__type": "Tile",
-					"uid": 965,
-					"type": "F_Tile",
-					"isArray": false,
-					"canBeNull": true,
-					"arrayMinLength": null,
-					"arrayMaxLength": null,
-					"editorDisplayMode": "Hidden",
-					"editorDisplayScale": 1,
-					"editorDisplayPos": "Above",
-					"editorLinkStyle": "StraightArrow",
-					"editorDisplayColor": null,
-					"editorAlwaysShow": false,
-					"editorShowInWorld": true,
-					"editorCutLongValues": true,
-					"editorTextSuffix": null,
-					"editorTextPrefix": null,
-					"useForSmartColor": false,
-					"exportToToc": false,
-					"searchable": false,
-					"min": null,
-					"max": null,
-					"regex": null,
-					"acceptFileTypes": null,
-					"defaultOverride": {
-						"id": "V_String",
-						"params": ["64,64,32,32"]
-					},
-					"textLanguageMode": null,
-					"symmetricalRef": false,
-					"autoChainRef": true,
-					"allowOutOfLevelRef": true,
-					"allowedRefs": "OnlySame",
-					"allowedRefsEntityUid": null,
-					"allowedRefTags": [],
-					"tilesetUid": 331
-				},
-				{
 					"identifier": "IdleProfile",
 					"doc": null,
 					"__type": "Array<Tile>",
@@ -5904,6 +5900,46 @@
 					"allowedRefsEntityUid": null,
 					"allowedRefTags": [],
 					"tilesetUid": 331
+				},
+				{
+					"identifier": "Name",
+					"doc": null,
+					"__type": "String",
+					"uid": 1878,
+					"type": "F_String",
+					"isArray": false,
+					"canBeNull": true,
+					"arrayMinLength": null,
+					"arrayMaxLength": null,
+					"editorDisplayMode": "Hidden",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": {
+						"id": "V_String",
+						"params": ["The Vile Green Lancer"]
+					},
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": null
 				}
 			]
 		}
@@ -6142,22 +6178,23 @@
 					"optionalRules": [],
 					"intGridCsv": [
 						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,
-						0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,
-						0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+						0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,
+						0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 						0,0,0,0,0,0,0,0,0,0,0
 					],
 					"autoLayerTiles": [
-						{ "px": [64,96], "src": [192,144], "f": 0, "t": 192, "d": [1736,100], "a": 1 },
-						{ "px": [80,96], "src": [224,144], "f": 0, "t": 194, "d": [1735,101], "a": 1 },
-						{ "px": [80,80], "src": [224,112], "f": 0, "t": 154, "d": [1734,85], "a": 1 },
-						{ "px": [64,80], "src": [192,112], "f": 0, "t": 152, "d": [1733,84], "a": 1 },
-						{ "px": [48,64], "src": [176,112], "f": 0, "t": 151, "d": [1730,67], "a": 1 },
-						{ "px": [112,64], "src": [160,112], "f": 0, "t": 150, "d": [1730,71], "a": 1 },
-						{ "px": [96,112], "src": [176,112], "f": 0, "t": 151, "d": [1730,118], "a": 1 }
+						{ "px": [80,96], "src": [240,112], "f": 0, "t": 155, "d": [1874,101], "a": 1 },
+						{ "px": [64,96], "src": [192,128], "f": 0, "t": 172, "d": [1871,100], "a": 1 },
+						{ "px": [80,80], "src": [208,112], "f": 0, "t": 153, "d": [1868,85], "a": 1 },
+						{ "px": [64,112], "src": [192,144], "f": 0, "t": 192, "d": [1867,116], "a": 1 },
+						{ "px": [96,96], "src": [224,144], "f": 0, "t": 194, "d": [1866,102], "a": 1 },
+						{ "px": [80,112], "src": [224,144], "f": 0, "t": 194, "d": [1866,117], "a": 1 },
+						{ "px": [96,80], "src": [224,112], "f": 0, "t": 154, "d": [1865,86], "a": 1 },
+						{ "px": [64,80], "src": [192,112], "f": 0, "t": 152, "d": [1864,84], "a": 1 }
 					],
 					"seed": 4329899,
 					"overrideTilesetUid": null,
@@ -6201,7 +6238,6 @@
 							"defUid": 302,
 							"px": [152,168],
 							"fieldInstances": [
-								{ "__identifier": "Dead", "__type": "Tile", "__value": { "tilesetUid": 303, "x": 64, "y": 96, "w": 32, "h": 32 }, "__tile": null, "defUid": 964, "realEditorValues": [] },
 								{ "__identifier": "IdleProfile", "__type": "Array<Tile>", "__value": [
 									{ "tilesetUid": 303, "x": 0, "y": 0, "w": 32, "h": 32 },
 									{ "tilesetUid": 303, "x": 32, "y": 0, "w": 32, "h": 32 },
@@ -6219,7 +6255,11 @@
 								}, {
 									"id": "V_String",
 									"params": ["96,0,32,32"]
-								} ] }
+								} ] },
+								{ "__identifier": "Name", "__type": "String", "__value": "Thom", "__tile": null, "defUid": 1877, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["Thom"]
+								}] }
 							],
 							"__worldX": -104,
 							"__worldY": 168
@@ -6237,7 +6277,6 @@
 							"defUid": 302,
 							"px": [88,184],
 							"fieldInstances": [
-								{ "__identifier": "Dead", "__type": "Tile", "__value": { "tilesetUid": 303, "x": 64, "y": 96, "w": 32, "h": 32 }, "__tile": null, "defUid": 964, "realEditorValues": [] },
 								{ "__identifier": "IdleProfile", "__type": "Array<Tile>", "__value": [
 									{ "tilesetUid": 303, "x": 0, "y": 32, "w": 32, "h": 32 },
 									{ "tilesetUid": 303, "x": 32, "y": 32, "w": 32, "h": 32 },
@@ -6255,7 +6294,11 @@
 								}, {
 									"id": "V_String",
 									"params": ["96,32,32,32"]
-								} ] }
+								} ] },
+								{ "__identifier": "Name", "__type": "String", "__value": "Norbert", "__tile": null, "defUid": 1877, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["Norbert"]
+								}] }
 							],
 							"__worldX": -168,
 							"__worldY": 184
@@ -6380,6 +6423,60 @@
 								}, {
 									"id": "V_String",
 									"params": ["96,192,32,32"]
+								} ] },
+								{ "__identifier": "AttackProfile", "__type": "Array<Tile>", "__value": [
+									{ "tilesetUid": 288, "x": 0, "y": 64, "w": 32, "h": 32 },
+									{ "tilesetUid": 288, "x": 32, "y": 64, "w": 32, "h": 32 },
+									{ "tilesetUid": 288, "x": 64, "y": 64, "w": 32, "h": 32 },
+									{ "tilesetUid": 288, "x": 96, "y": 64, "w": 32, "h": 32 }
+								], "__tile": { "tilesetUid": 288, "x": 0, "y": 64, "w": 32, "h": 32 }, "defUid": 1879, "realEditorValues": [ {
+									"id": "V_String",
+									"params": ["0,64,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["32,64,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["64,64,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["96,64,32,32"]
+								} ] },
+								{ "__identifier": "AttackNorth", "__type": "Array<Tile>", "__value": [
+									{ "tilesetUid": 288, "x": 0, "y": 384, "w": 32, "h": 32 },
+									{ "tilesetUid": 288, "x": 32, "y": 384, "w": 32, "h": 32 },
+									{ "tilesetUid": 288, "x": 64, "y": 384, "w": 32, "h": 32 },
+									{ "tilesetUid": 288, "x": 96, "y": 384, "w": 32, "h": 32 }
+								], "__tile": { "tilesetUid": 288, "x": 0, "y": 384, "w": 32, "h": 32 }, "defUid": 1880, "realEditorValues": [ {
+									"id": "V_String",
+									"params": ["0,384,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["32,384,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["64,384,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["96,384,32,32"]
+								} ] },
+								{ "__identifier": "AttackSouth", "__type": "Array<Tile>", "__value": [
+									{ "tilesetUid": 288, "x": 0, "y": 224, "w": 32, "h": 32 },
+									{ "tilesetUid": 288, "x": 32, "y": 224, "w": 32, "h": 32 },
+									{ "tilesetUid": 288, "x": 64, "y": 224, "w": 32, "h": 32 },
+									{ "tilesetUid": 288, "x": 96, "y": 224, "w": 32, "h": 32 }
+								], "__tile": { "tilesetUid": 288, "x": 0, "y": 224, "w": 32, "h": 32 }, "defUid": 1881, "realEditorValues": [ {
+									"id": "V_String",
+									"params": ["0,224,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["32,224,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["64,224,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["96,224,32,32"]
 								} ] },
 								{ "__identifier": "Name", "__type": "String", "__value": "The Axe Man", "__tile": null, "defUid": 1746, "realEditorValues": [{
 									"id": "V_String",
@@ -7187,14 +7284,14 @@
 						0,0,0,0,0,0,0,0,0,0,0
 					],
 					"autoLayerTiles": [
-						{ "px": [80,80], "src": [256,112], "f": 0, "t": 156, "d": [1744,85], "a": 1 },
-						{ "px": [96,80], "src": [224,128], "f": 0, "t": 174, "d": [1738,86], "a": 1 },
-						{ "px": [80,64], "src": [208,112], "f": 0, "t": 153, "d": [1737,69], "a": 1 },
-						{ "px": [64,80], "src": [192,144], "f": 0, "t": 192, "d": [1736,84], "a": 1 },
-						{ "px": [80,96], "src": [192,144], "f": 0, "t": 192, "d": [1736,101], "a": 1 },
-						{ "px": [96,96], "src": [224,144], "f": 0, "t": 194, "d": [1735,102], "a": 1 },
-						{ "px": [96,64], "src": [224,112], "f": 0, "t": 154, "d": [1734,70], "a": 1 },
-						{ "px": [64,64], "src": [192,112], "f": 0, "t": 152, "d": [1733,68], "a": 1 }
+						{ "px": [80,80], "src": [256,112], "f": 0, "t": 156, "d": [1875,85], "a": 1 },
+						{ "px": [96,80], "src": [224,128], "f": 0, "t": 174, "d": [1869,86], "a": 1 },
+						{ "px": [80,64], "src": [208,112], "f": 0, "t": 153, "d": [1868,69], "a": 1 },
+						{ "px": [64,80], "src": [192,144], "f": 0, "t": 192, "d": [1867,84], "a": 1 },
+						{ "px": [80,96], "src": [192,144], "f": 0, "t": 192, "d": [1867,101], "a": 1 },
+						{ "px": [96,96], "src": [224,144], "f": 0, "t": 194, "d": [1866,102], "a": 1 },
+						{ "px": [96,64], "src": [224,112], "f": 0, "t": 154, "d": [1865,70], "a": 1 },
+						{ "px": [64,64], "src": [192,112], "f": 0, "t": 152, "d": [1864,68], "a": 1 }
 					],
 					"seed": 8170413,
 					"overrideTilesetUid": null,
@@ -7238,8 +7335,6 @@
 							"defUid": 330,
 							"px": [168,104],
 							"fieldInstances": [
-								{ "__identifier": "Dead", "__type": "Tile", "__value": { "tilesetUid": 331, "x": 32, "y": 96, "w": 40, "h": 32 }, "__tile": null, "defUid": 961, "realEditorValues": [] },
-								{ "__identifier": "Stab", "__type": "Tile", "__value": { "tilesetUid": 331, "x": 64, "y": 64, "w": 32, "h": 32 }, "__tile": null, "defUid": 965, "realEditorValues": [] },
 								{ "__identifier": "IdleProfile", "__type": "Array<Tile>", "__value": [
 									{ "tilesetUid": 331, "x": 0, "y": 0, "w": 32, "h": 32 },
 									{ "tilesetUid": 331, "x": 32, "y": 0, "w": 32, "h": 32 },
@@ -7257,7 +7352,8 @@
 								}, {
 									"id": "V_String",
 									"params": ["96,0,32,32"]
-								} ] }
+								} ] },
+								{ "__identifier": "Name", "__type": "String", "__value": "The Vile Green Lancer", "__tile": null, "defUid": 1878, "realEditorValues": [] }
 							],
 							"__worldX": 168,
 							"__worldY": 104
