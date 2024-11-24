@@ -6,6 +6,9 @@ use shieldtank::field_instances::LdtkItemFieldInstancesExt;
 use shieldtank::item::LdtkItemTrait;
 use shieldtank::query::LdtkQuery;
 
+use crate::message_board::MessageBoardEvent;
+use crate::post_to_message_board;
+
 #[derive(Debug)]
 pub(crate) enum ActorDirection {
     North,
@@ -84,6 +87,7 @@ pub(crate) fn actor_attempt_move(
     mut events: EventReader<ActorAttemptMoveEvent>,
     ldtk_query: LdtkQuery,
     mut actor_query: Query<&mut ActorState>,
+    mut message_board_events: EventWriter<MessageBoardEvent>,
 ) {
     for ActorAttemptMoveEvent(entity) in events.read() {
         let Ok(entity_item) = ldtk_query.get_entity(*entity) else {
@@ -141,6 +145,10 @@ pub(crate) fn actor_attempt_move(
                 }
                 "water" => {
                     debug!("{entity_name} is just a man and cannot walk on water!");
+                    post_to_message_board!(
+                        message_board_events,
+                        "{entity_name} is just a man and cannot walk on water!"
+                    );
                     continue;
                 }
                 unknown => {

@@ -1,17 +1,13 @@
 mod actor;
 mod animation;
+mod message_board;
 mod player;
 
-use bevy::color::palettes::tailwind::{GRAY_500, RED_900};
-use bevy::math::I64Vec2;
+use bevy::color::palettes::tailwind::GRAY_500;
 use bevy::prelude::*;
 use bevy::window::WindowResolution;
 use shieldtank::bevy_ldtk_asset::iid::{iid, Iid};
-use shieldtank::commands::LdtkCommands;
-use shieldtank::entity::EntityItemIteratorExt;
-use shieldtank::field_instances::LdtkItemFieldInstancesExt;
-use shieldtank::item::LdtkItemTrait;
-use shieldtank::item_iterator::{LdtkItemIterator, LdtkItemRecurrentIdentifierIterator};
+use shieldtank::item_iterator::LdtkItemIterator;
 use shieldtank::plugin::ShieldtankPlugins;
 use shieldtank::query::LdtkQuery;
 
@@ -51,6 +47,7 @@ fn main() {
     .add_event::<animation::GlobalAnimationEvent>()
     .add_event::<animation::ActorAnimationEvent>()
     .add_event::<actor::ActorAttemptMoveEvent>()
+    .add_event::<message_board::MessageBoardEvent>()
     .init_state::<GameState>()
     // Always
     .add_systems(Startup, startup)
@@ -60,6 +57,7 @@ fn main() {
             animation::animate_actor,
             animation::animate_water,
             animation::update_global_animation_timer,
+            message_board::update_message_board,
         ),
     )
     // WaitingOnPlayer
@@ -116,7 +114,7 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
             right: Val::Px(5.0),
             ..default()
         },
-        //MessageBoard,
+        message_board::MessageBoard,
     ));
 }
 
@@ -149,11 +147,6 @@ enum GameState {
 //    GameOver,
 //}
 //
-//#[derive(Debug, Component)]
-//struct MessageBoard;
-//
-//#[derive(Debug, Event)]
-//struct MessageBoardEvent(String);
 //
 //#[derive(Debug, Event)]
 //struct PlayerMoveEvent {
