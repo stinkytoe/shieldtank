@@ -18,7 +18,7 @@ use bevy_utils::error;
 
 use crate::{bad_handle, Result};
 
-#[derive(Component, Debug, Reflect)]
+#[derive(Clone, Component, Debug, Reflect)]
 pub struct TilesetRectangle {
     pub anchor: Anchor,
     pub tile: LdtkTilesetRectangle,
@@ -27,10 +27,13 @@ pub struct TilesetRectangle {
 pub(crate) fn handle_tileset_rectangle_system(
     mut commands: Commands,
     tileset_definitions: Res<Assets<TilesetDefinition>>,
-    changed_query: Query<(Entity, &TilesetRectangle), Changed<TilesetRectangle>>,
+    mut changed_query: Query<
+        (Entity, &TilesetRectangle, Option<&mut Sprite>),
+        Changed<TilesetRectangle>,
+    >,
 ) -> Result<()> {
-    changed_query.iter().try_for_each(
-        |(entity, TilesetRectangle { anchor, tile })| -> Result<()> {
+    changed_query.iter_mut().try_for_each(
+        |(entity, TilesetRectangle { anchor, tile }, sprite)| -> Result<()> {
             let tileset_definition = tileset_definitions
                 .get(tile.tileset_definition.id())
                 .ok_or(bad_handle!("bad handle! {:?}", tile.tileset_definition))?;
@@ -48,13 +51,20 @@ pub(crate) fn handle_tileset_rectangle_system(
 
             let rect = Some(Rect::from_corners(corner, corner + size));
 
-            commands.entity(entity).insert(Sprite {
-                image,
-                custom_size,
-                rect,
-                anchor,
-                ..Default::default()
-            });
+            if let Some(mut sprite) = sprite {
+                sprite.image = image;
+                sprite.custom_size = custom_size;
+                sprite.rect = rect;
+                sprite.anchor = anchor;
+            } else {
+                commands.entity(entity).insert(Sprite {
+                    image,
+                    custom_size,
+                    rect,
+                    anchor,
+                    ..Default::default()
+                });
+            }
 
             trace!("Tileset rectangle added!");
             Ok(())

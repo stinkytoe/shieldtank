@@ -8,16 +8,87 @@ use bevy_math::{I64Vec2, Vec2};
 use bevy_utils::error;
 
 use crate::component::{FinalizeEvent, LdtkComponent};
+use crate::entity::EntityItem;
 use crate::impl_recurrent_identifer_iterator;
 use crate::int_grid::IntGrid;
 use crate::item::{LdtkItem, LdtkItemTrait};
-use crate::item_iterator::LdtkItemIterator;
 use crate::level::LevelItem;
+use crate::project::ProjectItem;
 use crate::tiles::Tiles;
+use crate::world::WorldItem;
 use crate::{bad_ecs_entity, bad_handle, Result};
 
 pub type LayerComponent = LdtkComponent<LayerAsset>;
 pub type LayerItem<'a> = LdtkItem<'a, LayerAsset>;
+
+impl LayerItem<'_> {
+    pub fn get_entities(&self) -> impl Iterator<Item = EntityItem> {
+        self.query
+            .entities()
+            .filter_map(|item| {
+                let ecs_entity = item.get_ecs_entity();
+                Some((item, self.query.parent_query.get(ecs_entity).ok()?))
+            })
+            .filter(|(_, parent)| parent.get() == self.get_ecs_entity())
+            .map(|(item, _)| item)
+    }
+}
+
+impl LayerItem<'_> {
+    pub fn get_level(&self) -> Option<LevelItem> {
+        let level_ecs_entity = self
+            .query
+            .parent_query
+            .get(self.get_ecs_entity())
+            .ok()
+            .map(|parent| parent.get())?;
+
+        self.query.get_level(level_ecs_entity).ok()
+    }
+
+    pub fn get_world(&self) -> Option<WorldItem> {
+        let level_ecs_entity = self
+            .query
+            .parent_query
+            .get(self.get_ecs_entity())
+            .ok()
+            .map(|parent| parent.get())?;
+
+        let world_ecs_entity = self
+            .query
+            .parent_query
+            .get(level_ecs_entity)
+            .ok()
+            .map(|parent| parent.get())?;
+
+        self.query.get_world(world_ecs_entity).ok()
+    }
+
+    pub fn get_project(&self) -> Option<ProjectItem> {
+        let level_ecs_entity = self
+            .query
+            .parent_query
+            .get(self.get_ecs_entity())
+            .ok()
+            .map(|parent| parent.get())?;
+
+        let world_ecs_entity = self
+            .query
+            .parent_query
+            .get(level_ecs_entity)
+            .ok()
+            .map(|parent| parent.get())?;
+
+        let project_ecs_entity = self
+            .query
+            .parent_query
+            .get(world_ecs_entity)
+            .ok()
+            .map(|parent| parent.get())?;
+
+        self.query.get_project(project_ecs_entity).ok()
+    }
+}
 
 impl LayerItem<'_> {
     pub fn local_location_to_grid(&self, local_location: Vec2) -> Option<I64Vec2> {
@@ -34,13 +105,8 @@ impl LayerItem<'_> {
         self.query.int_grid_query.get(self.get_ecs_entity()).ok()
     }
 
-    pub fn get_level(&self) -> Option<LevelItem<'_>> {
-        self.query
-            .parent_query
-            .get(self.get_ecs_entity())
-            .ok()
-            .map(|parent| parent.get())
-            .and_then(|parent_ecs_entity| self.query.levels().find_ecs_entity(parent_ecs_entity))
+    pub fn get_grid_cell_size(&self) -> i64 {
+        self.get_asset().grid_cell_size
     }
 }
 

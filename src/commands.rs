@@ -1,4 +1,5 @@
-use bevy_ecs::system::{Commands, SystemParam};
+use bevy_ecs::system::{Commands, Query, SystemParam};
+use bevy_transform::components::Transform;
 
 use crate::entity::EntityItem;
 use crate::entity_commands::EntityCommands;

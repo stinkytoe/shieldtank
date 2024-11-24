@@ -12,7 +12,7 @@ use bevy_ecs::system::Query;
 use bevy_ecs::system::ResMut;
 use bevy_ldtk_asset::level::Level as LdtkLevel;
 use bevy_ldtk_asset::level::LevelBackground as LdtkLevelBackground;
-use bevy_log::debug;
+use bevy_log::trace;
 use bevy_math::Vec2;
 use bevy_reflect::Reflect;
 use bevy_render::texture::Image;
@@ -110,7 +110,7 @@ pub(crate) fn level_background_system(
                 ..Default::default()
             });
 
-            debug!("Level background generated!");
+            trace!("Level background generated!");
             Ok(())
         })?;
 

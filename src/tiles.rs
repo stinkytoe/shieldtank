@@ -10,7 +10,7 @@ use bevy_ecs::system::Query;
 use bevy_ecs::system::{Res, ResMut};
 use bevy_ldtk_asset::layer::{Layer as LayerAsset, TilesLayer};
 use bevy_ldtk_asset::tile_instance::TileInstance;
-use bevy_log::debug;
+use bevy_log::trace;
 use bevy_reflect::Reflect;
 use bevy_render::texture::Image;
 use bevy_sprite::{Anchor, Sprite};
@@ -109,7 +109,7 @@ pub(crate) fn handle_tiles_system(
                 ..Default::default()
             });
 
-            debug!("Tiles layer generated!");
+            trace!("Tiles layer generated!");
 
             Ok(())
         })

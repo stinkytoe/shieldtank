@@ -13,7 +13,7 @@ pub mod item;
 pub mod item_commands;
 pub mod item_iterator;
 pub mod layer;
-mod layer_commands;
+pub mod layer_commands;
 pub mod level;
 pub mod level_background;
 pub mod load_pattern;

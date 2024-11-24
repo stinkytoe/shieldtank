@@ -13,6 +13,8 @@ use crate::item::LdtkItemTrait;
 use crate::item_iterator::LdtkItemIterator;
 use crate::layer::LayerItem;
 use crate::level_background::LevelBackground;
+use crate::project::ProjectItem;
+use crate::world::WorldItem;
 use crate::{bad_ecs_entity, bad_handle, impl_unique_identifer_iterator, Result};
 
 pub type LevelComponent = LdtkComponent<LevelAsset>;
@@ -21,7 +23,7 @@ pub type LevelItem<'a> = LdtkItem<'a, LevelAsset>;
 impl_unique_identifer_iterator!(LevelAsset);
 
 impl LevelItem<'_> {
-    pub fn layers(&self) -> impl Iterator<Item = LayerItem> {
+    pub fn get_layers(&self) -> impl Iterator<Item = LayerItem> {
         self.query
             .layers()
             .filter_map(|item| {
@@ -30,6 +32,37 @@ impl LevelItem<'_> {
             })
             .filter(|(_, parent)| parent.get() == self.get_ecs_entity())
             .map(|(item, _)| item)
+    }
+}
+
+impl LevelItem<'_> {
+    pub fn get_world(&self) -> Option<WorldItem> {
+        let world_ecs_entity = self
+            .query
+            .parent_query
+            .get(self.get_ecs_entity())
+            .ok()
+            .map(|parent| parent.get())?;
+
+        self.query.get_world(world_ecs_entity).ok()
+    }
+
+    pub fn get_project(&self) -> Option<ProjectItem> {
+        let world_ecs_entity = self
+            .query
+            .parent_query
+            .get(self.get_ecs_entity())
+            .ok()
+            .map(|parent| parent.get())?;
+
+        let project_ecs_entity = self
+            .query
+            .parent_query
+            .get(world_ecs_entity)
+            .ok()
+            .map(|parent| parent.get())?;
+
+        self.query.get_project(project_ecs_entity).ok()
     }
 }
 

@@ -10,25 +10,135 @@ use bevy_utils::error;
 use crate::component::{FinalizeEvent, LdtkComponent};
 use crate::impl_recurrent_identifer_iterator;
 use crate::item::{LdtkItem, LdtkItemTrait};
-use crate::item_iterator::LdtkItemIterator;
 use crate::layer::LayerItem;
 use crate::level::LevelItem;
+use crate::project::ProjectItem;
 use crate::tileset_rectangle::TilesetRectangle;
+use crate::world::WorldItem;
 use crate::{bad_ecs_entity, bad_handle, Result};
 
 pub type EntityComponent = LdtkComponent<EntityAsset>;
 pub type EntityItem<'a> = LdtkItem<'a, EntityAsset>;
+impl_recurrent_identifer_iterator!(EntityAsset);
 
 impl EntityItem<'_> {
-    pub fn get_layer(&self) -> Option<LayerItem<'_>> {
-        self.query
+    pub fn get_layer(&self) -> Option<LayerItem> {
+        let layer_ecs_entity = self
+            .query
             .parent_query
             .get(self.get_ecs_entity())
             .ok()
-            .map(|parent| parent.get())
-            .and_then(|parent_ecs_entity| self.query.layers().find_ecs_entity(parent_ecs_entity))
+            .map(|parent| parent.get())?;
+
+        self.query.get_layer(layer_ecs_entity).ok()
     }
 
+    pub fn get_level(&self) -> Option<LevelItem> {
+        let layer_ecs_entity = self
+            .query
+            .parent_query
+            .get(self.get_ecs_entity())
+            .ok()
+            .map(|parent| parent.get())?;
+
+        let level_ecs_entity = self
+            .query
+            .parent_query
+            .get(layer_ecs_entity)
+            .ok()
+            .map(|parent| parent.get())?;
+
+        self.query.get_level(level_ecs_entity).ok()
+    }
+
+    pub fn get_world(&self) -> Option<WorldItem> {
+        let layer_ecs_entity = self
+            .query
+            .parent_query
+            .get(self.get_ecs_entity())
+            .ok()
+            .map(|parent| parent.get())?;
+
+        let level_ecs_entity = self
+            .query
+            .parent_query
+            .get(layer_ecs_entity)
+            .ok()
+            .map(|parent| parent.get())?;
+
+        let world_ecs_entity = self
+            .query
+            .parent_query
+            .get(level_ecs_entity)
+            .ok()
+            .map(|parent| parent.get())?;
+
+        self.query.get_world(world_ecs_entity).ok()
+    }
+
+    pub fn get_layer_level_world(&self) -> Option<(LayerItem, LevelItem, WorldItem)> {
+        let layer_ecs_entity = self
+            .query
+            .parent_query
+            .get(self.get_ecs_entity())
+            .ok()
+            .map(|parent| parent.get())?;
+
+        let level_ecs_entity = self
+            .query
+            .parent_query
+            .get(layer_ecs_entity)
+            .ok()
+            .map(|parent| parent.get())?;
+
+        let world_ecs_entity = self
+            .query
+            .parent_query
+            .get(level_ecs_entity)
+            .ok()
+            .map(|parent| parent.get())?;
+
+        Some((
+            self.query.get_layer(layer_ecs_entity).ok()?,
+            self.query.get_level(level_ecs_entity).ok()?,
+            self.query.get_world(world_ecs_entity).ok()?,
+        ))
+    }
+
+    pub fn get_project(&self) -> Option<ProjectItem> {
+        let layer_ecs_entity = self
+            .query
+            .parent_query
+            .get(self.get_ecs_entity())
+            .ok()
+            .map(|parent| parent.get())?;
+
+        let level_ecs_entity = self
+            .query
+            .parent_query
+            .get(layer_ecs_entity)
+            .ok()
+            .map(|parent| parent.get())?;
+
+        let world_ecs_entity = self
+            .query
+            .parent_query
+            .get(level_ecs_entity)
+            .ok()
+            .map(|parent| parent.get())?;
+
+        let project_ecs_entity = self
+            .query
+            .parent_query
+            .get(world_ecs_entity)
+            .ok()
+            .map(|parent| parent.get())?;
+
+        self.query.get_project(project_ecs_entity).ok()
+    }
+}
+
+impl EntityItem<'_> {
     /// Returns the location of this entity on its containing layer.
     ///
     /// Coordinates are in screen space: positive left, and negative down.
@@ -73,6 +183,13 @@ impl EntityItem<'_> {
         Some(layer_offset + layer_location)
     }
 
+    pub fn get_world_local_location(&self) -> Option<Vec2> {
+        let level_location = self.get_level_local_location()?;
+        let level_offset = self.get_level()?.get_transform()?.translation.truncate();
+
+        Some(level_offset + level_location)
+    }
+
     /// Returns the location of this entity in global space.
     ///
     /// Coordinates are in screen space: positive left, and negative down.
@@ -82,24 +199,6 @@ impl EntityItem<'_> {
         let global_transform = self.get_global_transform()?;
 
         Some(global_transform.translation().truncate())
-    }
-
-    pub fn get_level(&self) -> Option<LevelItem<'_>> {
-        let layer_ecs_entity = self
-            .query
-            .parent_query
-            .get(self.get_ecs_entity())
-            .ok()
-            .map(|parent| parent.get())?;
-
-        let level_ecs_entity = self
-            .query
-            .parent_query
-            .get(layer_ecs_entity)
-            .ok()
-            .map(|parent| parent.get())?;
-
-        self.query.levels().find_ecs_entity(level_ecs_entity)
     }
 
     // NOTE: This might not correlate with the sprite image!
@@ -125,6 +224,12 @@ impl EntityItem<'_> {
         self.get_region().contains(relative_location)
     }
 
+    pub fn has_tag(&self, tag: &str) -> bool {
+        self.get_asset().has_tag(tag)
+    }
+}
+
+impl EntityItem<'_> {
     pub fn get_field_tile(&self, identifier: &str) -> Option<TilesetRectangle> {
         self.get_asset()
             .get_field_instance(identifier)?
@@ -135,12 +240,21 @@ impl EntityItem<'_> {
             })
     }
 
-    pub fn has_tag(&self, tag: &str) -> bool {
-        self.get_asset().has_tag(tag)
+    pub fn get_field_array_tiles(&self, identifier: &str) -> Option<Vec<TilesetRectangle>> {
+        self.get_asset()
+            .get_field_instance(identifier)?
+            .get_array_tile()
+            .map(|value| {
+                value
+                    .iter()
+                    .map(|value| TilesetRectangle {
+                        anchor: self.get_asset().anchor,
+                        tile: value.clone(),
+                    })
+                    .collect()
+            })
     }
 }
-
-impl_recurrent_identifer_iterator!(EntityAsset);
 
 pub trait EntityItemIteratorExt<'a>
 where
