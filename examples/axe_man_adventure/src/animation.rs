@@ -102,16 +102,16 @@ pub(crate) fn animate_actor(
             (crate::actor::ActorAction::Moving(_), crate::actor::ActorDirection::West) => {
                 ("WalkProfile", true)
             }
-            (crate::actor::ActorAction::Attacking, crate::actor::ActorDirection::North) => {
+            (crate::actor::ActorAction::Attacking { .. }, crate::actor::ActorDirection::North) => {
                 todo!()
             }
-            (crate::actor::ActorAction::Attacking, crate::actor::ActorDirection::East) => {
+            (crate::actor::ActorAction::Attacking { .. }, crate::actor::ActorDirection::East) => {
                 todo!()
             }
-            (crate::actor::ActorAction::Attacking, crate::actor::ActorDirection::South) => {
+            (crate::actor::ActorAction::Attacking { .. }, crate::actor::ActorDirection::South) => {
                 todo!()
             }
-            (crate::actor::ActorAction::Attacking, crate::actor::ActorDirection::West) => {
+            (crate::actor::ActorAction::Attacking { .. }, crate::actor::ActorDirection::West) => {
                 todo!()
             }
             (crate::actor::ActorAction::Dead, crate::actor::ActorDirection::North) => {

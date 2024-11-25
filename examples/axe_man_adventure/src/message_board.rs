@@ -7,7 +7,7 @@ pub(crate) struct MessageBoard;
 pub(crate) struct MessageBoardEvent(pub(crate) String);
 
 #[macro_export]
-macro_rules! post_to_message_board {
+macro_rules! post {
     ($board:expr, $($message:tt)*) => {
         $board.send(MessageBoardEvent(format!($($message)*)))
     };

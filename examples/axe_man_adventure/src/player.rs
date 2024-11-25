@@ -1,10 +1,14 @@
 use bevy::prelude::*;
+use shieldtank::entity::EntityItemIteratorExt;
+use shieldtank::field_instances::LdtkItemFieldInstancesExt;
 use shieldtank::item::LdtkItemTrait;
-use shieldtank::item_iterator::LdtkItemRecurrentIdentifierIterator;
+use shieldtank::item_iterator::LdtkItemIterator;
 use shieldtank::query::LdtkQuery;
 
 use crate::actor::{ActorAction, ActorAttemptMoveEvent, ActorDirection, ActorState};
 use crate::animation::ActorAnimationEvent;
+use crate::message_board::MessageBoardEvent;
+use crate::{post, AXE_MAN_IID};
 
 #[derive(Debug)]
 pub(crate) enum PlayerAction {
@@ -15,17 +19,30 @@ pub(crate) enum PlayerAction {
     Interact,
 }
 
+#[derive(Debug)]
+pub(crate) enum PlayerInteractionEventKind {
+    Bump(Entity),
+    Interact,
+}
+
+#[derive(Debug, Event)]
+pub(crate) struct PlayerInteractEvent {
+    pub(crate) entity: Entity,
+    pub(crate) kind: PlayerInteractionEventKind,
+}
+
 impl PlayerAction {
     fn from_keyboard_input(keyboard_input: &ButtonInput<KeyCode>) -> Option<Self> {
-        let move_north = keyboard_input.just_pressed(KeyCode::ArrowUp)
-            | keyboard_input.just_pressed(KeyCode::KeyW);
-        let move_east = keyboard_input.just_pressed(KeyCode::ArrowRight)
-            | keyboard_input.just_pressed(KeyCode::KeyD);
-        let move_south = keyboard_input.just_pressed(KeyCode::ArrowDown)
-            | keyboard_input.just_pressed(KeyCode::KeyS);
-        let move_west = keyboard_input.just_pressed(KeyCode::ArrowLeft)
-            | keyboard_input.just_pressed(KeyCode::KeyA);
-        let interact = keyboard_input.just_pressed(KeyCode::Space);
+        let move_north =
+            keyboard_input.pressed(KeyCode::ArrowUp) | keyboard_input.pressed(KeyCode::KeyW);
+        let move_east =
+            keyboard_input.pressed(KeyCode::ArrowRight) | keyboard_input.pressed(KeyCode::KeyD);
+        let move_south =
+            keyboard_input.pressed(KeyCode::ArrowDown) | keyboard_input.pressed(KeyCode::KeyS);
+        let move_west =
+            keyboard_input.pressed(KeyCode::ArrowLeft) | keyboard_input.pressed(KeyCode::KeyA);
+        let interact =
+            keyboard_input.pressed(KeyCode::Space) | keyboard_input.pressed(KeyCode::KeyF);
 
         match (move_north, move_east, move_south, move_west, interact) {
             (true, false, false, false, false) => Some(PlayerAction::MoveNorth),
@@ -44,6 +61,7 @@ pub(crate) fn keyboard_input(
     ldtk_query: LdtkQuery,
     mut actor_animation_event: EventWriter<ActorAnimationEvent>,
     mut actor_attempt_move_event: EventWriter<ActorAttemptMoveEvent>,
+    mut player_interaction_event: EventWriter<PlayerInteractEvent>,
 ) {
     let Some(player_action) = PlayerAction::from_keyboard_input(&keyboard_input) else {
         return;
@@ -51,7 +69,7 @@ pub(crate) fn keyboard_input(
 
     debug!("The player has performed an action! {player_action:?}");
 
-    let Some(axe_man) = ldtk_query.entities().filter_identifier("Axe_Man").next() else {
+    let Some(axe_man) = ldtk_query.entities().find_iid(AXE_MAN_IID) else {
         return;
     };
 
@@ -60,7 +78,7 @@ pub(crate) fn keyboard_input(
     };
 
     // Only do something if we're currently Idle
-    if axe_man_actor_state.action == ActorAction::Idle {
+    if matches!(axe_man_actor_state.action, ActorAction::Idle) {
         match player_action {
             PlayerAction::MoveNorth => {
                 axe_man_actor_state.facing = ActorDirection::North;
@@ -78,9 +96,76 @@ pub(crate) fn keyboard_input(
                 axe_man_actor_state.facing = ActorDirection::West;
                 actor_attempt_move_event.send(ActorAttemptMoveEvent(axe_man.get_ecs_entity()));
             }
-            PlayerAction::Interact => todo!(),
+            PlayerAction::Interact => {
+                player_interaction_event.send(PlayerInteractEvent {
+                    entity: axe_man.get_ecs_entity(),
+                    kind: PlayerInteractionEventKind::Interact,
+                });
+            }
+        };
+        actor_animation_event.send(ActorAnimationEvent(axe_man.get_ecs_entity()));
+    }
+}
+
+pub(crate) fn player_interaction(
+    mut player_interaction_events: EventReader<PlayerInteractEvent>,
+    mut message_board_events: EventWriter<MessageBoardEvent>,
+    ldtk_query: LdtkQuery,
+    actor_query: Query<&ActorState>,
+) {
+    for PlayerInteractEvent { entity, kind } in player_interaction_events.read() {
+        let Ok(axe_man) = ldtk_query.get_entity(*entity) else {
+            continue;
+        };
+
+        let name = axe_man.get_field_string("Name").unwrap_or("who?");
+
+        match kind {
+            PlayerInteractionEventKind::Bump(bumped_entity) => {
+                let Ok(bumped_entity) = ldtk_query.get_entity(*bumped_entity) else {
+                    continue;
+                };
+
+                let bumped_entity_name = bumped_entity.get_field_string("Name").unwrap_or("who?");
+
+                post!(
+                    message_board_events,
+                    "{name} has bumped in to {bumped_entity_name}!"
+                );
+            }
+
+            PlayerInteractionEventKind::Interact => {
+                let Some(axe_man_global_location) = axe_man.get_global_location() else {
+                    continue;
+                };
+
+                let Some(layer) = axe_man.get_layer() else {
+                    continue;
+                };
+
+                let Ok(ActorState { facing, .. }) = actor_query.get(*entity) else {
+                    continue;
+                };
+
+                let offset = facing.as_vec2(layer.get_grid_cell_size());
+
+                if let Some(entity_at_location) = ldtk_query
+                    .entities()
+                    .filter_global_location(axe_man_global_location + offset)
+                    .next()
+                {
+                    let entity_name = entity_at_location
+                        .get_field_string("Name")
+                        .unwrap_or("who?");
+
+                    post!(
+                        message_board_events,
+                        "{name} has interacted with {entity_name}!"
+                    );
+                } else {
+                    post!(message_board_events, "{name} has interacted with nothing!");
+                }
+            }
         };
     }
-
-    actor_animation_event.send(ActorAnimationEvent(axe_man.get_ecs_entity()));
 }

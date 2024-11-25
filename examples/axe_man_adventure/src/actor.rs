@@ -1,13 +1,19 @@
+use std::collections::VecDeque;
+
 use bevy::math::I64Vec2;
 use bevy::prelude::*;
+use itertools::Itertools;
 use shieldtank::commands::LdtkCommands;
 use shieldtank::entity::EntityItemIteratorExt;
 use shieldtank::field_instances::LdtkItemFieldInstancesExt;
 use shieldtank::item::LdtkItemTrait;
+use shieldtank::level::LevelItemIteratorExt;
 use shieldtank::query::LdtkQuery;
+use shieldtank::tileset_rectangle::TilesetRectangle;
 
 use crate::message_board::MessageBoardEvent;
-use crate::post_to_message_board;
+use crate::player::PlayerInteractEvent;
+use crate::post;
 
 #[derive(Debug)]
 pub(crate) enum ActorDirection {
@@ -34,11 +40,11 @@ impl ActorDirection {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 pub(crate) enum ActorAction {
     Idle,
     Moving(ActorMovement),
-    Attacking,
+    Attacking { timer: Timer, frame: usize },
     Dead,
 }
 
@@ -84,17 +90,14 @@ pub(crate) fn install_actor_components(mut commands: Commands, ldtk_query: LdtkQ
 }
 
 pub(crate) fn actor_attempt_move(
-    mut events: EventReader<ActorAttemptMoveEvent>,
+    mut attempt_move_events: EventReader<ActorAttemptMoveEvent>,
+    mut message_board_events: EventWriter<MessageBoardEvent>,
+    mut player_interaction_events: EventWriter<PlayerInteractEvent>,
     ldtk_query: LdtkQuery,
     mut actor_query: Query<&mut ActorState>,
-    mut message_board_events: EventWriter<MessageBoardEvent>,
 ) {
-    for ActorAttemptMoveEvent(entity) in events.read() {
+    for ActorAttemptMoveEvent(entity) in attempt_move_events.read() {
         let Ok(entity_item) = ldtk_query.get_entity(*entity) else {
-            continue;
-        };
-
-        let Some((layer, level, world)) = entity_item.get_layer_level_world() else {
             continue;
         };
 
@@ -102,7 +105,13 @@ pub(crate) fn actor_attempt_move(
             continue;
         };
 
-        let entity_name = entity_item.get_field_string("Name").unwrap_or("who?");
+        let Some(layer) = entity_item.get_layer() else {
+            continue;
+        };
+
+        let Some(world) = entity_item.get_world() else {
+            continue;
+        };
 
         let Some(global_location_of_entity) = entity_item.get_global_location() else {
             continue;
@@ -112,12 +121,17 @@ pub(crate) fn actor_attempt_move(
 
         let global_location_of_move = global_location_of_entity + offset;
 
-        if let Some(_colliding_entity) = ldtk_query
+        if let Some(colliding_entity) = ldtk_query
             .entities()
             .filter_global_location(global_location_of_move)
             .next()
         {
-            //if colliding_entity.has_tag("Enemy")
+            player_interaction_events.send(PlayerInteractEvent {
+                entity: *entity,
+                kind: crate::player::PlayerInteractionEventKind::Bump(
+                    colliding_entity.get_ecs_entity(),
+                ),
+            });
         } else {
             let Some(int_grid) = world.int_grid_value_at_global_location(global_location_of_move)
             else {
@@ -129,30 +143,49 @@ pub(crate) fn actor_attempt_move(
                 continue;
             };
 
-            let level_name = level.get_field_string("Name").unwrap_or("unknown land");
+            let Some(level_at_move_location) = ldtk_query
+                .levels()
+                .filter_global_location(global_location_of_move)
+                .next()
+            else {
+                continue;
+            };
+
+            let entity_name = entity_item.get_field_string("Name").unwrap_or("who?");
+
+            let level_name = level_at_move_location
+                .get_field_string("Name")
+                .unwrap_or("unknown land");
 
             match int_grid_identifier.as_str() {
                 "dirt" | "grass" => {
-                    debug!(
+                    post!(
+                        message_board_events,
                         "{entity_name} is walking on {int_grid_identifier} on the {level_name}!"
                     );
                 }
                 "bridge" => {
-                    debug!("{entity_name} is crossing the Bridge of Woe!");
+                    post!(
+                        message_board_events,
+                        "{entity_name} is crossing the Bridge of Woe!"
+                    );
                 }
                 "tree" => {
-                    debug!("{entity_name} is shading under the trees!");
+                    post!(
+                        message_board_events,
+                        "{entity_name} is shading under the trees!"
+                    );
                 }
                 "water" => {
-                    debug!("{entity_name} is just a man and cannot walk on water!");
-                    post_to_message_board!(
+                    post!(
                         message_board_events,
                         "{entity_name} is just a man and cannot walk on water!"
                     );
                     continue;
                 }
                 unknown => {
-                    debug!(
+                    post!(
+                        message_board_events,
                         "{entity_name} is refusing to walk on dubious unknown terrain! {unknown}"
                     );
                     continue;
@@ -161,13 +194,14 @@ pub(crate) fn actor_attempt_move(
 
             actor_state.action = ActorAction::Moving(ActorMovement {
                 destination: global_location_of_move,
-                speed: 0.75,
+                speed: 35.0,
             });
         }
     }
 }
 
 pub(crate) fn actor_moving(
+    time: Res<Time>,
     ldtk_query: LdtkQuery,
     mut ldtk_commands: LdtkCommands,
     mut actor_query: Query<(Entity, &mut ActorState)>,
@@ -187,14 +221,15 @@ pub(crate) fn actor_moving(
 
         let travel = destination - entity_location;
 
-        if travel.length() < speed {
+        if travel.length() < 1.0 {
             actor_state.action = ActorAction::Idle;
 
             ldtk_commands
                 .entity(&entity_item)
                 .set_global_location(destination);
         } else {
-            let target = entity_location + (travel.normalize() * speed);
+            let target =
+                entity_location + (travel.normalize() * speed * time.delta().as_secs_f32());
 
             ldtk_commands
                 .entity(&entity_item)

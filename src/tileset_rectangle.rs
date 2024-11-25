@@ -18,7 +18,7 @@ use bevy_utils::error;
 
 use crate::{bad_handle, Result};
 
-#[derive(Clone, Component, Debug, Reflect)]
+#[derive(Clone, Debug, Component, Reflect)]
 pub struct TilesetRectangle {
     pub anchor: Anchor,
     pub tile: LdtkTilesetRectangle,
