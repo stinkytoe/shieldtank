@@ -3,7 +3,7 @@ use shieldtank::commands::LdtkCommands;
 use shieldtank::item_iterator::LdtkItemRecurrentIdentifierIterator;
 use shieldtank::query::LdtkQuery;
 
-use crate::actor::ActorState;
+use crate::actor::{ActorAction, ActorState};
 
 #[derive(Debug, Resource)]
 pub(crate) struct GlobalAnimationTimer {
@@ -65,7 +65,104 @@ pub(crate) fn animate_water(
     }
 }
 
-pub(crate) fn animate_actor(
+pub(crate) fn animate_actor_attacking_dying(
+    time: Res<Time>,
+    mut actor_query: Query<(Entity, &mut ActorState)>,
+    mut commands: Commands,
+    ldtk_query: LdtkQuery,
+    mut ldtk_commands: LdtkCommands,
+) {
+    for (entity, mut actor) in actor_query.iter_mut() {
+        let facing = actor.facing;
+        let action = &mut actor.action;
+
+        match (action, facing) {
+            (
+                crate::actor::ActorAction::Attacking { timer, frame },
+                crate::actor::ActorDirection::North,
+            ) => {
+                timer.tick(time.delta());
+                if timer.just_finished() {
+                    if *frame == 4 {
+                        commands.entity(entity).insert(ActorState {
+                            facing,
+                            action: ActorAction::Idle,
+                        });
+                    } else {
+                        let Ok(entity_item) = ldtk_query.get_entity(entity) else {
+                            continue;
+                        };
+
+                        ldtk_commands
+                            .entity(&entity_item)
+                            .set_tile_to_field_instance_array_index("AttackNorth", *frame);
+                    }
+
+                    *frame += 1;
+                }
+            }
+            (
+                crate::actor::ActorAction::Attacking { timer, frame },
+                crate::actor::ActorDirection::East,
+            )
+            | (
+                crate::actor::ActorAction::Attacking { timer, frame },
+                crate::actor::ActorDirection::West,
+            ) => {
+                timer.tick(time.delta());
+                if timer.just_finished() {
+                    if *frame == 4 {
+                        commands.entity(entity).insert(ActorState {
+                            facing,
+                            action: ActorAction::Idle,
+                        });
+                    } else {
+                        let Ok(entity_item) = ldtk_query.get_entity(entity) else {
+                            continue;
+                        };
+
+                        ldtk_commands
+                            .entity(&entity_item)
+                            .set_tile_to_field_instance_array_index("AttackProfile", *frame);
+                    }
+
+                    *frame += 1;
+                }
+            }
+            (
+                crate::actor::ActorAction::Attacking { timer, frame },
+                crate::actor::ActorDirection::South,
+            ) => {
+                timer.tick(time.delta());
+                if timer.just_finished() {
+                    if *frame == 4 {
+                        commands.entity(entity).insert(ActorState {
+                            facing,
+                            action: ActorAction::Idle,
+                        });
+                    } else {
+                        let Ok(entity_item) = ldtk_query.get_entity(entity) else {
+                            continue;
+                        };
+
+                        ldtk_commands
+                            .entity(&entity_item)
+                            .set_tile_to_field_instance_array_index("AttackSouth", *frame);
+                    }
+
+                    *frame += 1;
+                }
+            }
+            (crate::actor::ActorAction::Dead, crate::actor::ActorDirection::North) => todo!(),
+            (crate::actor::ActorAction::Dead, crate::actor::ActorDirection::East) => todo!(),
+            (crate::actor::ActorAction::Dead, crate::actor::ActorDirection::South) => todo!(),
+            (crate::actor::ActorAction::Dead, crate::actor::ActorDirection::West) => todo!(),
+            (_, _) => {}
+        }
+    }
+}
+
+pub(crate) fn animate_actor_idle_moving(
     animation_timer: ResMut<GlobalAnimationTimer>,
     actor_query: Query<&ActorState>,
     ldtk_query: LdtkQuery,
@@ -102,29 +199,8 @@ pub(crate) fn animate_actor(
             (crate::actor::ActorAction::Moving(_), crate::actor::ActorDirection::West) => {
                 ("WalkProfile", true)
             }
-            (crate::actor::ActorAction::Attacking { .. }, crate::actor::ActorDirection::North) => {
-                todo!()
-            }
-            (crate::actor::ActorAction::Attacking { .. }, crate::actor::ActorDirection::East) => {
-                todo!()
-            }
-            (crate::actor::ActorAction::Attacking { .. }, crate::actor::ActorDirection::South) => {
-                todo!()
-            }
-            (crate::actor::ActorAction::Attacking { .. }, crate::actor::ActorDirection::West) => {
-                todo!()
-            }
-            (crate::actor::ActorAction::Dead, crate::actor::ActorDirection::North) => {
-                todo!()
-            }
-            (crate::actor::ActorAction::Dead, crate::actor::ActorDirection::East) => {
-                todo!()
-            }
-            (crate::actor::ActorAction::Dead, crate::actor::ActorDirection::South) => {
-                todo!()
-            }
-            (crate::actor::ActorAction::Dead, crate::actor::ActorDirection::West) => {
-                todo!()
+            (_, _) => {
+                continue;
             }
         };
 
@@ -137,5 +213,4 @@ pub(crate) fn animate_actor(
             .set_tile_to_field_instance_array_index(identifier, animation_timer.frame)
             .set_sprite_flip_x(flip_x);
     }
-    //    }
 }

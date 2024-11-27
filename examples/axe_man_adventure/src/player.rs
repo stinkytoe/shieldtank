@@ -110,6 +110,7 @@ pub(crate) fn keyboard_input(
 pub(crate) fn player_interaction(
     mut player_interaction_events: EventReader<PlayerInteractEvent>,
     mut message_board_events: EventWriter<MessageBoardEvent>,
+    mut commands: Commands,
     ldtk_query: LdtkQuery,
     actor_query: Query<&ActorState>,
 ) {
@@ -164,6 +165,13 @@ pub(crate) fn player_interaction(
                     );
                 } else {
                     post!(message_board_events, "{name} has interacted with nothing!");
+                    commands.entity(*entity).insert(ActorState {
+                        facing: *facing,
+                        action: ActorAction::Attacking {
+                            timer: Timer::from_seconds(0.125, TimerMode::Repeating),
+                            frame: 0,
+                        },
+                    });
                 }
             }
         };

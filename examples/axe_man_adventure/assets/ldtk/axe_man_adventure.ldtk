@@ -11,7 +11,7 @@
 	"iid": "d5ab0640-8990-11ee-a83b-7da29036a93f",
 	"jsonVersion": "1.5.3",
 	"appBuildId": 473703,
-	"nextUid": 1882,
+	"nextUid": 1887,
 	"identifierStyle": "Capitalize",
 	"toc": [],
 	"worldLayout": "GridVania",
@@ -5902,6 +5902,191 @@
 					"tilesetUid": 331
 				},
 				{
+					"identifier": "IdleNorth",
+					"doc": null,
+					"__type": "Array<Tile>",
+					"uid": 1882,
+					"type": "F_Tile",
+					"isArray": true,
+					"canBeNull": false,
+					"arrayMinLength": 4,
+					"arrayMaxLength": 4,
+					"editorDisplayMode": "EntityTile",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": 331
+				},
+				{
+					"identifier": "IdleSouth",
+					"doc": null,
+					"__type": "Array<Tile>",
+					"uid": 1883,
+					"type": "F_Tile",
+					"isArray": true,
+					"canBeNull": false,
+					"arrayMinLength": 4,
+					"arrayMaxLength": 4,
+					"editorDisplayMode": "EntityTile",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": 331
+				},
+				{
+					"identifier": "AttackProfile",
+					"doc": null,
+					"__type": "Array<Tile>",
+					"uid": 1884,
+					"type": "F_Tile",
+					"isArray": true,
+					"canBeNull": false,
+					"arrayMinLength": 4,
+					"arrayMaxLength": 4,
+					"editorDisplayMode": "EntityTile",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": 331
+				},
+				{
+					"identifier": "AttackNorth",
+					"doc": null,
+					"__type": "Array<Tile>",
+					"uid": 1885,
+					"type": "F_Tile",
+					"isArray": true,
+					"canBeNull": false,
+					"arrayMinLength": 4,
+					"arrayMaxLength": 4,
+					"editorDisplayMode": "EntityTile",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": 331
+				},
+				{
+					"identifier": "AttackSouth",
+					"doc": null,
+					"__type": "Array<Tile>",
+					"uid": 1886,
+					"type": "F_Tile",
+					"isArray": true,
+					"canBeNull": false,
+					"arrayMinLength": 4,
+					"arrayMaxLength": 4,
+					"editorDisplayMode": "EntityTile",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": 331
+				},
+				{
 					"identifier": "Name",
 					"doc": null,
 					"__type": "String",
@@ -7352,6 +7537,96 @@
 								}, {
 									"id": "V_String",
 									"params": ["96,0,32,32"]
+								} ] },
+								{ "__identifier": "IdleNorth", "__type": "Array<Tile>", "__value": [
+									{ "tilesetUid": 331, "x": 0, "y": 320, "w": 32, "h": 32 },
+									{ "tilesetUid": 331, "x": 32, "y": 320, "w": 32, "h": 32 },
+									{ "tilesetUid": 331, "x": 64, "y": 320, "w": 32, "h": 32 },
+									{ "tilesetUid": 331, "x": 96, "y": 320, "w": 32, "h": 32 }
+								], "__tile": { "tilesetUid": 331, "x": 0, "y": 320, "w": 32, "h": 32 }, "defUid": 1882, "realEditorValues": [ {
+									"id": "V_String",
+									"params": ["0,320,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["32,320,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["64,320,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["96,320,32,32"]
+								} ] },
+								{ "__identifier": "IdleSouth", "__type": "Array<Tile>", "__value": [
+									{ "tilesetUid": 331, "x": 0, "y": 160, "w": 32, "h": 32 },
+									{ "tilesetUid": 331, "x": 32, "y": 160, "w": 32, "h": 32 },
+									{ "tilesetUid": 331, "x": 64, "y": 160, "w": 32, "h": 32 },
+									{ "tilesetUid": 331, "x": 96, "y": 160, "w": 32, "h": 32 }
+								], "__tile": { "tilesetUid": 331, "x": 0, "y": 160, "w": 32, "h": 32 }, "defUid": 1883, "realEditorValues": [ {
+									"id": "V_String",
+									"params": ["0,160,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["32,160,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["64,160,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["96,160,32,32"]
+								} ] },
+								{ "__identifier": "AttackProfile", "__type": "Array<Tile>", "__value": [
+									{ "tilesetUid": 331, "x": 0, "y": 64, "w": 32, "h": 32 },
+									{ "tilesetUid": 331, "x": 32, "y": 64, "w": 32, "h": 32 },
+									{ "tilesetUid": 331, "x": 64, "y": 64, "w": 32, "h": 32 },
+									{ "tilesetUid": 331, "x": 96, "y": 64, "w": 32, "h": 32 }
+								], "__tile": { "tilesetUid": 331, "x": 0, "y": 64, "w": 32, "h": 32 }, "defUid": 1884, "realEditorValues": [ {
+									"id": "V_String",
+									"params": ["0,64,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["32,64,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["64,64,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["96,64,32,32"]
+								} ] },
+								{ "__identifier": "AttackNorth", "__type": "Array<Tile>", "__value": [
+									{ "tilesetUid": 331, "x": 0, "y": 384, "w": 32, "h": 32 },
+									{ "tilesetUid": 331, "x": 32, "y": 384, "w": 32, "h": 32 },
+									{ "tilesetUid": 331, "x": 64, "y": 384, "w": 32, "h": 32 },
+									{ "tilesetUid": 331, "x": 96, "y": 384, "w": 32, "h": 32 }
+								], "__tile": { "tilesetUid": 331, "x": 0, "y": 384, "w": 32, "h": 32 }, "defUid": 1885, "realEditorValues": [ {
+									"id": "V_String",
+									"params": ["0,384,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["32,384,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["64,384,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["96,384,32,32"]
+								} ] },
+								{ "__identifier": "AttackSouth", "__type": "Array<Tile>", "__value": [
+									{ "tilesetUid": 331, "x": 0, "y": 224, "w": 32, "h": 32 },
+									{ "tilesetUid": 331, "x": 32, "y": 224, "w": 32, "h": 32 },
+									{ "tilesetUid": 331, "x": 64, "y": 224, "w": 32, "h": 32 },
+									{ "tilesetUid": 331, "x": 96, "y": 224, "w": 32, "h": 32 }
+								], "__tile": { "tilesetUid": 331, "x": 0, "y": 224, "w": 32, "h": 32 }, "defUid": 1886, "realEditorValues": [ {
+									"id": "V_String",
+									"params": ["0,224,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["32,224,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["64,224,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["96,224,32,32"]
 								} ] },
 								{ "__identifier": "Name", "__type": "String", "__value": "The Vile Green Lancer", "__tile": null, "defUid": 1878, "realEditorValues": [] }
 							],

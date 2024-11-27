@@ -1,21 +1,17 @@
-use std::collections::VecDeque;
-
 use bevy::math::I64Vec2;
 use bevy::prelude::*;
-use itertools::Itertools;
 use shieldtank::commands::LdtkCommands;
 use shieldtank::entity::EntityItemIteratorExt;
 use shieldtank::field_instances::LdtkItemFieldInstancesExt;
 use shieldtank::item::LdtkItemTrait;
 use shieldtank::level::LevelItemIteratorExt;
 use shieldtank::query::LdtkQuery;
-use shieldtank::tileset_rectangle::TilesetRectangle;
 
 use crate::message_board::MessageBoardEvent;
 use crate::player::PlayerInteractEvent;
 use crate::post;
 
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 pub(crate) enum ActorDirection {
     North,
     East,
@@ -37,6 +33,15 @@ impl ActorDirection {
         let offset = grid_cell_size * I64Vec2::new(1, -1) * self.as_i64vec2();
 
         offset.as_vec2()
+    }
+
+    pub fn as_opposite(&self) -> Self {
+        match self {
+            ActorDirection::North => ActorDirection::South,
+            ActorDirection::East => ActorDirection::West,
+            ActorDirection::South => ActorDirection::North,
+            ActorDirection::West => ActorDirection::East,
+        }
     }
 }
 

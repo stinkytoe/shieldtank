@@ -55,7 +55,8 @@ fn main() {
     .add_systems(
         Update,
         (
-            animation::animate_actor,
+            animation::animate_actor_attacking_dying,
+            animation::animate_actor_idle_moving,
             animation::animate_water,
             animation::update_global_animation_timer,
             message_board::update_message_board,
