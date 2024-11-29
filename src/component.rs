@@ -24,7 +24,7 @@ pub struct LdtkComponent<Asset: LdtkAsset> {
 impl<Asset: LdtkAsset> LdtkComponentExt<Asset> for LdtkComponent<Asset> {
     fn is_loaded(&self, asset_server: &AssetServer) -> bool {
         asset_server.is_loaded_with_dependencies(self.handle.id())
-            && asset_server.is_loaded_with_dependencies(self.config.id())
+        //&& asset_server.is_loaded_with_dependencies(self.config.id())
     }
 
     fn get_handle(&self) -> Handle<Asset> {

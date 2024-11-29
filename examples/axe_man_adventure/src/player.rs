@@ -8,7 +8,7 @@ use shieldtank::query::LdtkQuery;
 use crate::actor::{ActorAction, ActorAttemptMoveEvent, ActorDirection, ActorState};
 use crate::animation::ActorAnimationEvent;
 use crate::message_board::MessageBoardEvent;
-use crate::{post, AXE_MAN_IID};
+use crate::{post, GameState, AXE_MAN_IID};
 
 #[derive(Debug)]
 pub(crate) enum PlayerAction {
@@ -113,6 +113,7 @@ pub(crate) fn player_interaction(
     mut commands: Commands,
     ldtk_query: LdtkQuery,
     actor_query: Query<&ActorState>,
+    mut next_state: ResMut<NextState<GameState>>,
 ) {
     for PlayerInteractEvent { entity, kind } in player_interaction_events.read() {
         let Ok(axe_man) = ldtk_query.get_entity(*entity) else {
@@ -163,14 +164,27 @@ pub(crate) fn player_interaction(
                         message_board_events,
                         "{name} has interacted with {entity_name}!"
                     );
+
+                    if entity_at_location.has_tag("Enemy") {
+                        commands.entity(*entity).insert(ActorState {
+                            facing: *facing,
+                            action: ActorAction::new_attacking(),
+                        });
+
+                        commands
+                            .entity(entity_at_location.get_ecs_entity())
+                            .insert(ActorState {
+                                facing: facing.as_opposite(),
+                                action: ActorAction::new_dead(),
+                            });
+
+                        next_state.set(GameState::GameOver);
+                    }
                 } else {
                     post!(message_board_events, "{name} has interacted with nothing!");
                     commands.entity(*entity).insert(ActorState {
                         facing: *facing,
-                        action: ActorAction::Attacking {
-                            timer: Timer::from_seconds(0.125, TimerMode::Repeating),
-                            frame: 0,
-                        },
+                        action: ActorAction::new_attacking(),
                     });
                 }
             }

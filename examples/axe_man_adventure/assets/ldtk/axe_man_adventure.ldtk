@@ -11,7 +11,7 @@
 	"iid": "d5ab0640-8990-11ee-a83b-7da29036a93f",
 	"jsonVersion": "1.5.3",
 	"appBuildId": 473703,
-	"nextUid": 1887,
+	"nextUid": 1894,
 	"identifierStyle": "Capitalize",
 	"toc": [],
 	"worldLayout": "GridVania",
@@ -5682,6 +5682,117 @@
 					"tilesetUid": 288
 				},
 				{
+					"identifier": "DeadProfile",
+					"doc": null,
+					"__type": "Array<Tile>",
+					"uid": 1887,
+					"type": "F_Tile",
+					"isArray": true,
+					"canBeNull": false,
+					"arrayMinLength": 4,
+					"arrayMaxLength": 4,
+					"editorDisplayMode": "EntityTile",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": 288
+				},
+				{
+					"identifier": "DeadNorth",
+					"doc": null,
+					"__type": "Array<Tile>",
+					"uid": 1888,
+					"type": "F_Tile",
+					"isArray": true,
+					"canBeNull": false,
+					"arrayMinLength": 4,
+					"arrayMaxLength": 4,
+					"editorDisplayMode": "EntityTile",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": 288
+				},
+				{
+					"identifier": "DeadSouth",
+					"doc": null,
+					"__type": "Array<Tile>",
+					"uid": 1889,
+					"type": "F_Tile",
+					"isArray": true,
+					"canBeNull": false,
+					"arrayMinLength": 4,
+					"arrayMaxLength": 4,
+					"editorDisplayMode": "EntityTile",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": 288
+				},
+				{
 					"identifier": "Name",
 					"doc": null,
 					"__type": "String",
@@ -6054,6 +6165,117 @@
 					"doc": null,
 					"__type": "Array<Tile>",
 					"uid": 1886,
+					"type": "F_Tile",
+					"isArray": true,
+					"canBeNull": false,
+					"arrayMinLength": 4,
+					"arrayMaxLength": 4,
+					"editorDisplayMode": "EntityTile",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": 331
+				},
+				{
+					"identifier": "DeadProfile",
+					"doc": null,
+					"__type": "Array<Tile>",
+					"uid": 1890,
+					"type": "F_Tile",
+					"isArray": true,
+					"canBeNull": false,
+					"arrayMinLength": 4,
+					"arrayMaxLength": 4,
+					"editorDisplayMode": "EntityTile",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": 331
+				},
+				{
+					"identifier": "DeadNorth",
+					"doc": null,
+					"__type": "Array<Tile>",
+					"uid": 1891,
+					"type": "F_Tile",
+					"isArray": true,
+					"canBeNull": false,
+					"arrayMinLength": 4,
+					"arrayMaxLength": 4,
+					"editorDisplayMode": "EntityTile",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": 331
+				},
+				{
+					"identifier": "DeadSouth",
+					"doc": null,
+					"__type": "Array<Tile>",
+					"uid": 1892,
 					"type": "F_Tile",
 					"isArray": true,
 					"canBeNull": false,
@@ -6662,6 +6884,60 @@
 								}, {
 									"id": "V_String",
 									"params": ["96,224,32,32"]
+								} ] },
+								{ "__identifier": "DeadProfile", "__type": "Array<Tile>", "__value": [
+									{ "tilesetUid": 288, "x": 0, "y": 96, "w": 32, "h": 32 },
+									{ "tilesetUid": 288, "x": 32, "y": 96, "w": 32, "h": 32 },
+									{ "tilesetUid": 288, "x": 64, "y": 96, "w": 32, "h": 32 },
+									{ "tilesetUid": 288, "x": 96, "y": 96, "w": 32, "h": 32 }
+								], "__tile": { "tilesetUid": 288, "x": 0, "y": 96, "w": 32, "h": 32 }, "defUid": 1887, "realEditorValues": [ {
+									"id": "V_String",
+									"params": ["0,96,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["32,96,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["64,96,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["96,96,32,32"]
+								} ] },
+								{ "__identifier": "DeadNorth", "__type": "Array<Tile>", "__value": [
+									{ "tilesetUid": 288, "x": 0, "y": 416, "w": 32, "h": 32 },
+									{ "tilesetUid": 288, "x": 32, "y": 416, "w": 32, "h": 32 },
+									{ "tilesetUid": 288, "x": 64, "y": 416, "w": 32, "h": 32 },
+									{ "tilesetUid": 288, "x": 96, "y": 416, "w": 32, "h": 32 }
+								], "__tile": { "tilesetUid": 288, "x": 0, "y": 416, "w": 32, "h": 32 }, "defUid": 1888, "realEditorValues": [ {
+									"id": "V_String",
+									"params": ["0,416,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["32,416,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["64,416,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["96,416,32,32"]
+								} ] },
+								{ "__identifier": "DeadSouth", "__type": "Array<Tile>", "__value": [
+									{ "tilesetUid": 288, "x": 0, "y": 256, "w": 32, "h": 32 },
+									{ "tilesetUid": 288, "x": 32, "y": 256, "w": 32, "h": 32 },
+									{ "tilesetUid": 288, "x": 64, "y": 256, "w": 32, "h": 32 },
+									{ "tilesetUid": 288, "x": 96, "y": 256, "w": 32, "h": 32 }
+								], "__tile": { "tilesetUid": 288, "x": 0, "y": 256, "w": 32, "h": 32 }, "defUid": 1889, "realEditorValues": [ {
+									"id": "V_String",
+									"params": ["0,256,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["32,256,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["64,256,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["96,256,32,32"]
 								} ] },
 								{ "__identifier": "Name", "__type": "String", "__value": "The Axe Man", "__tile": null, "defUid": 1746, "realEditorValues": [{
 									"id": "V_String",
@@ -7627,6 +7903,60 @@
 								}, {
 									"id": "V_String",
 									"params": ["96,224,32,32"]
+								} ] },
+								{ "__identifier": "DeadProfile", "__type": "Array<Tile>", "__value": [
+									{ "tilesetUid": 331, "x": 0, "y": 96, "w": 32, "h": 32 },
+									{ "tilesetUid": 331, "x": 32, "y": 96, "w": 32, "h": 32 },
+									{ "tilesetUid": 331, "x": 64, "y": 96, "w": 32, "h": 32 },
+									{ "tilesetUid": 331, "x": 96, "y": 96, "w": 32, "h": 32 }
+								], "__tile": { "tilesetUid": 331, "x": 0, "y": 96, "w": 32, "h": 32 }, "defUid": 1890, "realEditorValues": [ {
+									"id": "V_String",
+									"params": ["0,96,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["32,96,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["64,96,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["96,96,32,32"]
+								} ] },
+								{ "__identifier": "DeadNorth", "__type": "Array<Tile>", "__value": [
+									{ "tilesetUid": 331, "x": 0, "y": 416, "w": 32, "h": 32 },
+									{ "tilesetUid": 331, "x": 32, "y": 416, "w": 32, "h": 32 },
+									{ "tilesetUid": 331, "x": 64, "y": 416, "w": 32, "h": 32 },
+									{ "tilesetUid": 331, "x": 96, "y": 416, "w": 32, "h": 32 }
+								], "__tile": { "tilesetUid": 331, "x": 0, "y": 416, "w": 32, "h": 32 }, "defUid": 1891, "realEditorValues": [ {
+									"id": "V_String",
+									"params": ["0,416,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["32,416,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["64,416,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["96,416,32,32"]
+								} ] },
+								{ "__identifier": "DeadSouth", "__type": "Array<Tile>", "__value": [
+									{ "tilesetUid": 331, "x": 0, "y": 256, "w": 32, "h": 32 },
+									{ "tilesetUid": 331, "x": 32, "y": 256, "w": 32, "h": 32 },
+									{ "tilesetUid": 331, "x": 64, "y": 256, "w": 32, "h": 32 },
+									{ "tilesetUid": 331, "x": 96, "y": 256, "w": 32, "h": 32 }
+								], "__tile": { "tilesetUid": 331, "x": 0, "y": 256, "w": 32, "h": 32 }, "defUid": 1892, "realEditorValues": [ {
+									"id": "V_String",
+									"params": ["0,256,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["32,256,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["64,256,32,32"]
+								}, {
+									"id": "V_String",
+									"params": ["96,256,32,32"]
 								} ] },
 								{ "__identifier": "Name", "__type": "String", "__value": "The Vile Green Lancer", "__tile": null, "defUid": 1878, "realEditorValues": [] }
 							],

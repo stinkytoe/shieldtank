@@ -50,7 +50,34 @@ pub(crate) enum ActorAction {
     Idle,
     Moving(ActorMovement),
     Attacking { timer: Timer, frame: usize },
-    Dead,
+    Dead { timer: Timer, frame: usize },
+}
+
+impl ActorAction {
+    pub(crate) fn new_idle() -> Self {
+        ActorAction::Idle
+    }
+
+    pub(crate) fn new_moving(destination: Vec2) -> Self {
+        ActorAction::Moving(ActorMovement {
+            destination,
+            speed: 35.0,
+        })
+    }
+
+    pub(crate) fn new_attacking() -> Self {
+        ActorAction::Attacking {
+            timer: Timer::from_seconds(0.0625, TimerMode::Repeating),
+            frame: 0,
+        }
+    }
+
+    pub(crate) fn new_dead() -> Self {
+        ActorAction::Dead {
+            timer: Timer::from_seconds(0.250, TimerMode::Repeating),
+            frame: 0,
+        }
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -197,10 +224,7 @@ pub(crate) fn actor_attempt_move(
                 }
             }
 
-            actor_state.action = ActorAction::Moving(ActorMovement {
-                destination: global_location_of_move,
-                speed: 35.0,
-            });
+            actor_state.action = ActorAction::new_moving(global_location_of_move);
         }
     }
 }

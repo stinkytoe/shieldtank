@@ -153,10 +153,64 @@ pub(crate) fn animate_actor_attacking_dying(
                     *frame += 1;
                 }
             }
-            (crate::actor::ActorAction::Dead, crate::actor::ActorDirection::North) => todo!(),
-            (crate::actor::ActorAction::Dead, crate::actor::ActorDirection::East) => todo!(),
-            (crate::actor::ActorAction::Dead, crate::actor::ActorDirection::South) => todo!(),
-            (crate::actor::ActorAction::Dead, crate::actor::ActorDirection::West) => todo!(),
+            (
+                crate::actor::ActorAction::Dead { timer, frame },
+                crate::actor::ActorDirection::North,
+            ) => {
+                timer.tick(time.delta());
+
+                if timer.just_finished() && *frame < 4 {
+                    let Ok(entity_item) = ldtk_query.get_entity(entity) else {
+                        continue;
+                    };
+
+                    ldtk_commands
+                        .entity(&entity_item)
+                        .set_tile_to_field_instance_array_index("DeadNorth", *frame);
+
+                    *frame += 1;
+                };
+            }
+            (
+                crate::actor::ActorAction::Dead { timer, frame },
+                crate::actor::ActorDirection::East,
+            )
+            | (
+                crate::actor::ActorAction::Dead { timer, frame },
+                crate::actor::ActorDirection::West,
+            ) => {
+                timer.tick(time.delta());
+
+                if timer.just_finished() && *frame < 4 {
+                    let Ok(entity_item) = ldtk_query.get_entity(entity) else {
+                        continue;
+                    };
+
+                    ldtk_commands
+                        .entity(&entity_item)
+                        .set_tile_to_field_instance_array_index("DeadProfile", *frame);
+
+                    *frame += 1;
+                };
+            }
+            (
+                crate::actor::ActorAction::Dead { timer, frame },
+                crate::actor::ActorDirection::South,
+            ) => {
+                timer.tick(time.delta());
+
+                if timer.just_finished() && *frame < 4 {
+                    let Ok(entity_item) = ldtk_query.get_entity(entity) else {
+                        continue;
+                    };
+
+                    ldtk_commands
+                        .entity(&entity_item)
+                        .set_tile_to_field_instance_array_index("DeadSouth", *frame);
+
+                    *frame += 1;
+                };
+            }
             (_, _) => {}
         }
     }
