@@ -104,7 +104,7 @@ pub(crate) fn install_actor_components(mut commands: Commands, ldtk_query: LdtkQ
                     .entity(entity_item.get_ecs_entity())
                     .insert(ActorState {
                         facing: ActorDirection::East,
-                        action: ActorAction::Idle,
+                        action: ActorAction::new_idle(),
                     });
             }
             "Lancer" => {
@@ -112,7 +112,7 @@ pub(crate) fn install_actor_components(mut commands: Commands, ldtk_query: LdtkQ
                     .entity(entity_item.get_ecs_entity())
                     .insert(ActorState {
                         facing: ActorDirection::West,
-                        action: ActorAction::Idle,
+                        action: ActorAction::new_idle(),
                     });
             }
             unknown => {

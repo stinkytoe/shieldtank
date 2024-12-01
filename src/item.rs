@@ -11,7 +11,6 @@ use bevy_ldtk_asset::iid::Iid;
 use bevy_ldtk_asset::ldtk_asset_trait::LdtkAsset;
 use bevy_log::{debug, trace};
 use bevy_math::Vec2;
-use bevy_render::view::Visibility;
 use bevy_sprite::Sprite;
 use bevy_transform::components::{GlobalTransform, Transform};
 use bevy_utils::error;
@@ -161,7 +160,7 @@ where
             .entity(ecs_entity)
             .insert(Transform::from_translation(translation));
 
-        commands.entity(ecs_entity).insert(Visibility::default());
+        //commands.entity(ecs_entity).insert(Visibility::default());
 
         debug!("Finalized {}!", asset.get_identifier());
 

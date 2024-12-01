@@ -10,12 +10,12 @@ use bevy_ecs::system::Commands;
 use bevy_ecs::system::IntoSystem;
 use bevy_ecs::system::Query;
 use bevy_ecs::system::ResMut;
+use bevy_image::Image;
 use bevy_ldtk_asset::level::Level as LdtkLevel;
 use bevy_ldtk_asset::level::LevelBackground as LdtkLevelBackground;
 use bevy_log::trace;
 use bevy_math::Vec2;
 use bevy_reflect::Reflect;
-use bevy_render::texture::Image;
 use bevy_sprite::{Anchor, Sprite};
 use bevy_utils::error;
 
@@ -84,7 +84,7 @@ impl LevelBackground {
             );
         }
 
-        let background_image = bevy_render::texture::Image::from_dynamic(
+        let background_image = Image::from_dynamic(
             image::DynamicImage::from(background_image),
             true,
             RenderAssetUsages::default(),

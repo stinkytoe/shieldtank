@@ -121,16 +121,17 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
     ));
 }
 
-fn wait_on_player_spawn(
-    //mut player_res: ResMut<Player>,
-    mut next_state: ResMut<NextState<GameState>>,
-    ldtk_query: LdtkQuery,
-) {
+fn wait_on_player_spawn(mut next_state: ResMut<NextState<GameState>>, ldtk_query: LdtkQuery) {
     // TODO: Should we actually do asset load detection here?
-    if let Some(_player_item) = ldtk_query.entities().find_iid(AXE_MAN_IID) {
+    if ldtk_query.entities().find_iid(AXE_MAN_IID).is_some() {
         next_state.set(GameState::Playing);
         info!("Axe man spawned!");
     }
+
+    //if let Some(_ldtk_world) = ldtk_query.worlds().find_identifier("World") {
+    //    next_state.set(GameState::Playing);
+    //    info!("Axe man spawned!");
+    //}
 }
 
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, States)]

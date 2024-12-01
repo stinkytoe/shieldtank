@@ -10,7 +10,7 @@ pub enum Error {
     IoError(#[from] std::io::Error),
 
     #[error(transparent)]
-    IntoDynamicImageError(#[from] bevy_render::texture::IntoDynamicImageError),
+    IntoDynamicImageError(#[from] bevy_image::IntoDynamicImageError),
 
     #[error("Bad Handle! {0}")]
     BadHandle(String),

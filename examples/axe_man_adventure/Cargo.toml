@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0"
-bevy = { version = "=0.15.0-rc.3" }
+bevy = { version = "0.15.0" }
 itertools = "0.13"
 shieldtank = { path = "../../" }
 

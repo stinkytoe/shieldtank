@@ -3,7 +3,7 @@ use bevy_asset::Assets;
 use bevy_ecs::event::EventReader;
 use bevy_ecs::system::{Commands, IntoSystem, Query, Res};
 use bevy_ldtk_asset::entity::Entity as EntityAsset;
-use bevy_ldtk_asset::ldtk_asset_trait::LdtkAssetWithFieldInstances;
+use bevy_ldtk_asset::ldtk_asset_trait::{LdtkAssetWithFieldInstances, LdtkAssetWithTags};
 use bevy_math::{I64Vec2, Rect, Vec2};
 use bevy_utils::error;
 

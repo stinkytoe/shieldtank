@@ -1,7 +1,7 @@
 use bevy::prelude::*;
-use shieldtank::commands::LdtkCommands;
 use shieldtank::item_iterator::LdtkItemRecurrentIdentifierIterator;
 use shieldtank::query::LdtkQuery;
+use shieldtank::{commands::LdtkCommands, item::LdtkItemTrait};
 
 use crate::actor::{ActorAction, ActorState};
 
@@ -42,7 +42,7 @@ pub(crate) fn animate_water(
     global_animation_timer: ResMut<GlobalAnimationTimer>,
     mut events: EventReader<GlobalAnimationEvent>,
     ldtk_query: LdtkQuery,
-    mut ldtk_commands: LdtkCommands,
+    mut commands: Commands,
 ) {
     for _ in events.read() {
         for level in ldtk_query.levels() {
@@ -59,7 +59,7 @@ pub(crate) fn animate_water(
                     (layer, visibility)
                 })
                 .for_each(|(layer, visibility)| {
-                    ldtk_commands.layer(&layer).set_visibility(visibility);
+                    commands.entity(layer.get_ecs_entity()).insert(visibility);
                 });
         }
     }

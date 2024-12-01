@@ -29,8 +29,6 @@ impl IntGrid {
             return Err(Error::BadTilesLayer);
         };
 
-        let int_grid_values: &[_] = &layer_definition.int_grid_values;
-
         let size = layer_instance.grid_size;
 
         if int_grid.is_empty() {
@@ -52,20 +50,18 @@ impl IntGrid {
             .enumerate()
             .filter(|(_, value)| **value != 0)
             .map(|(index, value)| (index as i64, value))
-            .map(|(index, &value)| {
+            .map(|(index, value)| {
                 let grid = I64Vec2::new(index % columns, index / columns);
+                let int_grid_value = layer_definition
+                    .int_grid_values
+                    .get(value)
+                    .ok_or(Error::BadIntGrid(format!(
+                        "int grid value of {value} not found in layer {}!",
+                        layer_instance.identifier
+                    )))?
+                    .clone();
 
-                Ok((
-                    grid,
-                    int_grid_values
-                        .iter()
-                        .find(|int_grid_value| int_grid_value.value == value)
-                        .cloned()
-                        .ok_or(Error::BadIntGrid(format!(
-                            "int grid value of {value} not found in layer {}!",
-                            layer_instance.identifier
-                        )))?,
-                ))
+                Ok((grid, int_grid_value))
             })
             .collect::<Result<HashMap<_, _>>>()?;
 

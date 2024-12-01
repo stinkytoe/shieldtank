@@ -8,11 +8,11 @@ use bevy_ecs::system::Commands;
 use bevy_ecs::system::IntoSystem;
 use bevy_ecs::system::Query;
 use bevy_ecs::system::{Res, ResMut};
+use bevy_image::Image;
 use bevy_ldtk_asset::layer::{Layer as LayerAsset, TilesLayer};
 use bevy_ldtk_asset::tile_instance::TileInstance;
 use bevy_log::trace;
 use bevy_reflect::Reflect;
-use bevy_render::texture::Image;
 use bevy_sprite::{Anchor, Sprite};
 use bevy_utils::error;
 
@@ -78,7 +78,7 @@ impl Tiles {
             image::imageops::overlay(&mut layer_image, &tile_image, location.x, location.y);
         });
 
-        let layer_image = bevy_render::texture::Image::from_dynamic(
+        let layer_image = Image::from_dynamic(
             image::DynamicImage::from(layer_image),
             true,
             RenderAssetUsages::default(),
