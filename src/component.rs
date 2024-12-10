@@ -11,6 +11,7 @@ use bevy_ldtk_asset::ldtk_asset_trait::LdtkAsset;
 use bevy_log::trace;
 use bevy_reflect::Reflect;
 use bevy_render::view::Visibility;
+use bevy_transform::components::{GlobalTransform, Transform};
 use bevy_utils::HashSet;
 
 use crate::project_config::ProjectConfig;
@@ -18,6 +19,8 @@ use crate::Result;
 
 #[derive(Component, Debug, Reflect)]
 #[require(Visibility)]
+#[require(Transform)]
+#[require(GlobalTransform)]
 pub struct LdtkComponent<Asset: LdtkAsset> {
     pub handle: Handle<Asset>,
     pub config: Handle<ProjectConfig>,
