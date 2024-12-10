@@ -35,7 +35,7 @@ where
     pub query: &'a LdtkQuery<'a, 'a>,
 }
 
-impl<'a, Asset> std::fmt::Debug for LdtkItem<'a, Asset>
+impl<Asset> std::fmt::Debug for LdtkItem<'_, Asset>
 where
     Asset: LdtkAsset + Sized + std::fmt::Debug,
 {
@@ -48,7 +48,7 @@ where
     }
 }
 
-impl<'a, Asset> LdtkItemTrait<Asset> for LdtkItem<'a, Asset>
+impl<Asset> LdtkItemTrait<Asset> for LdtkItem<'_, Asset>
 where
     Asset: LdtkAsset + Sized + std::fmt::Debug,
 {
