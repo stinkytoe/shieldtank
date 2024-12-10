@@ -21,7 +21,7 @@ where
     }
 }
 
-impl<'a, Asset> LdtkItemFieldInstancesExt<Asset> for LdtkItem<'a, Asset> where
+impl<Asset> LdtkItemFieldInstancesExt<Asset> for LdtkItem<'_, Asset> where
     Asset: LdtkAsset + LdtkAssetWithFieldInstances + std::fmt::Debug
 {
 }

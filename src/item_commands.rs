@@ -13,7 +13,7 @@ where
     pub(crate) item: &'a LdtkItem<'a, Asset>,
 }
 
-impl<'a, Asset> LdtkItemCommands<'a, Asset>
+impl<Asset> LdtkItemCommands<'_, Asset>
 where
     Asset: LdtkAsset + std::fmt::Debug,
 {

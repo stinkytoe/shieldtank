@@ -86,7 +86,7 @@ where
     _phantom: PhantomData<Asset>,
 }
 
-impl<'a, Asset, Iter> std::fmt::Debug for LdtkItemFilterIdentifier<'a, Asset, Iter>
+impl<Asset, Iter> std::fmt::Debug for LdtkItemFilterIdentifier<'_, Asset, Iter>
 where
     Asset: LdtkAsset + Sized + std::fmt::Debug,
     Iter: Iterator + Sized,
