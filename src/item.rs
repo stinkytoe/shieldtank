@@ -11,6 +11,7 @@ use bevy_ldtk_asset::iid::Iid;
 use bevy_ldtk_asset::ldtk_asset_trait::LdtkAsset;
 use bevy_log::{debug, trace};
 use bevy_math::Vec2;
+use bevy_reflect::Reflect;
 use bevy_sprite::Sprite;
 use bevy_transform::components::{GlobalTransform, Transform};
 use bevy_utils::error;
@@ -25,6 +26,7 @@ use crate::project_config::ProjectConfig;
 use crate::query::LdtkQuery;
 use crate::{bad_ecs_entity, bad_handle, Result};
 
+#[derive(Reflect)]
 pub struct LdtkItem<'a, Asset>
 where
     Asset: LdtkAsset + Sized + std::fmt::Debug,
