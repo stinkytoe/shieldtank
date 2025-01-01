@@ -2,15 +2,22 @@ mod actor;
 mod animation;
 mod message_board;
 mod player;
+mod systems;
 
-use bevy::color::palettes::tailwind::GRAY_500;
-use bevy::prelude::*;
+use actor::{ActorDirection, ActorMovement};
+use animation::AnimationState;
 use bevy::window::WindowResolution;
+use bevy::{log, prelude::*};
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use shieldtank::bevy_ldtk_asset::iid::{iid, Iid};
-use shieldtank::item_iterator::LdtkItemIterator;
 use shieldtank::plugin::ShieldtankPlugins;
-use shieldtank::query::LdtkQuery;
+use systems::{
+    actor_movement, animate_entity, animate_water, keyboard_input, on_enter_playing,
+    register_entity_animations, startup, update_entity_animation_timer,
+    update_global_animation_timer, wait_project_loading,
+};
 
+const ACTOR_SPEED: f32 = 0.00001;
 const AXE_MAN_IID: Iid = iid!("a0170640-9b00-11ef-aa23-11f9c6be2b6e");
 
 fn main() {
@@ -25,7 +32,7 @@ fn main() {
                     bevy_winit=off,\
                     bevy_ldtk_asset=debug,\
                     shieldtank=debug,\
-                    axe_man_adventure=trace"
+                    axe_man_adventure=debug"
                     .into(),
                 ..default()
             })
@@ -38,106 +45,52 @@ fn main() {
                 }),
                 ..Default::default()
             }),
+        WorldInspectorPlugin::new(),
         ShieldtankPlugins,
     ))
-    .insert_resource(animation::GlobalAnimationTimer {
-        timer: Timer::from_seconds(0.250, TimerMode::Repeating),
-        frame: 0,
-    })
-    .add_event::<animation::GlobalAnimationEvent>()
-    .add_event::<animation::ActorAnimationEvent>()
-    .add_event::<actor::ActorAttemptMoveEvent>()
+    .register_type::<AnimationState>()
+    .register_type::<ActorDirection>()
+    .register_type::<ActorMovement>()
     .add_event::<message_board::MessageBoardEvent>()
-    .add_event::<player::PlayerInteractEvent>()
+    .add_event::<animation::GlobalAnimationEvent>()
+    .insert_resource(animation::AnimationTimer::new(animation::GLOBAL_FRAME_TIME))
     .init_state::<GameState>()
-    // Always
-    .add_systems(Startup, startup)
+    .add_observer(animate_water)
+    .add_observer(animate_entity)
+    .add_systems(OnEnter(GameState::Loading), startup)
     .add_systems(
         Update,
         (
-            animation::animate_actor_attacking_dying,
-            animation::animate_actor_idle_moving,
-            animation::animate_water,
-            animation::update_global_animation_timer,
-            message_board::update_message_board,
+            update_global_animation_timer,
+            update_entity_animation_timer,
+            register_entity_animations,
         ),
     )
-    // WaitingOnPlayer
     .add_systems(
         Update,
-        wait_on_player_spawn.run_if(in_state(GameState::WaitingOnPlayer)),
+        wait_project_loading.run_if(in_state(GameState::Loading)),
     )
-    // Playing
-    .add_systems(OnEnter(GameState::Playing), actor::install_actor_components)
+    .add_systems(
+        OnEnter(GameState::Playing),
+        (|| log::info!("Entering Playing State!"), on_enter_playing),
+    )
     .add_systems(
         Update,
-        (
-            actor::actor_attempt_move,
-            actor::actor_moving,
-            player::keyboard_input,
-            player::player_interaction,
-        )
-            .run_if(in_state(GameState::Playing)),
+        (keyboard_input, actor_movement).run_if(in_state(GameState::Playing)),
     );
 
     app.run();
 }
 
-fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    #[cfg(target_arch = "wasm32")]
-    let scale = 0.6;
-
-    #[cfg(not(target_arch = "wasm32"))]
-    let scale = 0.4;
-
-    commands.spawn((
-        Camera2d,
-        Transform::from_scale(Vec2::splat(scale).extend(1.0))
-            .with_translation((0.0, -128.0, 1000.0).into()),
-    ));
-
-    commands.spawn(shieldtank::world::WorldComponent {
-        handle: asset_server.load("ldtk/axe_man_adventure.ldtk#worlds:World"),
-        config: asset_server.load("config/example.project_config.ron"),
-    });
-
-    commands.spawn((
-        Text::new("The Axe Man begins his adventure!"),
-        TextFont {
-            font: asset_server.load("fonts/Primitive.ttf"),
-            font_size: 30.0,
-            ..Default::default()
-        },
-        TextColor(GRAY_500.into()),
-        TextLayout::new_with_justify(JustifyText::Center),
-        Node {
-            position_type: PositionType::Absolute,
-            bottom: Val::Px(20.0),
-            left: Val::Px(5.0),
-            right: Val::Px(5.0),
-            ..default()
-        },
-        message_board::MessageBoard,
-    ));
-}
-
-fn wait_on_player_spawn(mut next_state: ResMut<NextState<GameState>>, ldtk_query: LdtkQuery) {
-    // TODO: Should we actually do asset load detection here?
-    if ldtk_query.entities().find_iid(AXE_MAN_IID).is_some() {
-        next_state.set(GameState::Playing);
-        info!("Axe man spawned!");
-    }
-
-    //if let Some(_ldtk_world) = ldtk_query.worlds().find_identifier("World") {
-    //    next_state.set(GameState::Playing);
-    //    info!("Axe man spawned!");
-    //}
+#[derive(Resource)]
+struct LdtkProject {
+    project: Handle<shieldtank::bevy_ldtk_asset::project::Project>,
 }
 
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, States)]
 enum GameState {
     #[default]
-    WaitingOnPlayer,
+    Loading,
     Playing,
     GameOver,
 }
