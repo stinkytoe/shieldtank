@@ -19,7 +19,6 @@ bevy_sprite = { version = "0.15.0", default-features = false }
 bevy_tasks = { version = "0.15.0", default-features = false }
 bevy_transform = { version = "0.15.0", default-features = false }
 bevy_utils = { version = "0.15.0", default-features = false }
-#either = "1.13"
 image = "0.25"
 regex = "1.11"
 ron = "0.8"
