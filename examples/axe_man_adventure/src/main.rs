@@ -17,7 +17,7 @@ use systems::{
     update_global_animation_timer, wait_project_loading,
 };
 
-const ACTOR_SPEED: f32 = 0.00001;
+const ACTOR_SPEED: f32 = 30.0;
 const AXE_MAN_IID: Iid = iid!("a0170640-9b00-11ef-aa23-11f9c6be2b6e");
 
 fn main() {
@@ -70,10 +70,7 @@ fn main() {
         Update,
         wait_project_loading.run_if(in_state(GameState::Loading)),
     )
-    .add_systems(
-        OnEnter(GameState::Playing),
-        (|| log::info!("Entering Playing State!"), on_enter_playing),
-    )
+    .add_systems(OnEnter(GameState::Playing), on_enter_playing)
     .add_systems(
         Update,
         (keyboard_input, actor_movement).run_if(in_state(GameState::Playing)),
@@ -92,5 +89,5 @@ enum GameState {
     #[default]
     Loading,
     Playing,
-    GameOver,
+    // GameOver,
 }

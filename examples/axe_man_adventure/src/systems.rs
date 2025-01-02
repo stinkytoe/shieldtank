@@ -1,7 +1,6 @@
 use bevy::color::palettes::tailwind::GRAY_500;
 use bevy::log;
 use bevy::prelude::*;
-use bevy::state::commands;
 use shieldtank::{
     commands::LdtkCommands,
     entity::EntityItemIteratorExt,
@@ -22,7 +21,7 @@ use crate::ACTOR_SPEED;
 use crate::{GameState, LdtkProject, AXE_MAN_IID};
 
 pub(crate) fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let scale = 0.4;
+    let scale = 0.3;
     commands.spawn((
         Camera2d,
         Transform::from_scale(Vec2::splat(scale).extend(1.0))
@@ -225,12 +224,8 @@ pub(crate) fn animate_entity(
 pub(crate) fn keyboard_input(
     mut commands: Commands,
     keyboard_input: Res<ButtonInput<KeyCode>>,
-    // mut actor_query: Query<&mut ActorDirection>,
-    mut actor_query: Query<(Entity, &AnimationState, &mut ActorDirection)>,
+    mut actor_query: Query<(Entity, &mut ActorDirection), Without<ActorMovement>>,
     ldtk_query: LdtkQuery,
-    // mut actor_animation_event: EventWriter<ActorAnimationEvent>,
-    // mut actor_attempt_move_event: EventWriter<ActorAttemptMoveEvent>,
-    // mut player_interaction_event: EventWriter<PlayerInteractEvent>,
 ) {
     let Some(player_action) = PlayerAction::from_keyboard_input(&keyboard_input) else {
         return;
@@ -242,13 +237,7 @@ pub(crate) fn keyboard_input(
         return;
     };
 
-    let Ok((entity, animation_state, mut actor_direction)) =
-        actor_query.get_mut(axe_man.get_ecs_entity())
-    else {
-        return;
-    };
-
-    if !matches!(animation_state, AnimationState::Idle) {
+    let Ok((entity, mut actor_direction)) = actor_query.get_mut(axe_man.get_ecs_entity()) else {
         return;
     };
 
@@ -273,43 +262,16 @@ pub(crate) fn keyboard_input(
     }
 
     commands.entity(entity).trigger(EntityAnimationEvent);
-
-    // actor_animation_event.send(ActorAnimationEvent(axe_man.get_ecs_entity()));
-    //     // Only do something if we're currently Idle
-    //     if matches!(axe_man_actor_state.action, ActorAction::Idle) {
-    //         match player_action {
-    //             PlayerAction::MoveNorth => {
-    //                 axe_man_actor_state.facing = ActorDirection::North;
-    //                 actor_attempt_move_event.send(ActorAttemptMoveEvent(axe_man.get_ecs_entity()));
-    //             }
-    //             PlayerAction::MoveEast => {
-    //                 axe_man_actor_state.facing = ActorDirection::East;
-    //                 actor_attempt_move_event.send(ActorAttemptMoveEvent(axe_man.get_ecs_entity()));
-    //             }
-    //             PlayerAction::MoveSouth => {
-    //                 axe_man_actor_state.facing = ActorDirection::South;
-    //                 actor_attempt_move_event.send(ActorAttemptMoveEvent(axe_man.get_ecs_entity()));
-    //             }
-    //             PlayerAction::MoveWest => {
-    //                 axe_man_actor_state.facing = ActorDirection::West;
-    //                 actor_attempt_move_event.send(ActorAttemptMoveEvent(axe_man.get_ecs_entity()));
-    //             }
-    //             PlayerAction::Interact => {
-    //                 player_interaction_event.send(PlayerInteractEvent {
-    //                     entity: axe_man.get_ecs_entity(),
-    //                     kind: PlayerInteractionEventKind::Interact,
-    //                 });
-    //             }
-    //         };
-    //         actor_animation_event.send(ActorAnimationEvent(axe_man.get_ecs_entity()));
-    //     }
 }
 
 pub(crate) fn actor_attempt_move(
     trigger: Trigger<ActorAttemptMoveEvent>,
     mut commands: Commands,
     ldtk_query: LdtkQuery,
-    mut actor_direction_query: Query<(&ActorDirection, &mut AnimationState)>,
+    mut actor_direction_query: Query<
+        (&ActorDirection, &mut AnimationState),
+        Without<ActorMovement>,
+    >,
 ) {
     let ecs_entity = trigger.entity();
     log::debug!("Attempt move! event: {ecs_entity:?}");
@@ -335,8 +297,6 @@ pub(crate) fn actor_attempt_move(
 
     let actor_direction_as_vec2 = actor_direction.as_vec2(grid_cell_size);
 
-    debug!("actor_direction_as_vec2: {actor_direction_as_vec2}");
-
     let attempted_move_world_location = world_location + actor_direction_as_vec2;
 
     let Some(int_grid_value) =
@@ -352,8 +312,8 @@ pub(crate) fn actor_attempt_move(
     log::debug!("destination cell type: {int_grid_identifier}");
 
     match int_grid_identifier {
-        "dirt" | "grass" | "bridge" => {
-            // *animation_state = AnimationState::moving();
+        "dirt" | "grass" | "bridge" | "tree" => {
+            *animation_state = AnimationState::moving();
             commands.entity(ecs_entity).insert(ActorMovement {
                 destination: attempted_move_world_location,
                 speed: ACTOR_SPEED,
@@ -365,58 +325,38 @@ pub(crate) fn actor_attempt_move(
 }
 
 pub(crate) fn actor_movement(
-    mut commands: Commands,
     time: Res<Time>,
-    mut query: Query<(
-        Entity,
-        // &GlobalTransform,
-        &ActorMovement,
-        &mut AnimationState,
-    )>,
+    mut query: Query<(Entity, &ActorMovement, &mut AnimationState)>,
+    mut commands: Commands,
     ldtk_query: LdtkQuery,
     mut ldtk_commands: LdtkCommands,
 ) {
-    query
-        .iter_mut()
-        .for_each(|(ecs_entity, actor_movement, mut animation_state)| {
-            let Ok(entity) = ldtk_query.get_entity(ecs_entity) else {
-                return;
-            };
+    for (ecs_entity, actor_movement, mut animation_state) in query.iter_mut() {
+        let Ok(entity) = ldtk_query.get_entity(ecs_entity) else {
+            return;
+        };
 
-            let Some((layer, level, world)) = entity.get_layer_level_world() else {
-                return;
-            };
+        let Some(world_location) = entity.get_world_local_location() else {
+            return;
+        };
 
-            // let Some(layer) = entity.get_layer() else {
-            //     return;
-            // };
-            //
-            // let Some(layer_location) = entity.get_layer_local_location() else {
-            //     return;
-            // };
-            //
-            // let Some(world_location) = entity.get_world_local_location() else {
-            //     return;
-            // };
-            //
-            // let offset = actor_movement.destination - world_location;
-            //
-            // // let direction = (actor_movement.destination - world_location).normalize()
-            // //     * actor_movement.speed
-            // //     * time.delta_secs();
-            //
-            // // if direction.length() < 0.1 {
-            // ldtk_commands
-            //     .entity(&entity)
-            //     .set_layer_location(&layer, layer_location + offset);
-            // *animation_state = AnimationState::idle();
-            // commands.entity(ecs_entity).remove::<ActorMovement>();
-            // // } else {
-            // //     ldtk_commands
-            // //         .entity(&entity)
-            // //         .set_layer_location(&layer, layer_location + direction);
-            // // };
+        let offset = (actor_movement.destination - world_location).normalize_or_zero()
+            * time.delta_secs()
+            * ACTOR_SPEED;
 
-            // log::debug!("{direction:?}");
-        });
+        let new_location = world_location + offset;
+
+        if new_location.distance(actor_movement.destination) < 0.1 {
+            ldtk_commands
+                .entity(&entity)
+                .set_world_location(actor_movement.destination);
+
+            *animation_state = AnimationState::idle();
+            commands.entity(ecs_entity).remove::<ActorMovement>();
+        } else {
+            ldtk_commands
+                .entity(&entity)
+                .set_world_location(new_location);
+        }
+    }
 }
