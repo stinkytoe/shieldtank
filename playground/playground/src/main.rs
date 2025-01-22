@@ -53,11 +53,4 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
     });
 }
 
-fn update(_shieldtank_query: ShieldtankQuery) {
-    // shieldtank_query
-    //     .iter_projects()
-    //     .filter(|item| item.is_just_finalized())
-    //     .for_each(|item| {
-    //         debug!("aah! {}", item.get_identifier());
-    //     });
-}
+fn update(_shieldtank_query: ShieldtankQuery) {}
