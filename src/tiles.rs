@@ -14,13 +14,13 @@ pub struct Tiles {
 }
 
 impl Tiles {
-    pub(crate) fn new(tiles_layer: &TilesLayer) -> Self {
+    pub(crate) fn _new(tiles_layer: &TilesLayer) -> Self {
         Self {
             tiles: tiles_layer.tiles.clone(),
         }
     }
 
-    pub(crate) fn generate_layer_image(
+    pub(crate) fn _generate_layer_image(
         &self,
         image_assets: &mut Assets<Image>,
         layer_instance: &LayerAsset,

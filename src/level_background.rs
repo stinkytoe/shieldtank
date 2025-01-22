@@ -19,7 +19,7 @@ pub struct LevelBackground {
 }
 
 impl LevelBackground {
-    pub(crate) fn new(value: &LdtkLevel) -> Self {
+    pub(crate) fn _new(value: &LdtkLevel) -> Self {
         let color = value.bg_color;
         let size = value.size.as_vec2();
         let background = value.background.clone();
@@ -30,7 +30,7 @@ impl LevelBackground {
         }
     }
 
-    fn generate_image(&self, assets: &mut Assets<Image>) -> Result<Handle<Image>> {
+    fn _generate_image(&self, assets: &mut Assets<Image>) -> Result<Handle<Image>> {
         let mut background_image = image::RgbaImage::new(self.size.x as u32, self.size.y as u32);
 
         background_image
