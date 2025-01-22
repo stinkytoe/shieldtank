@@ -10,4 +10,4 @@ pub mod query;
 pub mod tiles;
 pub mod tileset_rectangle;
 
-//pub use bevy_ldtk_asset;
+pub use bevy_ldtk_asset;

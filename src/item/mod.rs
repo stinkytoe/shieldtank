@@ -8,7 +8,8 @@ use bevy_asset::Handle;
 use bevy_ecs::change_detection::Ref;
 use bevy_ecs::entity::Entity;
 use bevy_ecs::query::QueryData;
-use bevy_ldtk_asset::{iid::Iid, prelude::LdtkAsset};
+use bevy_ldtk_asset::iid::Iid;
+use bevy_ldtk_asset::prelude::LdtkAsset;
 use bevy_render::view::Visibility;
 use bevy_transform::components::Transform;
 
@@ -22,7 +23,7 @@ pub struct Item<'w, 's, A: LdtkAsset + 'w, D: QueryData + 'w> {
     pub(crate) config: &'w ProjectConfig,
     pub(crate) shieldtank_query_data: ShieldtankQueryData<'w, A>,
     pub(crate) component_query_data: D,
-    pub query: &'w ShieldtankQuery<'w, 's>,
+    pub(crate) query: &'w ShieldtankQuery<'w, 's>,
 }
 
 impl<A: LdtkAsset, D: QueryData> Item<'_, '_, A, D> {
@@ -64,6 +65,26 @@ impl<A: LdtkAsset, D: QueryData> Item<'_, '_, A, D> {
 
     pub fn get_identifier(&self) -> &str {
         self.asset.get_identifier()
+    }
+}
+
+impl<A: LdtkAsset, D: QueryData> Item<'_, '_, A, D> {
+    pub fn is_finalized(&self) -> bool {
+        self.shieldtank_query_data.4.is_some()
+    }
+
+    pub fn is_just_finalized(&self) -> bool {
+        let Some(component_loaded) = self.shieldtank_query_data.4.as_ref() else {
+            return false;
+        };
+
+        component_loaded.just_finalized
+    }
+
+    pub fn asset_is_loaded(&self) -> bool {
+        self.query
+            .asset_server
+            .is_loaded_with_dependencies(self.get_asset_handle().id())
     }
 }
 

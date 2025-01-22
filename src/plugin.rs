@@ -1,7 +1,8 @@
 use bevy_app::{PluginGroup, PluginGroupBuilder};
 use bevy_ldtk_asset::plugin::BevyLdtkAssetPlugin;
 
-use crate::{component::project::ProjectPlugin, project_config::ProjectConfigPlugin};
+use crate::component::plugin::ComponentPlugin;
+use crate::project_config::ProjectConfigPlugin;
 
 pub struct ShieldtankPlugins;
 
@@ -10,6 +11,6 @@ impl PluginGroup for ShieldtankPlugins {
         PluginGroupBuilder::start::<Self>()
             .add(BevyLdtkAssetPlugin)
             .add(ProjectConfigPlugin)
-            .add(ProjectPlugin)
+            .add(ComponentPlugin)
     }
 }

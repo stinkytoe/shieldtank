@@ -1,31 +1,54 @@
+use bevy_core::Name;
 use bevy_ecs::query::QueryData;
 use bevy_ecs::system::{Commands, SystemParam};
-use bevy_ldtk_asset::entity::Entity as EntityAsset;
 use bevy_ldtk_asset::ldtk_asset_trait::LdtkAsset;
+use bevy_ldtk_asset::project::Project as ProjectAsset;
 use bevy_reflect::Reflect;
+use entity::EntityCommands;
+use layer::LayerCommands;
+use level::LevelCommands;
+use world::WorldCommands;
 
-use crate::component::entity::EntityComponentQueryData;
+use crate::component::project::ProjectComponentQueryData;
+use crate::component::ShieldtankComponentLoaded;
 use crate::item::entity::EntityItem;
+use crate::item::layer::LayerItem;
+use crate::item::level::LevelItem;
+use crate::item::project::ProjectItem;
+use crate::item::world::WorldItem;
 use crate::item::Item;
+
+pub mod entity;
+pub mod layer;
+pub mod level;
+pub mod project;
+pub mod world;
 
 #[derive(SystemParam)]
 pub struct ShieldtankCommands<'w, 's> {
     commands: Commands<'w, 's>,
 }
 
-impl ShieldtankCommands<'_, '_> {
-    pub fn entity<'w, 's>(
-        &'w mut self,
-        entity_item: &'w EntityItem<'w, 's>,
-    ) -> EntityCommands<'w, 's>
-    where
-        'w: 's,
-    {
-        EntityCommands {
-            commands: self.commands.reborrow(),
-            item: entity_item,
+macro_rules! make_getter {
+    ($name:tt, $item_type:tt, $commands_type:tt) => {
+        pub fn $name<'w, 's>(&'w mut self, item: &'w $item_type<'w, 's>) -> $commands_type<'w, 's>
+        where
+            'w: 's,
+        {
+            $commands_type {
+                commands: self.commands.reborrow(),
+                item,
+            }
         }
-    }
+    };
+}
+
+impl ShieldtankCommands<'_, '_> {
+    make_getter!(entity, EntityItem, EntityCommands);
+    make_getter!(layer, LayerItem, LayerCommands);
+    make_getter!(level, LevelItem, LevelCommands);
+    make_getter!(world, WorldItem, WorldCommands);
+    make_getter!(project, ProjectItem, ProjectCommands);
 }
 
 #[derive(Reflect)]
@@ -35,10 +58,30 @@ pub struct ShieldtankItemCommands<'w, 's, A: LdtkAsset, D: QueryData> {
 }
 
 impl<A: LdtkAsset, D: QueryData> ShieldtankItemCommands<'_, '_, A, D> {
-    pub fn test(&mut self, _a: i32) -> &mut Self {
+    pub fn insert_name_component(&mut self, name: &str) -> &mut Self {
+        self.commands
+            .entity(self.item.get_ecs_entity())
+            .insert(Name::new(name.to_string()));
+
+        self
+    }
+
+    pub fn mark_finalized(&mut self, just_finalized: bool) -> &mut Self {
+        self.commands
+            .entity(self.item.get_ecs_entity())
+            .insert(ShieldtankComponentLoaded { just_finalized });
+
+        self
+    }
+
+    pub fn unmark_finalized(&mut self) -> &mut Self {
+        self.commands
+            .entity(self.item.get_ecs_entity())
+            .remove::<ShieldtankComponentLoaded>();
+
         self
     }
 }
 
-pub type EntityCommands<'w, 's> =
-    ShieldtankItemCommands<'w, 's, EntityAsset, EntityComponentQueryData<'w>>;
+pub type ProjectCommands<'w, 's> =
+    ShieldtankItemCommands<'w, 's, ProjectAsset, ProjectComponentQueryData<'w>>;

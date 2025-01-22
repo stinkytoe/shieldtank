@@ -1,4 +1,4 @@
-use bevy_asset::Assets;
+use bevy_asset::{AssetServer, Assets};
 use bevy_ecs::entity::Entity;
 use bevy_ecs::system::{Query, Res, SystemParam};
 use bevy_ldtk_asset::entity::Entity as EntityAsset;
@@ -75,7 +75,9 @@ pub struct ShieldtankQuery<'w, 's> {
         ),
     >,
 
-    config_assets: Res<'w, Assets<ProjectConfig>>,
+    pub(crate) config_assets: Res<'w, Assets<ProjectConfig>>,
+
+    pub(crate) asset_server: Res<'w, AssetServer>,
 }
 
 macro_rules! make_iter {

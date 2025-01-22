@@ -12,14 +12,18 @@ use crate::project_config::ProjectConfig;
 pub mod entity;
 pub mod layer;
 pub mod level;
+pub mod plugin;
 pub mod project;
 pub mod world;
+
+pub(crate) mod systems;
 
 pub type ShieldtankQueryData<'a, A> = (
     Entity,
     Ref<'a, ShieldtankComponent<A>>,
     Ref<'a, Transform>,
     Ref<'a, Visibility>,
+    Option<Ref<'a, ShieldtankComponentLoaded>>,
 );
 
 #[derive(Component, Debug, Reflect)]
@@ -30,4 +34,7 @@ pub struct ShieldtankComponent<Asset: LdtkAsset> {
     pub config: Handle<ProjectConfig>,
 }
 
-pub trait ShieldtankComponentTrait<A: LdtkAsset> {}
+#[derive(Component, Debug, Reflect)]
+pub struct ShieldtankComponentLoaded {
+    pub(crate) just_finalized: bool,
+}
