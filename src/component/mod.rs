@@ -23,7 +23,7 @@ pub type ShieldtankQueryData<'a, A> = (
     Ref<'a, ShieldtankComponent<A>>,
     Ref<'a, Transform>,
     Ref<'a, Visibility>,
-    Option<Ref<'a, ShieldtankComponentLoaded>>,
+    Option<Ref<'a, ShieldtankComponentFinalized>>,
 );
 
 #[derive(Component, Debug, Reflect)]
@@ -35,6 +35,6 @@ pub struct ShieldtankComponent<Asset: LdtkAsset> {
 }
 
 #[derive(Component, Debug, Reflect)]
-pub struct ShieldtankComponentLoaded {
+pub struct ShieldtankComponentFinalized {
     pub(crate) just_finalized: bool,
 }

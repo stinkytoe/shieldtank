@@ -1,3 +1,4 @@
+use bevy_ldtk_asset::prelude::LdtkAssetWithChildren;
 use bevy_log::debug;
 
 use crate::commands::ShieldtankCommands;
@@ -36,7 +37,7 @@ pub fn find_and_unmark_just_loaded_components(
         ($iter_func:tt, $commands_func:tt, $name:expr) => {
             shieldtank_query
                 .$iter_func()
-                .filter(|item| item.is_just_finalized())
+                .filter_just_finalized()
                 .for_each(|item| {
                     debug!("Shieldtank {} finalized: {}", $name, item.get_identifier());
                     shieldtank_commands
@@ -62,7 +63,7 @@ pub fn insert_name_component(
         ($iter_func:tt, $commands_func:tt, $name:expr) => {
             shieldtank_query
                 .$iter_func()
-                .filter(|item| item.is_just_finalized())
+                .filter_just_finalized()
                 .for_each(|item| {
                     shieldtank_commands
                         .$commands_func(&item)
@@ -76,4 +77,27 @@ pub fn insert_name_component(
     insert_name_component!(iter_levels, level, "Level");
     insert_name_component!(iter_layers, layer, "Layer");
     insert_name_component!(iter_entities, entity, "Entity");
+}
+
+use crate::item::iter::ItemIteratorExt as _;
+pub fn spawn_children(shieldtank_query: ShieldtankQuery) {
+    shieldtank_query
+        .iter_projects()
+        .filter_just_finalized()
+        .for_each(|item| {
+            let asset = item.get_asset();
+            asset.get_children().for_each(|child| {
+                debug!("world: {:?}", child.path());
+            });
+        });
+
+    // shieldtank_query
+    //     .iter_projects()
+    //     .filter(|item| item.is_just_finalized())
+    //     .for_each(|item| {
+    //         let asset = item.get_asset();
+    //         asset.get_children().for_each(|child| {
+    //             debug!("world: {:?}", child.path());
+    //         });
+    //     });
 }
