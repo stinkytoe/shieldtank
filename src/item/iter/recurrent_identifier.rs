@@ -1,6 +1,10 @@
 use bevy_ecs::query::QueryData;
+use bevy_ldtk_asset::entity::Entity as EntityAsset;
+use bevy_ldtk_asset::layer::Layer as LayerAsset;
 use bevy_ldtk_asset::prelude::LdtkAsset;
 
+use crate::component::entity::EntityComponentQueryData;
+use crate::component::layer::LayerComponentQueryData;
 use crate::item::Item;
 
 pub struct ItemFilterIdentifierIterator<'w, 's, A, D, I>
@@ -47,8 +51,6 @@ where
     }
 }
 
-use crate::component::layer::LayerComponentQueryData;
-use bevy_ldtk_asset::layer::Layer as LayerAsset;
 impl<'w, 's, I> ItemRecurrentIdentifierIteratorExt<'w, 's, LayerAsset, LayerComponentQueryData<'w>>
     for I
 where
@@ -57,8 +59,6 @@ where
 {
 }
 
-use crate::component::entity::EntityComponentQueryData;
-use bevy_ldtk_asset::entity::Entity as EntityAsset;
 impl<'w, 's, I>
     ItemRecurrentIdentifierIteratorExt<'w, 's, EntityAsset, EntityComponentQueryData<'w>> for I
 where
