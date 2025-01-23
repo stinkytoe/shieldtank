@@ -10,7 +10,7 @@ use level::LevelCommands;
 use world::WorldCommands;
 
 use crate::component::project::ProjectComponentQueryData;
-use crate::component::ShieldtankComponentLoaded;
+use crate::component::ShieldtankComponentFinalized;
 use crate::item::entity::EntityItem;
 use crate::item::layer::LayerItem;
 use crate::item::level::LevelItem;
@@ -58,7 +58,7 @@ pub struct ShieldtankItemCommands<'w, 's, A: LdtkAsset, D: QueryData> {
 }
 
 impl<A: LdtkAsset, D: QueryData> ShieldtankItemCommands<'_, '_, A, D> {
-    pub fn insert_name_component(&mut self, name: &str) -> &mut Self {
+    pub(crate) fn insert_name_component(&mut self, name: &str) -> &mut Self {
         self.commands
             .entity(self.item.get_ecs_entity())
             .insert(Name::new(name.to_string()));
@@ -66,18 +66,18 @@ impl<A: LdtkAsset, D: QueryData> ShieldtankItemCommands<'_, '_, A, D> {
         self
     }
 
-    pub fn mark_finalized(&mut self, just_finalized: bool) -> &mut Self {
+    pub(crate) fn mark_finalized(&mut self, just_finalized: bool) -> &mut Self {
         self.commands
             .entity(self.item.get_ecs_entity())
-            .insert(ShieldtankComponentLoaded { just_finalized });
+            .insert(ShieldtankComponentFinalized { just_finalized });
 
         self
     }
 
-    pub fn unmark_finalized(&mut self) -> &mut Self {
+    pub(crate) fn _unmark_finalized(&mut self) -> &mut Self {
         self.commands
             .entity(self.item.get_ecs_entity())
-            .remove::<ShieldtankComponentLoaded>();
+            .remove::<ShieldtankComponentFinalized>();
 
         self
     }
