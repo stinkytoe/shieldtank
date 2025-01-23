@@ -1,4 +1,5 @@
 pub mod entity;
+pub mod iter;
 pub mod layer;
 pub mod level;
 pub mod project;
