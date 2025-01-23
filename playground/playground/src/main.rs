@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy::window::{WindowMode, WindowResolution};
+use bevy::window::WindowMode;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use shieldtank::component::project::ProjectComponent;
 use shieldtank::plugin::ShieldtankPlugins;
