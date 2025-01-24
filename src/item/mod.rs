@@ -129,3 +129,9 @@ impl<A: LdtkAsset, D: QueryData> Item<'_, '_, A, D> {
             .is_loaded_with_dependencies(self.get_asset_handle().id())
     }
 }
+
+impl<A: LdtkAsset, D: QueryData> PartialEq for Item<'_, '_, A, D> {
+    fn eq(&self, other: &Self) -> bool {
+        self.get_ecs_entity() == other.get_ecs_entity()
+    }
+}
