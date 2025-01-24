@@ -10,7 +10,7 @@ impl PluginGroup for ShieldtankPlugins {
     fn build(self) -> PluginGroupBuilder {
         PluginGroupBuilder::start::<Self>()
             .add(BevyLdtkAssetPlugin)
-            .add(ProjectConfigPlugin)
             .add(ComponentPlugin)
+            .add(ProjectConfigPlugin)
     }
 }
