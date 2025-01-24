@@ -75,9 +75,9 @@ pub struct ShieldtankQuery<'w, 's> {
         ),
     >,
 
-    pub(crate) config_assets: Res<'w, Assets<ProjectConfig>>,
+    config_assets: Res<'w, Assets<ProjectConfig>>,
 
-    pub(crate) asset_server: Res<'w, AssetServer>,
+    asset_server: Res<'w, AssetServer>,
 }
 
 macro_rules! make_iter {
@@ -91,13 +91,13 @@ macro_rules! make_iter {
                     let asset = self.$assets_field.get(asset_id)?;
                     let config = self.config_assets.get(config_id)?;
 
-                    Some(Item {
+                    Some(Item::new(
                         asset,
                         config,
                         shieldtank_query_data,
                         component_query_data,
-                        query: self,
-                    })
+                        self,
+                    ))
                 },
             )
         }
@@ -131,13 +131,13 @@ macro_rules! make_getter {
                         .get(config_id)
                         .ok_or(shieldtank_error!("Bad config handle! {asset_id:?}",))?;
 
-                    Ok(Item {
+                    Ok(Item::new(
                         asset,
                         config,
                         shieldtank_query_data,
                         component_query_data,
-                        query: self,
-                    })
+                        self,
+                    ))
                 })
                 .map_err(|e| shieldtank_error!("Bad query! {e} {ecs_entity:?}",))?
         }
@@ -150,4 +150,14 @@ impl ShieldtankQuery<'_, '_> {
     make_getter!(get_level, LevelItem, level_query, level_assets);
     make_getter!(get_layer, LayerItem, layer_query, layer_assets);
     make_getter!(get_entity, EntityItem, entity_query, entity_assets);
+}
+
+impl ShieldtankQuery<'_, '_> {
+    pub fn get_config_assets(&self) -> &Assets<ProjectConfig> {
+        &self.config_assets
+    }
+
+    pub fn get_asset_server(&self) -> &AssetServer {
+        &self.asset_server
+    }
 }

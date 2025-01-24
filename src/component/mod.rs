@@ -2,6 +2,7 @@ use bevy_asset::Handle;
 use bevy_ecs::component::Component;
 use bevy_ecs::entity::Entity;
 use bevy_ecs::world::Ref;
+use bevy_hierarchy::{Children, Parent};
 use bevy_ldtk_asset::prelude::LdtkAsset;
 use bevy_reflect::Reflect;
 use bevy_render::view::Visibility;
@@ -23,6 +24,8 @@ pub type ShieldtankQueryData<'a, A> = (
     Ref<'a, ShieldtankComponent<A>>,
     Ref<'a, Transform>,
     Ref<'a, Visibility>,
+    Option<Ref<'a, Parent>>,
+    Option<Ref<'a, Children>>,
     Option<Ref<'a, ShieldtankComponentFinalized>>,
 );
 
