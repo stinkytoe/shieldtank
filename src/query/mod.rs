@@ -1,8 +1,9 @@
-use bevy_asset::{AssetServer, Assets};
+use bevy_asset::{AssetId, AssetServer, Assets};
 use bevy_ecs::entity::Entity;
 use bevy_ecs::system::{Query, Res, SystemParam};
 use bevy_ldtk_asset::entity::Entity as EntityAsset;
 use bevy_ldtk_asset::layer::Layer as LayerAsset;
+use bevy_ldtk_asset::layer_definition::LayerDefinition as LdtkLayerDefinition;
 use bevy_ldtk_asset::level::Level as LevelAsset;
 use bevy_ldtk_asset::project::Project as ProjectAsset;
 use bevy_ldtk_asset::world::World as WorldAsset;
@@ -76,6 +77,8 @@ pub struct ShieldtankQuery<'w, 's> {
     >,
 
     config_assets: Res<'w, Assets<ProjectConfig>>,
+
+    layer_definitions: Res<'w, Assets<LdtkLayerDefinition>>,
 
     asset_server: Res<'w, AssetServer>,
 }
@@ -155,6 +158,13 @@ impl ShieldtankQuery<'_, '_> {
 impl ShieldtankQuery<'_, '_> {
     pub fn get_config_assets(&self) -> &Assets<ProjectConfig> {
         &self.config_assets
+    }
+
+    pub fn get_layer_definition(
+        &self,
+        id: AssetId<LdtkLayerDefinition>,
+    ) -> Option<&LdtkLayerDefinition> {
+        self.layer_definitions.get(id)
     }
 
     pub fn get_asset_server(&self) -> &AssetServer {

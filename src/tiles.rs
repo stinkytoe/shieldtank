@@ -1,11 +1,17 @@
+use bevy_app::{Plugin, PostUpdate};
 use bevy_asset::{Assets, Handle, RenderAssetUsages};
 use bevy_ecs::component::Component;
+use bevy_ecs::system::{Commands, ResMut};
 use bevy_image::Image;
 use bevy_ldtk_asset::layer::{Layer as LayerAsset, TilesLayer};
 use bevy_ldtk_asset::tile_instance::TileInstance;
+use bevy_log::error;
 use bevy_reflect::Reflect;
+use bevy_sprite::{Anchor, Sprite};
 
 use crate::error::Result;
+use crate::item::layer::iter::LayerItemIteratorExt;
+use crate::query::ShieldtankQuery;
 use crate::shieldtank_error;
 
 #[derive(Component, Debug, Reflect)]
@@ -14,13 +20,13 @@ pub struct Tiles {
 }
 
 impl Tiles {
-    pub(crate) fn _new(tiles_layer: &TilesLayer) -> Self {
+    pub(crate) fn new(tiles_layer: &TilesLayer) -> Self {
         Self {
             tiles: tiles_layer.tiles.clone(),
         }
     }
 
-    pub(crate) fn _generate_layer_image(
+    pub(crate) fn generate_layer_image(
         &self,
         image_assets: &mut Assets<Image>,
         layer_instance: &LayerAsset,
@@ -28,7 +34,7 @@ impl Tiles {
         let tiles_layer = layer_instance
             .layer_type
             .get_tiles_layer()
-            .ok_or(shieldtank_error!("Bad Tiles Layer!"))?;
+            .ok_or(shieldtank_error!("bad tiles layer!"))?;
 
         let size = (layer_instance.grid_size * layer_instance.grid_cell_size).as_uvec2();
 
@@ -80,6 +86,46 @@ impl Tiles {
     }
 }
 
+pub(crate) fn tiles_system(
+    // mut shieldtank_commands: ShieldtankCommands,
+    mut commands: Commands,
+    mut image_assets: ResMut<Assets<Image>>,
+    shieldtank_query: ShieldtankQuery,
+) {
+    shieldtank_query
+        .iter_layers()
+        .filter_tiles_changed()
+        .filter_tiles_layer()
+        .map(|item| -> Result<()> {
+            let Some(tiles) = item.get_tiles() else {
+                return Ok(());
+            };
+
+            let asset = item.get_asset();
+
+            let image = tiles.generate_layer_image(&mut image_assets, asset)?;
+
+            let anchor = Anchor::TopLeft;
+
+            let sprite = Sprite {
+                image,
+                anchor,
+                ..Default::default()
+            };
+
+            commands.entity(item.get_ecs_entity()).insert(sprite);
+
+            Ok(())
+        })
+        .for_each(|ret| {
+            // TODO: We're just printing the error and moving on to the next layer.
+            // Should we do something else?
+            if let Err(e) = ret {
+                error!("failed to load tiles: {e}");
+            }
+        });
+}
+
 // pub(crate) fn handle_tiles_system(
 //     mut commands: Commands,
 //     assets: Res<Assets<LayerAsset>>,
@@ -106,10 +152,11 @@ impl Tiles {
 //             Ok(())
 //         })
 // }
-//
-// pub struct TilesPlugin;
-// impl Plugin for TilesPlugin {
-//     fn build(&self, app: &mut bevy_app::App) {
-//         app.add_systems(Update, handle_tiles_system.map(error));
-//     }
-// }
+
+pub struct TilesPlugin;
+impl Plugin for TilesPlugin {
+    fn build(&self, app: &mut bevy_app::App) {
+        app.register_type::<Tiles>()
+            .add_systems(PostUpdate, tiles_system);
+    }
+}

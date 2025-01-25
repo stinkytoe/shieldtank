@@ -4,7 +4,6 @@ pub mod systems;
 
 use bevy_ecs::world::Ref;
 use bevy_ldtk_asset::level::Level as LevelAsset;
-use bevy_sprite::Sprite;
 
 use crate::component::level::LevelComponentQueryData;
 use crate::item::entity::EntityItem;
@@ -44,10 +43,6 @@ impl LevelItem<'_, '_> {
 
 impl LevelItem<'_, '_> {
     pub fn get_level_background(&self) -> &Option<Ref<LevelBackground>> {
-        &self.component_query_data.0
-    }
-
-    pub fn get_sprite(&self) -> &Option<Ref<Sprite>> {
-        &self.component_query_data.1
+        &self.component_query_data
     }
 }

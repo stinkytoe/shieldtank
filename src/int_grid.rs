@@ -1,3 +1,4 @@
+use bevy_app::Plugin;
 use bevy_ecs::component::Component;
 use bevy_ldtk_asset::layer::{Layer as LayerAsset, LayerType, TilesLayer};
 use bevy_ldtk_asset::layer_definition::{IntGridValue, LayerDefinition};
@@ -98,5 +99,12 @@ impl IntGrid {
         self.in_bounds(grid)
             .then(|| self.values.insert(grid, value))
             .is_some()
+    }
+}
+
+pub struct IntGridPlugin;
+impl Plugin for IntGridPlugin {
+    fn build(&self, app: &mut bevy_app::App) {
+        app.register_type::<IntGrid>();
     }
 }

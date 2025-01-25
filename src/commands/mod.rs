@@ -4,6 +4,7 @@ use bevy_ecs::system::{Commands, SystemParam};
 use bevy_ldtk_asset::ldtk_asset_trait::LdtkAsset;
 use bevy_ldtk_asset::project::Project as ProjectAsset;
 use bevy_reflect::Reflect;
+use bevy_transform::components::Transform;
 use entity::EntityCommands;
 use layer::LayerCommands;
 use level::LevelCommands;
@@ -28,6 +29,8 @@ pub mod world;
 pub struct ShieldtankCommands<'w, 's> {
     commands: Commands<'w, 's>,
 }
+
+impl ShieldtankCommands<'_, '_> {}
 
 macro_rules! make_getter {
     ($name:tt, $item_type:tt, $commands_type:tt) => {
@@ -64,6 +67,14 @@ impl<A: LdtkAsset, D: QueryData> ShieldtankItemCommands<'_, '_, A, D> {
         self.commands
             .entity(self.item.get_ecs_entity())
             .insert(Name::new(name.to_string()));
+
+        self
+    }
+
+    pub(crate) fn insert_transform(&mut self, transform: Transform) -> &mut Self {
+        self.commands
+            .entity(self.item.get_ecs_entity())
+            .insert(transform);
 
         self
     }

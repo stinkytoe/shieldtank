@@ -1,5 +1,4 @@
 use bevy_ldtk_asset::level::Level as LevelAsset;
-use bevy_sprite::Sprite;
 
 use crate::{component::level::LevelComponentQueryData, level_background::LevelBackground};
 
@@ -17,11 +16,11 @@ impl LevelCommands<'_, '_> {
         self
     }
 
-    pub fn insert_sprite(&mut self, sprite: Sprite) -> &mut Self {
-        self.commands
-            .entity(self.item.get_ecs_entity())
-            .insert(sprite);
-
-        self
-    }
+    // pub fn insert_sprite(&mut self, sprite: Sprite) -> &mut Self {
+    //     self.commands
+    //         .entity(self.item.get_ecs_entity())
+    //         .insert(sprite);
+    //
+    //     self
+    // }
 }

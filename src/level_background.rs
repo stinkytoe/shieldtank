@@ -1,21 +1,20 @@
 use bevy_app::Plugin;
-use bevy_app::Update;
+use bevy_app::PostUpdate;
 use bevy_asset::{Assets, Handle, RenderAssetUsages};
 use bevy_color::Color;
 use bevy_color::ColorToPacked;
 use bevy_ecs::component::Component;
-use bevy_ecs::system::IntoSystem;
+use bevy_ecs::system::Commands;
 use bevy_ecs::system::ResMut;
 use bevy_image::Image;
 use bevy_ldtk_asset::level::Level as LdtkLevel;
 use bevy_ldtk_asset::level::LevelBackground as LdtkLevelBackground;
+use bevy_log::error;
 use bevy_math::Vec2;
 use bevy_reflect::Reflect;
 use bevy_sprite::Anchor;
 use bevy_sprite::Sprite;
-use bevy_utils::error;
 
-use crate::commands::ShieldtankCommands;
 use crate::error::Result;
 use crate::item::level::iter::LevelItemIteratorExt as _;
 use crate::query::ShieldtankQuery;
@@ -119,14 +118,14 @@ impl LevelBackground {
 //
 
 fn level_background_system(
-    mut shieldtank_commands: ShieldtankCommands,
+    mut commands: Commands,
     mut image_assets: ResMut<Assets<Image>>,
     shieldtank_query: ShieldtankQuery,
-) -> Result<()> {
+) {
     shieldtank_query
         .iter_levels()
         .filter_level_background_changed()
-        .try_for_each(|item| -> Result<()> {
+        .map(|item| -> Result<()> {
             let Some(background) = item.get_level_background() else {
                 return Ok(());
             };
@@ -141,16 +140,23 @@ fn level_background_system(
                 ..Default::default()
             };
 
-            shieldtank_commands.level(&item).insert_sprite(sprite);
+            commands.entity(item.get_ecs_entity()).insert(sprite);
 
             Ok(())
         })
+        .for_each(|ret| {
+            // TODO: We're just printing the error and moving on to the next layer.
+            // Should we do something else?
+            if let Err(e) = ret {
+                error!("failed to load level background: {e}");
+            }
+        });
 }
 
 pub struct LevelBackgroundPlugin;
 impl Plugin for LevelBackgroundPlugin {
     fn build(&self, app: &mut bevy_app::App) {
         app.register_type::<LevelBackground>()
-            .add_systems(Update, level_background_system.map(error));
+            .add_systems(PostUpdate, level_background_system);
     }
 }

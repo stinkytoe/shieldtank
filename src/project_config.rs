@@ -5,10 +5,29 @@ use serde::{Deserialize, Serialize};
 
 use crate::load_pattern::LoadPattern;
 
-#[derive(Debug, Default, Asset, Reflect, Deserialize, Serialize)]
+#[derive(Debug, Asset, Reflect, Deserialize, Serialize)]
 pub struct ProjectConfig {
     load_pattern: LoadPattern,
     load_level_background: LoadPattern,
+    load_layer_tiles: LoadPattern,
+    levels_override_transform: bool,
+    layers_override_transform: bool,
+    level_separation: f32,
+    layer_separation: f32,
+}
+
+impl Default for ProjectConfig {
+    fn default() -> Self {
+        Self {
+            load_pattern: Default::default(),
+            load_level_background: Default::default(),
+            load_layer_tiles: Default::default(),
+            levels_override_transform: true,
+            layers_override_transform: true,
+            level_separation: 10.0,
+            layer_separation: 1.0,
+        }
+    }
 }
 
 impl ProjectConfig {
@@ -16,8 +35,28 @@ impl ProjectConfig {
         &self.load_pattern
     }
 
-    pub fn get_load_level_background_pattern(&self) -> &LoadPattern {
+    pub fn get_load_level_background(&self) -> &LoadPattern {
         &self.load_level_background
+    }
+
+    pub fn get_layer_tiles(&self) -> &LoadPattern {
+        &self.load_layer_tiles
+    }
+
+    pub fn levels_override_transform(&self) -> bool {
+        self.levels_override_transform
+    }
+
+    pub fn layers_override_transform(&self) -> bool {
+        self.layers_override_transform
+    }
+
+    pub fn level_separation(&self) -> f32 {
+        self.level_separation
+    }
+
+    pub fn layer_separation(&self) -> f32 {
+        self.layer_separation
     }
 }
 
