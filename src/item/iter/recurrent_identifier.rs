@@ -7,7 +7,7 @@ use crate::component::entity::EntityComponentQueryData;
 use crate::component::layer::LayerComponentQueryData;
 use crate::item::Item;
 
-pub struct ItemFilterIdentifierIterator<'w, 's, A, D, I>
+pub struct RecurrentIdentifierIterator<'w, 's, A, D, I>
 where
     's: 'w,
     A: LdtkAsset + 'w,
@@ -18,7 +18,7 @@ where
     identifier: &'w str,
 }
 
-impl<'w, 's, A, D, I> Iterator for ItemFilterIdentifierIterator<'w, 's, A, D, I>
+impl<'w, 's, A, D, I> Iterator for RecurrentIdentifierIterator<'w, 's, A, D, I>
 where
     's: 'w,
     A: LdtkAsset + 'w,
@@ -43,8 +43,8 @@ where
     fn filter_identifier(
         self,
         identifier: &'w str,
-    ) -> ItemFilterIdentifierIterator<'w, 's, A, D, Self> {
-        ItemFilterIdentifierIterator {
+    ) -> RecurrentIdentifierIterator<'w, 's, A, D, Self> {
+        RecurrentIdentifierIterator {
             iter: self,
             identifier,
         }

@@ -13,7 +13,7 @@ use crate::item::world::WorldItem;
 
 use super::Item;
 
-pub trait ItemIteratorUniqueIdentifierExt<'w, 's, A, D>
+pub trait UniqueIdentifierExt<'w, 's, A, D>
 where
     's: 'w,
     Self: Iterator<Item = Item<'w, 's, A, D>> + Sized,
@@ -26,16 +26,16 @@ where
 }
 
 impl<'w, 's: 'w, I: Iterator<Item = ProjectItem<'w, 's>>>
-    ItemIteratorUniqueIdentifierExt<'w, 's, ProjectAsset, ProjectComponentQueryData<'w>> for I
+    UniqueIdentifierExt<'w, 's, ProjectAsset, ProjectComponentQueryData<'w>> for I
 {
 }
 
 impl<'w, 's: 'w, I: Iterator<Item = WorldItem<'w, 's>>>
-    ItemIteratorUniqueIdentifierExt<'w, 's, WorldAsset, WorldComponentQueryData<'w>> for I
+    UniqueIdentifierExt<'w, 's, WorldAsset, WorldComponentQueryData<'w>> for I
 {
 }
 
 impl<'w, 's: 'w, I: Iterator<Item = LevelItem<'w, 's>>>
-    ItemIteratorUniqueIdentifierExt<'w, 's, LevelAsset, LevelComponentQueryData<'w>> for I
+    UniqueIdentifierExt<'w, 's, LevelAsset, LevelComponentQueryData<'w>> for I
 {
 }
