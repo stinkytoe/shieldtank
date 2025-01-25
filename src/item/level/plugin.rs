@@ -1,8 +1,6 @@
 use bevy_app::{Plugin, PostUpdate};
 
-use crate::item::level::systems::level_spawn_system;
-
-use super::systems::level_override_transform_system;
+use crate::item::level::systems::{level_override_transform_system, level_spawn_system};
 
 pub struct LevelItemPlugin;
 impl Plugin for LevelItemPlugin {

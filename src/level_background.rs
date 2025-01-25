@@ -93,30 +93,6 @@ impl LevelBackground {
     }
 }
 
-// pub(crate) fn level_background_system(
-//     mut commands: Commands,
-//     mut image_assets: ResMut<Assets<Image>>,
-//     added_query: Query<(Entity, &LevelBackground), Changed<LevelBackground>>,
-// ) -> Result<()> {
-//     added_query
-//         .iter()
-//         .try_for_each(|(entity, background)| -> Result<()> {
-//             let image = background.generate_image(&mut image_assets)?;
-//
-//             commands.entity(entity).insert(Sprite {
-//                 image,
-//                 anchor: Anchor::TopLeft,
-//                 ..Default::default()
-//             });
-//
-//             trace!("Level background generated!");
-//             Ok(())
-//         })?;
-//
-//     Ok(())
-// }
-//
-
 fn level_background_system(
     mut commands: Commands,
     mut image_assets: ResMut<Assets<Image>>,
@@ -131,9 +107,7 @@ fn level_background_system(
             };
 
             let image = background.generate_image(&mut image_assets)?;
-
             let anchor = Anchor::TopLeft;
-
             let sprite = Sprite {
                 image,
                 anchor,

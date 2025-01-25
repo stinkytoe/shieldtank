@@ -87,7 +87,6 @@ impl Tiles {
 }
 
 pub(crate) fn tiles_system(
-    // mut shieldtank_commands: ShieldtankCommands,
     mut commands: Commands,
     mut image_assets: ResMut<Assets<Image>>,
     shieldtank_query: ShieldtankQuery,
@@ -102,11 +101,8 @@ pub(crate) fn tiles_system(
             };
 
             let asset = item.get_asset();
-
             let image = tiles.generate_layer_image(&mut image_assets, asset)?;
-
             let anchor = Anchor::TopLeft;
-
             let sprite = Sprite {
                 image,
                 anchor,
@@ -125,33 +121,6 @@ pub(crate) fn tiles_system(
             }
         });
 }
-
-// pub(crate) fn handle_tiles_system(
-//     mut commands: Commands,
-//     assets: Res<Assets<LayerAsset>>,
-//     mut image_assets: ResMut<Assets<Image>>,
-//     query: Query<(Entity, &LayerComponent, &Tiles), Changed<Tiles>>,
-// ) -> Result<()> {
-//     query
-//         .iter()
-//         .try_for_each(|(entity, layer, tiles)| -> Result<()> {
-//             let asset = assets
-//                 .get(layer.handle.id())
-//                 .ok_or(bad_handle!("bad handle! {:?}", layer.handle))?;
-//             let image = tiles.generate_layer_image(&mut image_assets, asset)?;
-//
-//             commands.entity(entity).insert(Sprite {
-//                 image,
-//                 anchor: Anchor::TopLeft,
-//                 //color: bevy::color::Color::srgba_u8(255, 255, 255, 64),
-//                 ..Default::default()
-//             });
-//
-//             trace!("Tiles layer generated!");
-//
-//             Ok(())
-//         })
-// }
 
 pub struct TilesPlugin;
 impl Plugin for TilesPlugin {
