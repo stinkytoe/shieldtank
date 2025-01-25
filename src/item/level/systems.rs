@@ -41,7 +41,7 @@ pub(crate) fn level_override_transform_system(
             if config.levels_override_transform() {
                 let asset = item.get_asset();
                 let location = Vec2::new(1.0, -1.0) * asset.location.as_vec2();
-                let z = asset.index as f32 * config.level_separation();
+                let z = asset.world_depth as f32 * config.level_separation();
                 let transform = item.get_transform().with_translation(location.extend(z));
 
                 shieldtank_commands.level(&item).insert_transform(transform);
