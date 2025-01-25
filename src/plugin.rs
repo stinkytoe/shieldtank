@@ -2,7 +2,7 @@ use bevy_app::{PluginGroup, PluginGroupBuilder};
 use bevy_ldtk_asset::plugin::BevyLdtkAssetPlugin;
 
 use crate::component::plugin::ComponentPlugin;
-use crate::item::level::LevelItemPlugin;
+use crate::item::level::plugin::LevelItemPlugin;
 use crate::level_background::LevelBackgroundPlugin;
 use crate::project_config::ProjectConfigPlugin;
 

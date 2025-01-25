@@ -17,7 +17,7 @@ use bevy_utils::error;
 
 use crate::commands::ShieldtankCommands;
 use crate::error::Result;
-use crate::item::level::LevelItemIteratorExt as _;
+use crate::item::level::iter::LevelItemIteratorExt as _;
 use crate::query::ShieldtankQuery;
 use crate::shieldtank_error;
 
