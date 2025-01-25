@@ -6,6 +6,7 @@ use bevy_ldtk_asset::layer::Layer as LayerAsset;
 use bevy_ldtk_asset::layer_definition::LayerDefinition as LdtkLayerDefinition;
 use bevy_ldtk_asset::level::Level as LevelAsset;
 use bevy_ldtk_asset::project::Project as ProjectAsset;
+use bevy_ldtk_asset::tileset_definition::TilesetDefinition as LdtkTilesetDefinition;
 use bevy_ldtk_asset::world::World as WorldAsset;
 
 use crate::component::entity::EntityComponentQueryData;
@@ -79,6 +80,7 @@ pub struct ShieldtankQuery<'w, 's> {
     config_assets: Res<'w, Assets<ProjectConfig>>,
 
     layer_definitions: Res<'w, Assets<LdtkLayerDefinition>>,
+    tileset_definitions: Res<'w, Assets<LdtkTilesetDefinition>>,
 
     asset_server: Res<'w, AssetServer>,
 }
@@ -165,6 +167,13 @@ impl ShieldtankQuery<'_, '_> {
         id: AssetId<LdtkLayerDefinition>,
     ) -> Option<&LdtkLayerDefinition> {
         self.layer_definitions.get(id)
+    }
+
+    pub fn get_tileset_definition(
+        &self,
+        id: AssetId<LdtkTilesetDefinition>,
+    ) -> Option<&LdtkTilesetDefinition> {
+        self.tileset_definitions.get(id)
     }
 
     pub fn get_asset_server(&self) -> &AssetServer {

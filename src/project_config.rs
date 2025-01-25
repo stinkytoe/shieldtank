@@ -10,8 +10,10 @@ pub struct ProjectConfig {
     load_pattern: LoadPattern,
     load_level_background: LoadPattern,
     load_layer_tiles: LoadPattern,
+    load_entity_tileset_rectangles: LoadPattern,
     levels_override_transform: bool,
     layers_override_transform: bool,
+    entities_override_transform: bool,
     level_separation: f32,
     layer_separation: f32,
 }
@@ -22,8 +24,10 @@ impl Default for ProjectConfig {
             load_pattern: Default::default(),
             load_level_background: Default::default(),
             load_layer_tiles: Default::default(),
+            load_entity_tileset_rectangles: Default::default(),
             levels_override_transform: true,
             layers_override_transform: true,
+            entities_override_transform: true,
             level_separation: 10.0,
             layer_separation: 1.0,
         }
@@ -43,12 +47,20 @@ impl ProjectConfig {
         &self.load_layer_tiles
     }
 
+    pub fn get_load_entity_tileset_rectangles(&self) -> &LoadPattern {
+        &self.load_entity_tileset_rectangles
+    }
+
     pub fn levels_override_transform(&self) -> bool {
         self.levels_override_transform
     }
 
     pub fn layers_override_transform(&self) -> bool {
         self.layers_override_transform
+    }
+
+    pub fn entities_override_transform(&self) -> bool {
+        self.entities_override_transform
     }
 
     pub fn level_separation(&self) -> f32 {
