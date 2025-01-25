@@ -55,7 +55,10 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
         config: asset_server.add(ProjectConfig::default()),
     });
 
-    commands.spawn(Camera2d);
+    commands.spawn((
+        Camera2d,
+        Transform::from_xyz(0.0, -128.0, 0.0).with_scale(Vec2::splat(0.4).extend(1.0)),
+    ));
 }
 
 fn update(_shieldtank_query: ShieldtankQuery) {}
