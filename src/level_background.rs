@@ -1,14 +1,24 @@
+use bevy_app::Plugin;
+use bevy_app::Update;
 use bevy_asset::{Assets, Handle, RenderAssetUsages};
 use bevy_color::Color;
 use bevy_color::ColorToPacked;
 use bevy_ecs::component::Component;
+use bevy_ecs::system::IntoSystem;
+use bevy_ecs::system::ResMut;
 use bevy_image::Image;
 use bevy_ldtk_asset::level::Level as LdtkLevel;
 use bevy_ldtk_asset::level::LevelBackground as LdtkLevelBackground;
 use bevy_math::Vec2;
 use bevy_reflect::Reflect;
+use bevy_sprite::Anchor;
+use bevy_sprite::Sprite;
+use bevy_utils::error;
 
+use crate::commands::ShieldtankCommands;
 use crate::error::Result;
+use crate::item::level::LevelItemIteratorExt as _;
+use crate::query::ShieldtankQuery;
 use crate::shieldtank_error;
 
 #[derive(Component, Debug, Reflect)]
@@ -19,7 +29,7 @@ pub struct LevelBackground {
 }
 
 impl LevelBackground {
-    pub(crate) fn _new(value: &LdtkLevel) -> Self {
+    pub(crate) fn new(value: &LdtkLevel) -> Self {
         let color = value.bg_color;
         let size = value.size.as_vec2();
         let background = value.background.clone();
@@ -30,7 +40,7 @@ impl LevelBackground {
         }
     }
 
-    fn _generate_image(&self, assets: &mut Assets<Image>) -> Result<Handle<Image>> {
+    fn generate_image(&self, assets: &mut Assets<Image>) -> Result<Handle<Image>> {
         let mut background_image = image::RgbaImage::new(self.size.x as u32, self.size.y as u32);
 
         background_image
@@ -107,9 +117,40 @@ impl LevelBackground {
 //     Ok(())
 // }
 //
-// pub struct LevelBackgroundPlugin;
-// impl Plugin for LevelBackgroundPlugin {
-//     fn build(&self, app: &mut bevy_app::App) {
-//         app.add_systems(Update, level_background_system.map(error));
-//     }
-// }
+
+fn level_background_system(
+    mut shieldtank_commands: ShieldtankCommands,
+    mut image_assets: ResMut<Assets<Image>>,
+    shieldtank_query: ShieldtankQuery,
+) -> Result<()> {
+    shieldtank_query
+        .iter_levels()
+        .filter_level_background_changed()
+        .try_for_each(|item| -> Result<()> {
+            let Some(background) = item.get_level_background() else {
+                return Ok(());
+            };
+
+            let image = background.generate_image(&mut image_assets)?;
+
+            let anchor = Anchor::TopLeft;
+
+            let sprite = Sprite {
+                image,
+                anchor,
+                ..Default::default()
+            };
+
+            shieldtank_commands.level(&item).insert_sprite(sprite);
+
+            Ok(())
+        })
+}
+
+pub struct LevelBackgroundPlugin;
+impl Plugin for LevelBackgroundPlugin {
+    fn build(&self, app: &mut bevy_app::App) {
+        app.register_type::<LevelBackground>()
+            .add_systems(Update, level_background_system.map(error));
+    }
+}

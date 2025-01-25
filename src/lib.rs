@@ -4,6 +4,7 @@ pub mod error;
 pub mod int_grid;
 pub mod item;
 pub mod level_background;
+pub mod load_pattern;
 pub mod plugin;
 pub mod project_config;
 pub mod query;

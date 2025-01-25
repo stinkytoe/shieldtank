@@ -57,6 +57,8 @@ pub struct ShieldtankItemCommands<'w, 's, A: LdtkAsset, D: QueryData> {
     pub(crate) item: &'w Item<'w, 's, A, D>,
 }
 
+impl<A: LdtkAsset, D: QueryData> ShieldtankItemCommands<'_, '_, A, D> {}
+
 impl<A: LdtkAsset, D: QueryData> ShieldtankItemCommands<'_, '_, A, D> {
     pub(crate) fn insert_name_component(&mut self, name: &str) -> &mut Self {
         self.commands
