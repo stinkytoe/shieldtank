@@ -54,6 +54,8 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
         handle: asset_server.load("ldtk/axe_man_adventure.ldtk"),
         config: asset_server.add(ProjectConfig::default()),
     });
+
+    commands.spawn(Camera2d);
 }
 
 fn update(_shieldtank_query: ShieldtankQuery) {}
