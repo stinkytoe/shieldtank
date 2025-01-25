@@ -10,8 +10,8 @@ use bevy_ecs::world::Ref;
 use bevy_ldtk_asset::iid::Iid;
 use bevy_ldtk_asset::ldtk_asset_trait::LdtkAsset;
 use bevy_log::{debug, trace};
-use bevy_math::Vec2;
 use bevy_reflect::Reflect;
+use bevy_render::view::Visibility;
 use bevy_sprite::Sprite;
 use bevy_transform::components::{GlobalTransform, Transform};
 use bevy_utils::error;
@@ -33,6 +33,9 @@ where
 {
     pub asset: &'a Asset,
     pub component: Ref<'a, LdtkComponent<Asset>>,
+    pub transform: Ref<'a, Transform>,
+    pub global_transform: Ref<'a, GlobalTransform>,
+    pub visibility: Ref<'a, Visibility>,
     pub ecs_entity: EcsEntity,
     pub query: &'a LdtkQuery<'a, 'a>,
 }
@@ -62,6 +65,22 @@ where
         self.asset
     }
 
+    fn get_component(&self) -> &LdtkComponent<Asset> {
+        &self.component
+    }
+
+    fn get_transform(&self) -> &Transform {
+        &self.transform
+    }
+
+    fn get_global_transform(&self) -> &GlobalTransform {
+        &self.global_transform
+    }
+
+    fn get_visibility(&self) -> &Visibility {
+        &self.visibility
+    }
+
     fn get_iid(&self) -> Iid {
         self.asset.get_iid()
     }
@@ -82,23 +101,27 @@ where
 {
     fn get_ecs_entity(&self) -> EcsEntity;
     fn get_asset(&self) -> &Asset;
+    fn get_component(&self) -> &LdtkComponent<Asset>;
     fn get_iid(&self) -> Iid;
     fn get_identifier(&self) -> &str;
     fn get_query(&self) -> &LdtkQuery;
+    fn get_transform(&self) -> &Transform;
+    fn get_global_transform(&self) -> &GlobalTransform;
+    fn get_visibility(&self) -> &Visibility;
 
-    fn get_transform(&self) -> Option<&Transform> {
-        self.get_query()
-            .transform_query
-            .get(self.get_ecs_entity())
-            .ok()
-    }
+    // fn get_transform(&self) -> Option<&Transform> {
+    //     // self.get_query()
+    //     //     .transform_query
+    //     //     .get(self.get_ecs_entity())
+    //     //     .ok()
+    // }
 
-    fn get_global_transform(&self) -> Option<&GlobalTransform> {
-        self.get_query()
-            .global_transform_query
-            .get(self.get_ecs_entity())
-            .ok()
-    }
+    // fn get_global_transform(&self) -> Option<&GlobalTransform> {
+    //     self.get_query()
+    //         .global_transform_query
+    //         .get(self.get_ecs_entity())
+    //         .ok()
+    // }
 
     // TODO: Consider breaking this out into a specialization, so that only items which are
     // expected to have a sprite will inherit this method. (Level, Layer, Entity, ...)
@@ -109,21 +132,21 @@ where
             .ok()
     }
 
-    fn global_location_to_local_location(&self, global_location: Vec2) -> Option<Vec2> {
-        let offset = self.get_global_transform()?.translation().truncate();
+    // fn global_location_to_local_location(&self, global_location: Vec2) -> Option<Vec2> {
+    //     let offset = self.get_global_transform()?.translation().truncate();
+    //
+    //     Some(global_location - offset)
+    // }
 
-        Some(global_location - offset)
-    }
-
-    fn relative_location_to<OtherAsset>(&self, item: &LdtkItem<OtherAsset>) -> Option<Vec2>
-    where
-        OtherAsset: LdtkAsset + std::fmt::Debug,
-    {
-        let our_global_location = self.get_global_transform()?.translation().truncate();
-        let their_global_location = item.get_global_transform()?.translation().truncate();
-
-        Some(their_global_location - our_global_location)
-    }
+    // fn relative_location_to<OtherAsset>(&self, item: &LdtkItem<OtherAsset>) -> Option<Vec2>
+    // where
+    //     OtherAsset: LdtkAsset + std::fmt::Debug,
+    // {
+    //     let our_global_location = self.get_global_transform()?.translation().truncate();
+    //     let their_global_location = item.get_global_transform()?.translation().truncate();
+    //
+    //     Some(their_global_location - our_global_location)
+    // }
 }
 
 fn handle_finalize_event<Asset>(

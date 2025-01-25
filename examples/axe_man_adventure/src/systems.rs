@@ -1,13 +1,14 @@
 use bevy::color::palettes::tailwind::GRAY_500;
 use bevy::log;
 use bevy::prelude::*;
+use shieldtank::project::ProjectComponent;
+use shieldtank::project_config::ProjectConfig;
 use shieldtank::{
     commands::LdtkCommands,
     entity::EntityItemIteratorExt,
     item::LdtkItemTrait,
     item_iterator::{LdtkItemIterator, LdtkItemRecurrentIdentifierIterator},
     query::LdtkQuery,
-    world::WorldComponent,
 };
 
 use crate::actor::ActorMovement;
@@ -18,9 +19,13 @@ use crate::animation::{
 use crate::message_board::MessageBoard;
 use crate::player::PlayerAction;
 use crate::ACTOR_SPEED;
-use crate::{GameState, LdtkProject, AXE_MAN_IID};
+use crate::{GameState, AXE_MAN_IID};
 
-pub(crate) fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub(crate) fn startup(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut configs: ResMut<Assets<ProjectConfig>>,
+) {
     let scale = 0.3;
     commands.spawn((
         Camera2d,
@@ -47,27 +52,25 @@ pub(crate) fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
         MessageBoard,
     ));
 
-    commands.insert_resource(LdtkProject {
-        project: asset_server.load("ldtk/axe_man_adventure.ldtk"),
+    commands.spawn(ProjectComponent {
+        handle: asset_server.load("ldtk/axe_man_adventure.ldtk"),
+        config: configs.add(ProjectConfig::default()),
     });
 }
 
 pub(crate) fn wait_project_loading(
-    ldtk_project: Res<LdtkProject>,
     asset_server: Res<AssetServer>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
-    if asset_server.is_loaded_with_dependencies(ldtk_project.project.id()) {
+    let id: AssetId<shieldtank::bevy_ldtk_asset::project::Project> =
+        asset_server.load("ldtk/axe_man_adventure.ldtk").id();
+
+    if asset_server.is_loaded_with_dependencies(id) {
         next_state.set(GameState::Playing)
     }
 }
 
-pub(crate) fn on_enter_playing(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn(WorldComponent {
-        handle: asset_server.load("ldtk/axe_man_adventure.ldtk#worlds:World"),
-        config: asset_server.load("config/example.project_config.ron"),
-    });
-}
+pub(crate) fn on_enter_playing() {}
 
 pub(crate) fn update_global_animation_timer(
     mut commands: Commands,

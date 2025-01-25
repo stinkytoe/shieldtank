@@ -6,9 +6,10 @@ mod systems;
 
 use actor::{ActorDirection, ActorMovement};
 use animation::AnimationState;
+use bevy::math::VectorSpace;
+use bevy::prelude::*;
 use bevy::window::WindowResolution;
-use bevy::{log, prelude::*};
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
+// use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use shieldtank::bevy_ldtk_asset::iid::{iid, Iid};
 use shieldtank::plugin::ShieldtankPlugins;
 use systems::{
@@ -45,7 +46,7 @@ fn main() {
                 }),
                 ..Default::default()
             }),
-        WorldInspectorPlugin::new(),
+        // WorldInspectorPlugin::new(),
         ShieldtankPlugins,
     ))
     .register_type::<AnimationState>()
@@ -77,11 +78,6 @@ fn main() {
     );
 
     app.run();
-}
-
-#[derive(Resource)]
-struct LdtkProject {
-    project: Handle<shieldtank::bevy_ldtk_asset::project::Project>,
 }
 
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, States)]

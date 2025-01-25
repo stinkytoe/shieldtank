@@ -10,15 +10,16 @@ impl EntityCommands<'_> {
     pub fn set_world_location(&mut self, new_world_location: Vec2) -> &mut Self {
         let ecs_entity = self.item.get_ecs_entity();
 
-        if let (Some(world_location), Ok(current_transform)) = (
-            self.item.get_world_local_location(),
-            self.item.query.transform_query.get(ecs_entity),
-        ) {
-            let new_location = new_world_location - world_location;
-            let new_transform = current_transform
-                .with_translation(current_transform.translation + new_location.extend(0.0));
-            self.commands.entity(ecs_entity).insert(new_transform);
-        }
+        // if let (Some(world_location), Ok(current_transform)) = (
+        //     self.item.get_world_local_location(),
+        //     self.item.query.transform_query.get(ecs_entity),
+        // ) {
+        //     let new_location = new_world_location - world_location;
+        //     let new_transform = current_transform
+        //         .with_translation(current_transform.translation + new_location.extend(0.0));
+        //     self.commands.entity(ecs_entity).insert(new_transform);
+        // }
+        todo!();
 
         self
     }
@@ -26,15 +27,16 @@ impl EntityCommands<'_> {
     pub fn set_level_location(&mut self, new_level_location: Vec2) -> &mut Self {
         let ecs_entity = self.item.get_ecs_entity();
 
-        if let (Some(level_location), Ok(current_transform)) = (
-            self.item.get_level_local_location(),
-            self.item.query.transform_query.get(ecs_entity),
-        ) {
-            let new_location = new_level_location - level_location;
-            let new_transform = current_transform
-                .with_translation(current_transform.translation + new_location.extend(0.0));
-            self.commands.entity(ecs_entity).insert(new_transform);
-        }
+        // if let (Some(level_location), Ok(current_transform)) = (
+        //     self.item.get_level_local_location(),
+        //     self.item.query.transform_query.get(ecs_entity),
+        // ) {
+        //     let new_location = new_level_location - level_location;
+        //     let new_transform = current_transform
+        //         .with_translation(current_transform.translation + new_location.extend(0.0));
+        //     self.commands.entity(ecs_entity).insert(new_transform);
+        // }
+        todo!();
 
         self
     }
@@ -42,10 +44,12 @@ impl EntityCommands<'_> {
     pub fn set_layer_location(&mut self, new_layer_location: Vec2) -> &mut Self {
         let ecs_entity = self.item.get_ecs_entity();
 
-        if let Ok(current_transform) = self.item.query.transform_query.get(ecs_entity) {
-            let new_transform = current_transform.with_translation(new_layer_location.extend(0.0));
-            self.commands.entity(ecs_entity).insert(new_transform);
-        }
+        // if let Ok(current_transform) = self.item.query.transform_query.get(ecs_entity) {
+        //     let new_transform = current_transform.with_translation(new_layer_location.extend(0.0));
+        //     self.commands.entity(ecs_entity).insert(new_transform);
+        // }
+
+        todo!();
 
         self
     }

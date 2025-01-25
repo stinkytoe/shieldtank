@@ -1,4 +1,4 @@
-#![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+#![deny(clippy::unwrap_used, clippy::panic)]
 
 pub mod asset_translation;
 pub mod child_spawner;
