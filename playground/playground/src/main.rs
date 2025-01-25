@@ -19,11 +19,10 @@ fn main() {
         ..default()
     };
 
-    const RESOLUTION: Vec2 = Vec2::new(1280.0, 720.0);
+    const RESOLUTION: Vec2 = Vec2::new(1280.0, 960.0);
 
     let window_plugin_settings = WindowPlugin {
         primary_window: Some(Window {
-            // mode: WindowMode::BorderlessFullscreen(MonitorSelection::Current),
             mode: WindowMode::Windowed,
             resolution: RESOLUTION.into(),
             resizable: false,
