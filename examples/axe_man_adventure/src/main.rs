@@ -14,6 +14,9 @@ use shieldtank::query::ShieldtankQuery;
 const RESOLUTION: Vec2 = Vec2::new(1280.0, 960.0);
 const GLOBAL_FRAME_TIME: f32 = 1.0 / 3.75;
 
+#[derive(Component)]
+struct MessageBoard;
+
 #[derive(Event)]
 struct GlobalAnimationEvent {
     frame: usize,
@@ -104,7 +107,7 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
             right: Val::Px(5.0),
             ..default()
         },
-        // MessageBoard,
+        MessageBoard,
     ));
 }
 
