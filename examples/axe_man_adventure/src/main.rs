@@ -6,7 +6,9 @@ use bevy::window::WindowMode;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use shieldtank::commands::ShieldtankCommands;
 use shieldtank::component::project::ProjectComponent;
+use shieldtank::item::entity::iter::HasTagIteratorExt;
 use shieldtank::item::iter::recurrent_identifier::ItemRecurrentIdentifierIteratorExt;
+use shieldtank::item::iter::ItemIteratorExt;
 use shieldtank::plugin::ShieldtankPlugins;
 use shieldtank::project_config::ProjectConfig;
 use shieldtank::query::ShieldtankQuery;
@@ -16,6 +18,14 @@ const GLOBAL_FRAME_TIME: f32 = 1.0 / 3.75;
 
 #[derive(Component)]
 struct MessageBoard;
+
+#[derive(Component, Reflect)]
+enum Direction {
+    North,
+    East,
+    South,
+    West,
+}
 
 #[derive(Event)]
 struct GlobalAnimationEvent {
@@ -70,9 +80,13 @@ fn main() {
         ShieldtankPlugins,
         WorldInspectorPlugin::default(),
     ))
+    .register_type::<Direction>()
     .add_observer(animate_water)
     .add_systems(Startup, startup)
-    .add_systems(Update, (update_global_animation_timer,))
+    .add_systems(
+        Update,
+        (update_global_animation_timer, initialize_animate_tag),
+    )
     .insert_resource(AnimationTimer::new(GLOBAL_FRAME_TIME));
 
     app.run();
@@ -167,4 +181,22 @@ fn animate_water(
                 .insert_visibility_component(visibility);
         }
     }
+}
+
+fn initialize_animate_tag(mut commands: Commands, shieldtank_query: ShieldtankQuery) {
+    shieldtank_query
+        .iter_entities()
+        .filter_just_finalized()
+        .filter_tag("animate")
+        .for_each(|item| {
+            info!(
+                "Entity with animate tag spawned: {} iid: {}",
+                item.get_identifier(),
+                item.get_iid()
+            );
+
+            commands
+                .entity(item.get_ecs_entity())
+                .insert(Direction::East);
+        });
 }

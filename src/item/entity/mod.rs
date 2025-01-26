@@ -51,3 +51,12 @@ impl EntityItem<'_, '_> {
         &self.component_query_data.1
     }
 }
+
+impl EntityItem<'_, '_> {
+    pub fn has_tag(&self, tag: &str) -> bool {
+        self.get_asset()
+            .tags
+            .iter()
+            .any(|inner_tag| inner_tag == tag)
+    }
+}
