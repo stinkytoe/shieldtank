@@ -105,6 +105,3 @@ impl<A: LdtkAsset, D: QueryData> ShieldtankItemCommands<'_, '_, A, D> {
         self
     }
 }
-
-// pub type ProjectCommands<'w, 's> =
-//     ShieldtankItemCommands<'w, 's, ProjectAsset, ProjectComponentQueryData<'w>>;
