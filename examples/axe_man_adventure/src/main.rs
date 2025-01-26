@@ -139,15 +139,6 @@ fn update_global_animation_timer(
         commands.trigger(GlobalAnimationEvent {
             frame: animation_timer.frame,
         });
-
-        // query
-        //     .iter()
-        //     .for_each(|(entity, animation_state)| match animation_state {
-        //         AnimationState::Idle | AnimationState::Moving | AnimationState::Dead => {
-        //             commands.entity(entity).trigger(EntityAnimationEvent);
-        //         }
-        //         _ => {}
-        //     });
     }
 }
 
@@ -176,14 +167,15 @@ fn animate_water(
                 Visibility::Hidden
             };
 
-            shieldtank_commands
-                .layer(&layer)
-                .insert_visibility_component(visibility);
+            shieldtank_commands.layer(&layer).insert(visibility);
         }
     }
 }
 
-fn initialize_animate_tag(mut commands: Commands, shieldtank_query: ShieldtankQuery) {
+fn initialize_animate_tag(
+    mut shieldtank_commands: ShieldtankCommands,
+    shieldtank_query: ShieldtankQuery,
+) {
     shieldtank_query
         .iter_entities()
         .filter_just_finalized()
@@ -195,8 +187,6 @@ fn initialize_animate_tag(mut commands: Commands, shieldtank_query: ShieldtankQu
                 item.get_iid()
             );
 
-            commands
-                .entity(item.get_ecs_entity())
-                .insert(Direction::East);
+            shieldtank_commands.entity(&item).insert(Direction::East);
         });
 }

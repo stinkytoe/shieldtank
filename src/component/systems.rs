@@ -1,3 +1,4 @@
+use bevy_core::Name;
 use bevy_ecs::system::Commands;
 use bevy_hierarchy::BuildChildren;
 use bevy_ldtk_asset::prelude::LdtkAssetWithChildren;
@@ -8,6 +9,7 @@ use crate::component::entity::EntityComponent;
 use crate::component::layer::LayerComponent;
 use crate::component::level::LevelComponent;
 use crate::component::world::WorldComponent;
+use crate::component::ShieldtankComponentFinalized;
 use crate::item::iter::ItemIteratorExt as _;
 use crate::query::ShieldtankQuery;
 
@@ -22,9 +24,11 @@ pub fn find_and_mark_loaded_components(
                 .filter(|item| !item.is_finalized() && item.asset_is_loaded())
                 .for_each(|item| {
                     debug!("Shieldtank {} loaded: {}", $name, item.get_identifier());
-                    shieldtank_commands
-                        .$commands_func(&item)
-                        .mark_finalized(true);
+                    shieldtank_commands.$commands_func(&item).insert(
+                        ShieldtankComponentFinalized {
+                            just_finalized: true,
+                        },
+                    );
                 });
         };
     }
@@ -47,9 +51,11 @@ pub fn find_and_unmark_just_loaded_components(
                 .filter_just_finalized()
                 .for_each(|item| {
                     debug!("Shieldtank {} finalized: {}", $name, item.get_identifier());
-                    shieldtank_commands
-                        .$commands_func(&item)
-                        .mark_finalized(false);
+                    shieldtank_commands.$commands_func(&item).insert(
+                        ShieldtankComponentFinalized {
+                            just_finalized: false,
+                        },
+                    );
                 });
         };
     }
@@ -74,7 +80,7 @@ pub fn insert_name_component(
                 .for_each(|item| {
                     shieldtank_commands
                         .$commands_func(&item)
-                        .insert_name_component(item.get_identifier());
+                        .insert(Name::new(item.get_identifier().to_string()));
                 });
         };
     }

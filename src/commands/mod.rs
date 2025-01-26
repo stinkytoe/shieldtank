@@ -1,17 +1,14 @@
-use bevy_core::Name;
+use bevy_ecs::bundle::Bundle;
 use bevy_ecs::query::QueryData;
 use bevy_ecs::system::{Commands, SystemParam};
 use bevy_ldtk_asset::ldtk_asset_trait::LdtkAsset;
 use bevy_reflect::Reflect;
-use bevy_render::view::Visibility;
-use bevy_transform::components::Transform;
 
 use crate::commands::entity::EntityCommands;
 use crate::commands::layer::LayerCommands;
 use crate::commands::level::LevelCommands;
 use crate::commands::project::ProjectCommands;
 use crate::commands::world::WorldCommands;
-use crate::component::ShieldtankComponentFinalized;
 use crate::item::entity::EntityItem;
 use crate::item::layer::LayerItem;
 use crate::item::level::LevelItem;
@@ -63,44 +60,18 @@ pub struct ShieldtankItemCommands<'w, 's, A: LdtkAsset, D: QueryData> {
 impl<A: LdtkAsset, D: QueryData> ShieldtankItemCommands<'_, '_, A, D> {}
 
 impl<A: LdtkAsset, D: QueryData> ShieldtankItemCommands<'_, '_, A, D> {
-    pub fn insert_name_component(&mut self, name: &str) -> &mut Self {
+    pub fn insert(&mut self, bundle: impl Bundle) -> &mut Self {
         self.commands
             .entity(self.item.get_ecs_entity())
-            .insert(Name::new(name.to_string()));
+            .insert(bundle);
 
         self
     }
 
-    pub fn insert_transform_component(&mut self, transform: Transform) -> &mut Self {
+    pub fn remove<T: Bundle>(&mut self) -> &mut Self {
         self.commands
             .entity(self.item.get_ecs_entity())
-            .insert(transform);
-
-        self
-    }
-
-    pub fn insert_visibility_component(&mut self, visibility: Visibility) -> &mut Self {
-        self.commands
-            .entity(self.item.get_ecs_entity())
-            .insert(visibility);
-
-        self
-    }
-}
-
-impl<A: LdtkAsset, D: QueryData> ShieldtankItemCommands<'_, '_, A, D> {
-    pub(crate) fn mark_finalized(&mut self, just_finalized: bool) -> &mut Self {
-        self.commands
-            .entity(self.item.get_ecs_entity())
-            .insert(ShieldtankComponentFinalized { just_finalized });
-
-        self
-    }
-
-    pub(crate) fn _unmark_finalized(&mut self) -> &mut Self {
-        self.commands
-            .entity(self.item.get_ecs_entity())
-            .remove::<ShieldtankComponentFinalized>();
+            .remove::<T>();
 
         self
     }

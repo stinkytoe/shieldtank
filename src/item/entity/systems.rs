@@ -47,9 +47,7 @@ pub(crate) fn entity_override_transform_system(
                 let location = Vec2::new(1.0, -1.0) * asset.location.as_vec2();
                 let transform = item.get_transform().with_translation(location.extend(0.0));
 
-                shieldtank_commands
-                    .entity(&item)
-                    .insert_transform_component(transform);
+                shieldtank_commands.entity(&item).insert(transform);
             }
         });
 }

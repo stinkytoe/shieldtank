@@ -77,9 +77,7 @@ pub(crate) fn layer_override_transform_system(
                 let z = (asset.index + 1) as f32 * config.layer_separation();
                 let transform = item.get_transform().with_translation(location.extend(z));
 
-                shieldtank_commands
-                    .layer(&item)
-                    .insert_transform_component(transform);
+                shieldtank_commands.layer(&item).insert(transform);
             }
         });
 }
