@@ -29,4 +29,4 @@ tuple = "0.5"
 bevy_ldtk_asset = "0.6.1"
 
 [workspace]
-members = ["playground/*"]
+members = ["examples/*"]
