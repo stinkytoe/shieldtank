@@ -4,6 +4,7 @@ pub mod systems;
 
 use bevy_ecs::world::Ref;
 use bevy_ldtk_asset::entity::Entity as EntityAsset;
+use bevy_sprite::Sprite;
 
 use crate::component::entity::EntityComponentQueryData;
 use crate::item::layer::LayerItem;
@@ -43,6 +44,10 @@ impl EntityItem<'_, '_> {
 
 impl EntityItem<'_, '_> {
     pub fn get_tileset_rectangle(&self) -> &Option<Ref<TilesetRectangle>> {
-        &self.component_query_data
+        &self.component_query_data.0
+    }
+
+    pub fn get_sprite(&self) -> &Option<Ref<Sprite>> {
+        &self.component_query_data.1
     }
 }
