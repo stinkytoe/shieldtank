@@ -49,7 +49,7 @@ pub(crate) fn entity_override_transform_system(
 
                 shieldtank_commands
                     .entity(&item)
-                    .insert_transform(transform);
+                    .insert_transform_component(transform);
             }
         });
 }

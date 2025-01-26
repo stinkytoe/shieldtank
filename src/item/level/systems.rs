@@ -44,7 +44,9 @@ pub(crate) fn level_override_transform_system(
                 let z = asset.world_depth as f32 * config.level_separation();
                 let transform = item.get_transform().with_translation(location.extend(z));
 
-                shieldtank_commands.level(&item).insert_transform(transform);
+                shieldtank_commands
+                    .level(&item)
+                    .insert_transform_component(transform);
             }
         });
 }
