@@ -58,11 +58,11 @@ impl Tiles {
                     .to_image();
 
             if tile.flip_x {
-                tile_image = image::imageops::flip_vertical(&tile_image);
+                tile_image = image::imageops::flip_horizontal(&tile_image);
             }
 
             if tile.flip_y {
-                tile_image = image::imageops::flip_horizontal(&tile_image);
+                tile_image = image::imageops::flip_vertical(&tile_image);
             }
 
             let opacity = ((layer_instance.opacity as f32) * tile.opacity * 255.0) as u16;
