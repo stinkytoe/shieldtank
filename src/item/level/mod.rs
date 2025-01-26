@@ -7,6 +7,7 @@ use bevy_ldtk_asset::level::Level as LevelAsset;
 
 use crate::component::level::LevelComponentQueryData;
 use crate::item::entity::EntityItem;
+use crate::item::iter::recurrent_identifier::ItemRecurrentIdentifierIteratorExt as _;
 use crate::item::layer::LayerItem;
 use crate::item::project::ProjectItem;
 use crate::item::world::WorldItem;
@@ -38,6 +39,13 @@ impl LevelItem<'_, '_> {
         let world = self.get_world()?;
 
         self.get_query().get_project(world.get_ecs_entity()).ok()
+    }
+}
+
+impl LevelItem<'_, '_> {
+    pub fn layer_by_identifier(&self, identifier: &'static str) -> Option<LayerItem> {
+        let layer = self.iter_layers().filter_identifier(identifier).next();
+        layer
     }
 }
 
