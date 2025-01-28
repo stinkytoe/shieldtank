@@ -9,38 +9,31 @@ use crate::component::level::LevelComponentQueryData;
 use crate::item::entity::EntityItem;
 use crate::item::iter::recurrent_identifier::ItemRecurrentIdentifierIteratorExt as _;
 use crate::item::layer::LayerItem;
+use crate::item::macros::get_parent;
 use crate::item::project::ProjectItem;
 use crate::item::world::WorldItem;
 use crate::item::Item;
 use crate::level_background::LevelBackground;
 
+use super::macros::{get_ancestor, iter_descendents};
+
 pub type LevelItem<'w, 's> = Item<'w, 's, LevelAsset, LevelComponentQueryData<'w>>;
 
 impl LevelItem<'_, '_> {
     pub fn iter_entities(&self) -> impl Iterator<Item = EntityItem> {
-        self.get_query()
-            .iter_entities()
-            .filter(|item| item.get_level().as_ref() == Some(self))
+        iter_descendents!(self, iter_entities, get_level)
     }
 
     pub fn iter_layers(&self) -> impl Iterator<Item = LayerItem> {
-        self.get_query()
-            .iter_layers()
-            .filter(|item| item.get_level().as_ref() == Some(self))
+        iter_descendents!(self, iter_layers, get_level)
     }
 
     pub fn get_world(&self) -> Option<WorldItem> {
-        self.get_parent_component()
-            .as_ref()
-            .and_then(|parent| self.get_query().get_world(parent.get()).ok())
+        get_parent!(self, get_world)
     }
 
     pub fn get_project(&self) -> Option<ProjectItem> {
-        let world = self.get_world()?;
-
-        let parent = world.get_parent_component().as_ref()?.get();
-
-        self.get_query().get_project(parent).ok()
+        get_ancestor!(self, get_world, get_project)
     }
 }
 

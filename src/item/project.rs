@@ -7,30 +7,24 @@ use crate::item::level::LevelItem;
 use crate::item::world::WorldItem;
 use crate::item::Item;
 
+use super::macros::iter_descendents;
+
 pub type ProjectItem<'w, 's> = Item<'w, 's, ProjectAsset, ProjectComponentQueryData<'w>>;
 
 impl ProjectItem<'_, '_> {
     pub fn iter_entities(&self) -> impl Iterator<Item = EntityItem> {
-        self.get_query()
-            .iter_entities()
-            .filter(|item| item.get_project().as_ref() == Some(self))
+        iter_descendents!(self, iter_entities, get_project)
     }
 
     pub fn iter_layers(&self) -> impl Iterator<Item = LayerItem> {
-        self.get_query()
-            .iter_layers()
-            .filter(|item| item.get_project().as_ref() == Some(self))
+        iter_descendents!(self, iter_layers, get_project)
     }
 
     pub fn iter_levels(&self) -> impl Iterator<Item = LevelItem> {
-        self.get_query()
-            .iter_levels()
-            .filter(|item| item.get_project().as_ref() == Some(self))
+        iter_descendents!(self, iter_levels, get_project)
     }
 
     pub fn iter_worlds(&self) -> impl Iterator<Item = WorldItem> {
-        self.get_query()
-            .iter_worlds()
-            .filter(|item| item.get_project().as_ref() == Some(self))
+        iter_descendents!(self, iter_worlds, get_project)
     }
 }

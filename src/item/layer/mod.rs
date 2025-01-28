@@ -10,40 +10,32 @@ use crate::component::layer::LayerComponentQueryData;
 use crate::int_grid::{IntGrid, IntGridValue};
 use crate::item::entity::EntityItem;
 use crate::item::level::LevelItem;
+use crate::item::macros::get_parent;
+use crate::item::macros::iter_descendents;
 use crate::item::project::ProjectItem;
 use crate::item::world::WorldItem;
 use crate::item::Item;
 use crate::tiles::Tiles;
 
+use super::macros::get_ancestor;
+
 pub type LayerItem<'w, 's> = Item<'w, 's, LayerAsset, LayerComponentQueryData<'w>>;
 
 impl LayerItem<'_, '_> {
     pub fn iter_entities(&self) -> impl Iterator<Item = EntityItem> {
-        self.get_query()
-            .iter_entities()
-            .filter(|item| item.get_layer().as_ref() == Some(self))
+        iter_descendents!(self, iter_entities, get_layer)
     }
 
     pub fn get_level(&self) -> Option<LevelItem> {
-        self.get_parent_component()
-            .as_ref()
-            .and_then(|parent| self.get_query().get_level(parent.get()).ok())
+        get_parent!(self, get_level)
     }
 
     pub fn get_world(&self) -> Option<WorldItem> {
-        let level = self.get_level()?;
-
-        let parent = level.get_parent_component().as_ref()?.get();
-
-        self.get_query().get_world(parent).ok()
+        get_ancestor!(self, get_level, get_world)
     }
 
     pub fn get_project(&self) -> Option<ProjectItem> {
-        let world = self.get_world()?;
-
-        let parent = world.get_parent_component().as_ref()?.get();
-
-        self.get_query().get_project(parent).ok()
+        get_ancestor!(self, get_world, get_project)
     }
 }
 

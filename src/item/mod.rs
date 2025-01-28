@@ -2,6 +2,7 @@ pub mod entity;
 pub mod iter;
 pub mod layer;
 pub mod level;
+mod macros;
 pub mod project;
 pub mod world;
 
