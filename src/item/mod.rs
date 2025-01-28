@@ -12,6 +12,7 @@ use bevy_ecs::query::QueryData;
 use bevy_hierarchy::{Children, Parent};
 use bevy_ldtk_asset::iid::Iid;
 use bevy_ldtk_asset::prelude::LdtkAsset;
+use bevy_math::Vec2;
 use bevy_render::view::Visibility;
 use bevy_transform::components::Transform;
 
@@ -127,6 +128,10 @@ impl<A: LdtkAsset, D: QueryData> Item<'_, '_, A, D> {
         self.get_query()
             .get_asset_server()
             .is_loaded_with_dependencies(self.get_asset_handle().id())
+    }
+
+    pub fn location(&self) -> Vec2 {
+        self.get_transform().translation.truncate()
     }
 }
 

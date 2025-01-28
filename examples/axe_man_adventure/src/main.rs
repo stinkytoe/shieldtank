@@ -281,12 +281,9 @@ fn player_interact_event(
     shieldtank_query: ShieldtankQuery,
 ) {
     let Some(axe_man) = shieldtank_query.get_entity(trigger.entity()).ok() else {
+        warn!("axe_man not found. not loaded yet?");
         return;
     };
-
-    info!("PlayerInteractEvent: {}", axe_man.get_identifier());
-
-    let location = axe_man.get_transform().translation.truncate();
 
     let Some(level) = axe_man.get_level() else {
         error!("couldn't find level?");
@@ -298,7 +295,12 @@ fn player_interact_event(
         return;
     };
 
-    let int_grid_at = int_grid_layer.int_grid_at(location);
+    let Some(_world) = axe_man.get_world() else {
+        error!("couldn't find world?");
+        return;
+    };
+
+    let int_grid_at = int_grid_layer.int_grid_at(axe_man.location());
 
     info!("int_grid_at: {:?}", int_grid_at);
 }
