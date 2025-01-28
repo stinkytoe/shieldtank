@@ -4,9 +4,10 @@ pub mod systems;
 
 use bevy_ecs::world::Ref;
 use bevy_ldtk_asset::layer::Layer as LayerAsset;
+use bevy_math::Vec2;
 
 use crate::component::layer::LayerComponentQueryData;
-use crate::int_grid::IntGrid;
+use crate::int_grid::{IntGrid, IntGridValue};
 use crate::item::entity::EntityItem;
 use crate::item::level::LevelItem;
 use crate::item::project::ProjectItem;
@@ -32,13 +33,17 @@ impl LayerItem<'_, '_> {
     pub fn get_world(&self) -> Option<WorldItem> {
         let level = self.get_level()?;
 
-        self.get_query().get_world(level.get_ecs_entity()).ok()
+        let parent = level.get_parent_component().as_ref()?.get();
+
+        self.get_query().get_world(parent).ok()
     }
 
     pub fn get_project(&self) -> Option<ProjectItem> {
         let world = self.get_world()?;
 
-        self.get_query().get_project(world.get_ecs_entity()).ok()
+        let parent = world.get_parent_component().as_ref()?.get();
+
+        self.get_query().get_project(parent).ok()
     }
 }
 
@@ -59,5 +64,14 @@ impl LayerItem<'_, '_> {
 
     pub fn is_entities_layer(&self) -> bool {
         self.get_asset().layer_type.is_entities_layer()
+    }
+
+    pub fn int_grid_at(&self, location: Vec2) -> Option<&IntGridValue> {
+        let grid_cell_size = self.get_asset().grid_cell_size as f32;
+        let location = (Vec2::new(1.0, -1.0) * location / grid_cell_size).as_i64vec2();
+
+        self.get_int_grid()
+            .as_ref()
+            .and_then(|int_grid| int_grid.get(location))
     }
 }

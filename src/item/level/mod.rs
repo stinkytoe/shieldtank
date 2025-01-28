@@ -38,7 +38,9 @@ impl LevelItem<'_, '_> {
     pub fn get_project(&self) -> Option<ProjectItem> {
         let world = self.get_world()?;
 
-        self.get_query().get_project(world.get_ecs_entity()).ok()
+        let parent = world.get_parent_component().as_ref()?.get();
+
+        self.get_query().get_project(parent).ok()
     }
 }
 

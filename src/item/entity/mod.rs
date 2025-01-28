@@ -26,19 +26,25 @@ impl EntityItem<'_, '_> {
     pub fn get_level(&self) -> Option<LevelItem> {
         let layer = self.get_layer()?;
 
-        self.get_query().get_level(layer.get_ecs_entity()).ok()
+        let parent = layer.get_parent_component().as_ref()?.get();
+
+        self.get_query().get_level(parent).ok()
     }
 
     pub fn get_world(&self) -> Option<WorldItem> {
         let level = self.get_level()?;
 
-        self.get_query().get_world(level.get_ecs_entity()).ok()
+        let parent = level.get_parent_component().as_ref()?.get();
+
+        self.get_query().get_world(parent).ok()
     }
 
     pub fn get_project(&self) -> Option<ProjectItem> {
         let world = self.get_world()?;
 
-        self.get_query().get_project(world.get_ecs_entity()).ok()
+        let parent = world.get_parent_component().as_ref()?.get();
+
+        self.get_query().get_project(parent).ok()
     }
 }
 

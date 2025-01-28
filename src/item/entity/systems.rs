@@ -20,12 +20,12 @@ pub(crate) fn entity_spawn_system(
                 .handle_matches_pattern(&asset_handle)
             {
                 let asset = item.get_asset();
-                let anchor = asset.anchor;
+
                 let Some(ldtk_tile) = asset.tile.as_ref().cloned() else {
                     return;
                 };
 
-                let tile = TilesetRectangle::new(anchor, ldtk_tile);
+                let tile = TilesetRectangle::new(ldtk_tile);
 
                 shieldtank_commands.entity(&item).insert(tile);
             }
