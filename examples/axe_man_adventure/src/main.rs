@@ -161,13 +161,13 @@ fn animate_water(
                 return;
             };
 
-            let visibility = if frame == index {
-                Visibility::Visible
+            if frame == index {
+                shieldtank_commands
+                    .layer(&layer)
+                    .insert(Visibility::Visible);
             } else {
-                Visibility::Hidden
-            };
-
-            shieldtank_commands.layer(&layer).insert(visibility);
+                shieldtank_commands.layer(&layer).insert(Visibility::Hidden);
+            }
         }
     }
 }
@@ -182,7 +182,7 @@ fn initialize_animate_tag(
         .filter_tag("animate")
         .for_each(|item| {
             info!(
-                "Entity with animate tag spawned: {} iid: {}",
+                "Entity with animate tag spawned: {}\tiid: {}",
                 item.get_identifier(),
                 item.get_iid()
             );
