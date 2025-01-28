@@ -21,9 +21,7 @@ pub(crate) fn level_spawn_system(
             {
                 let asset = item.get_asset();
                 let level_background = LevelBackground::new(asset);
-                shieldtank_commands
-                    .level(&item)
-                    .insert_level_background(level_background);
+                shieldtank_commands.level(&item).insert(level_background);
             }
         });
 }

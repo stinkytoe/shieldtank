@@ -1,5 +1,6 @@
 use bevy_ecs::bundle::Bundle;
 use bevy_ecs::query::QueryData;
+use bevy_ecs::system::EntityCommands as EcsEntityCommands;
 use bevy_ecs::system::{Commands, SystemParam};
 use bevy_ldtk_asset::ldtk_asset_trait::LdtkAsset;
 use bevy_reflect::Reflect;
@@ -74,5 +75,9 @@ impl<A: LdtkAsset, D: QueryData> ShieldtankItemCommands<'_, '_, A, D> {
             .remove::<T>();
 
         self
+    }
+
+    pub fn get_ecs_entity_commands(&mut self) -> EcsEntityCommands {
+        self.commands.entity(self.item.get_ecs_entity())
     }
 }

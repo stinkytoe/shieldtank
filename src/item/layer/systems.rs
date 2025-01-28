@@ -34,7 +34,7 @@ pub(crate) fn layer_spawn_system(
 
                 if !tiles_layer.tiles.is_empty() {
                     let tiles = Tiles::new(tiles_layer);
-                    shieldtank_commands.layer(&item).insert_tiles(tiles);
+                    shieldtank_commands.layer(&item).insert(tiles);
                 }
 
                 if !tiles_layer.int_grid.is_empty() {
@@ -46,7 +46,7 @@ pub(crate) fn layer_spawn_system(
                         ))?;
 
                     let int_grid = IntGrid::from_layer(asset, layer_definition)?;
-                    shieldtank_commands.layer(&item).insert_int_grid(int_grid);
+                    shieldtank_commands.layer(&item).insert(int_grid);
                 }
             }
 

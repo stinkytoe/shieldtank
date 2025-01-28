@@ -27,7 +27,7 @@ pub(crate) fn entity_spawn_system(
 
                 let tile = TilesetRectangle::new(anchor, ldtk_tile);
 
-                shieldtank_commands.entity(&item).insert_tile(tile);
+                shieldtank_commands.entity(&item).insert(tile);
             }
         });
 }
