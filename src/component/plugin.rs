@@ -1,15 +1,15 @@
 use bevy_app::{Plugin, PostUpdate};
 
-use super::entity::EntityComponent;
-use super::layer::LayerComponent;
-use super::level::LevelComponent;
-use super::project::ProjectComponent;
-use super::systems::{
+use crate::component::entity::EntityComponent;
+use crate::component::layer::LayerComponent;
+use crate::component::level::LevelComponent;
+use crate::component::project::ProjectComponent;
+use crate::component::systems::{
     find_and_mark_loaded_components, find_and_unmark_just_loaded_components, insert_name_component,
     spawn_children,
 };
-use super::world::WorldComponent;
-use super::ShieldtankComponentFinalized;
+use crate::component::world::WorldComponent;
+use crate::component::ShieldtankComponentFinalized;
 
 pub struct ComponentPlugin;
 impl Plugin for ComponentPlugin {

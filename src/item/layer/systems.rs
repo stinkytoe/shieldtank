@@ -5,11 +5,10 @@ use crate::commands::ShieldtankCommands;
 use crate::error::Result;
 use crate::int_grid::IntGrid;
 use crate::item::iter::ItemIteratorExt;
+use crate::item::layer::iter::LayerItemIteratorExt;
 use crate::query::ShieldtankQuery;
 use crate::shieldtank_error;
 use crate::tiles::Tiles;
-
-use super::iter::LayerItemIteratorExt;
 
 pub(crate) fn layer_spawn_system(
     mut shieldtank_commands: ShieldtankCommands,

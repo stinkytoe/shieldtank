@@ -1,6 +1,6 @@
 use bevy_ldtk_asset::world::World as WorldAsset;
 
-use super::ShieldtankComponent;
+use crate::component::ShieldtankComponent;
 
 pub type WorldComponent = ShieldtankComponent<WorldAsset>;
 

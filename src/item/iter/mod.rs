@@ -6,7 +6,7 @@ use bevy_ecs::query::QueryData;
 use bevy_ldtk_asset::iid::Iid;
 use bevy_ldtk_asset::ldtk_asset_trait::LdtkAsset;
 
-use super::Item;
+use crate::item::Item;
 
 pub trait ItemIteratorExt<'w, 's, A, D>
 where

@@ -10,8 +10,7 @@ use crate::component::world::WorldComponentQueryData;
 use crate::item::level::LevelItem;
 use crate::item::project::ProjectItem;
 use crate::item::world::WorldItem;
-
-use super::Item;
+use crate::item::Item;
 
 pub trait UniqueIdentifierExt<'w, 's, A, D>
 where
