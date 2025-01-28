@@ -1,4 +1,5 @@
 use bevy_ecs::bundle::Bundle;
+use bevy_ecs::event::Event;
 use bevy_ecs::query::QueryData;
 use bevy_ecs::system::EntityCommands as EcsEntityCommands;
 use bevy_ecs::system::{Commands, SystemParam};
@@ -73,6 +74,14 @@ impl<A: LdtkAsset, D: QueryData> ShieldtankItemCommands<'_, '_, A, D> {
         self.commands
             .entity(self.item.get_ecs_entity())
             .remove::<T>();
+
+        self
+    }
+
+    pub fn trigger(&mut self, event: impl Event) -> &mut Self {
+        self.commands
+            .entity(self.item.get_ecs_entity())
+            .trigger(event);
 
         self
     }
