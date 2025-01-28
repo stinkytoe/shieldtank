@@ -10,12 +10,11 @@ use crate::item::entity::EntityItem;
 use crate::item::iter::recurrent_identifier::ItemRecurrentIdentifierIteratorExt as _;
 use crate::item::layer::LayerItem;
 use crate::item::macros::get_parent;
+use crate::item::macros::{get_ancestor, iter_descendents};
 use crate::item::project::ProjectItem;
 use crate::item::world::WorldItem;
 use crate::item::Item;
 use crate::level_background::LevelBackground;
-
-use super::macros::{get_ancestor, iter_descendents};
 
 pub type LevelItem<'w, 's> = Item<'w, 's, LevelAsset, LevelComponentQueryData<'w>>;
 

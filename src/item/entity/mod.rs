@@ -9,13 +9,12 @@ use bevy_sprite::Sprite;
 use crate::component::entity::EntityComponentQueryData;
 use crate::item::layer::LayerItem;
 use crate::item::level::LevelItem;
+use crate::item::macros::get_ancestor;
 use crate::item::macros::get_parent;
 use crate::item::project::ProjectItem;
 use crate::item::world::WorldItem;
 use crate::item::Item;
 use crate::tileset_rectangle::TilesetRectangle;
-
-use super::macros::get_ancestor;
 
 pub type EntityItem<'w, 's> = Item<'w, 's, EntityAsset, EntityComponentQueryData<'w>>;
 

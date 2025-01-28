@@ -5,10 +5,9 @@ use crate::item::entity::EntityItem;
 use crate::item::layer::LayerItem;
 use crate::item::level::LevelItem;
 use crate::item::macros::get_parent;
+use crate::item::macros::iter_descendents;
 use crate::item::project::ProjectItem;
 use crate::item::Item;
-
-use super::macros::iter_descendents;
 
 pub type WorldItem<'w, 's> = Item<'w, 's, WorldAsset, WorldComponentQueryData<'w>>;
 

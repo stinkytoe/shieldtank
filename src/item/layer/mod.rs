@@ -10,14 +10,13 @@ use crate::component::layer::LayerComponentQueryData;
 use crate::int_grid::{IntGrid, IntGridValue};
 use crate::item::entity::EntityItem;
 use crate::item::level::LevelItem;
+use crate::item::macros::get_ancestor;
 use crate::item::macros::get_parent;
 use crate::item::macros::iter_descendents;
 use crate::item::project::ProjectItem;
 use crate::item::world::WorldItem;
 use crate::item::Item;
 use crate::tiles::Tiles;
-
-use super::macros::get_ancestor;
 
 pub type LayerItem<'w, 's> = Item<'w, 's, LayerAsset, LayerComponentQueryData<'w>>;
 

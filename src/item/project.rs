@@ -4,10 +4,9 @@ use crate::component::project::ProjectComponentQueryData;
 use crate::item::entity::EntityItem;
 use crate::item::layer::LayerItem;
 use crate::item::level::LevelItem;
+use crate::item::macros::iter_descendents;
 use crate::item::world::WorldItem;
 use crate::item::Item;
-
-use super::macros::iter_descendents;
 
 pub type ProjectItem<'w, 's> = Item<'w, 's, ProjectAsset, ProjectComponentQueryData<'w>>;
 
