@@ -3,6 +3,7 @@ use bevy_app::PostUpdate;
 use bevy_asset::{Assets, Handle, RenderAssetUsages};
 use bevy_color::Color;
 use bevy_color::ColorToPacked;
+use bevy_ecs::change_detection::DetectChanges as _;
 use bevy_ecs::component::Component;
 use bevy_ecs::system::Commands;
 use bevy_ecs::system::ResMut;
@@ -16,7 +17,6 @@ use bevy_sprite::Anchor;
 use bevy_sprite::Sprite;
 
 use crate::error::Result;
-use crate::item::level::iter::LevelItemIteratorExt as _;
 use crate::query::ShieldtankQuery;
 use crate::shieldtank_error;
 
@@ -100,7 +100,12 @@ fn level_background_system(
 ) {
     shieldtank_query
         .iter_levels()
-        .filter_level_background_changed()
+        .filter(|item| {
+            item.get_level_background()
+                .as_ref()
+                .and_then(|level_background| level_background.is_changed().then_some(()))
+                .is_some()
+        })
         .map(|item| -> Result<()> {
             let Some(background) = item.get_level_background() else {
                 return Ok(());

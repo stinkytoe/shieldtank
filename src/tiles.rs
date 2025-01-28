@@ -1,5 +1,6 @@
 use bevy_app::{Plugin, PostUpdate};
 use bevy_asset::{Assets, Handle, RenderAssetUsages};
+use bevy_ecs::change_detection::DetectChanges;
 use bevy_ecs::component::Component;
 use bevy_ecs::system::{Commands, ResMut};
 use bevy_image::Image;
@@ -93,8 +94,13 @@ pub(crate) fn tiles_system(
 ) {
     shieldtank_query
         .iter_layers()
-        .filter_tiles_changed()
         .filter_tiles_layer()
+        .filter(|item| {
+            item.get_tiles()
+                .as_ref()
+                .and_then(|tiles| tiles.is_changed().then_some(()))
+                .is_some()
+        })
         .map(|item| -> Result<()> {
             let Some(tiles) = item.get_tiles() else {
                 return Ok(());

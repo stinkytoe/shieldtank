@@ -7,15 +7,6 @@ where
     Self: Iterator<Item = LayerItem<'w, 's>> + Sized,
     's: 'w,
 {
-    fn filter_tiles_changed(self) -> impl Iterator<Item = LayerItem<'w, 's>> {
-        self.filter(|item| {
-            item.get_tiles()
-                .as_ref()
-                .and_then(|tiles| tiles.is_changed().then_some(()))
-                .is_some()
-        })
-    }
-
     fn filter_tiles_layer(self) -> impl Iterator<Item = LayerItem<'w, 's>> {
         self.filter(|item| item.is_tiles_layer())
     }
