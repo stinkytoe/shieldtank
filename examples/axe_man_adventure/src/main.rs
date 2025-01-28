@@ -4,6 +4,7 @@ use bevy::color::palettes::tailwind::GRAY_500;
 use bevy::prelude::*;
 use bevy::window::WindowMode;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use shieldtank::bevy_ldtk_asset::iid::{iid, Iid};
 use shieldtank::commands::ShieldtankCommands;
 use shieldtank::component::project::ProjectComponent;
 use shieldtank::item::entity::iter::HasTagIteratorExt;
@@ -15,6 +16,7 @@ use shieldtank::query::ShieldtankQuery;
 
 const RESOLUTION: Vec2 = Vec2::new(1280.0, 960.0);
 const GLOBAL_FRAME_TIME: f32 = 1.0 / 3.75;
+const AXE_MAN_IID: Iid = iid!("a0170640-9b00-11ef-aa23-11f9c6be2b6e");
 
 #[derive(Component)]
 struct MessageBoard;
@@ -46,6 +48,17 @@ impl AnimationTimer {
         }
     }
 }
+
+#[derive(Debug, Event)]
+enum PlayerMoveEvent {
+    Up,
+    Right,
+    Down,
+    Left,
+}
+
+#[derive(Event)]
+struct PlayerInteractEvent;
 
 fn main() {
     let log_plugin_settings = bevy::log::LogPlugin {
@@ -82,10 +95,16 @@ fn main() {
     ))
     .register_type::<Direction>()
     .add_observer(animate_water)
+    .add_observer(player_move_event)
+    .add_observer(player_interact_event)
     .add_systems(Startup, startup)
     .add_systems(
         Update,
-        (update_global_animation_timer, initialize_animate_tag),
+        (
+            update_global_animation_timer,
+            initialize_animate_tag,
+            player_keyboard_commands,
+        ),
     )
     .insert_resource(AnimationTimer::new(GLOBAL_FRAME_TIME));
 
@@ -189,4 +208,97 @@ fn initialize_animate_tag(
 
             shieldtank_commands.entity(&item).insert(Direction::East);
         });
+}
+
+fn player_keyboard_commands(
+    keyboard_input: Res<ButtonInput<KeyCode>>,
+    mut shieldtank_commands: ShieldtankCommands,
+    shieldtank_query: ShieldtankQuery,
+) {
+    let Some(axe_man) = shieldtank_query.entity_by_iid(AXE_MAN_IID) else {
+        return;
+    };
+
+    if keyboard_input.just_pressed(KeyCode::ArrowUp) || keyboard_input.just_pressed(KeyCode::KeyW) {
+        info!("Player move up!");
+        shieldtank_commands
+            .entity(&axe_man)
+            .trigger(PlayerMoveEvent::Up);
+    }
+
+    if keyboard_input.just_pressed(KeyCode::ArrowRight)
+        || keyboard_input.just_pressed(KeyCode::KeyD)
+    {
+        info!("Player move right!");
+        shieldtank_commands
+            .entity(&axe_man)
+            .trigger(PlayerMoveEvent::Right);
+    }
+
+    if keyboard_input.just_pressed(KeyCode::ArrowDown) || keyboard_input.just_pressed(KeyCode::KeyS)
+    {
+        info!("Player move down!");
+        shieldtank_commands
+            .entity(&axe_man)
+            .trigger(PlayerMoveEvent::Down);
+    }
+
+    if keyboard_input.just_pressed(KeyCode::ArrowLeft) || keyboard_input.just_pressed(KeyCode::KeyA)
+    {
+        info!("Player move left!");
+        shieldtank_commands
+            .entity(&axe_man)
+            .trigger(PlayerMoveEvent::Left);
+    }
+
+    if keyboard_input.just_pressed(KeyCode::Space) || keyboard_input.just_pressed(KeyCode::KeyF) {
+        info!("Player pressed interact key!");
+        shieldtank_commands
+            .entity(&axe_man)
+            .trigger(PlayerInteractEvent);
+    }
+}
+
+fn player_move_event(
+    trigger: Trigger<PlayerMoveEvent>,
+    mut _shieldtank_commands: ShieldtankCommands,
+    shieldtank_query: ShieldtankQuery,
+) {
+    let Some(axe_man) = shieldtank_query.get_entity(trigger.entity()).ok() else {
+        return;
+    };
+
+    info!(
+        "PlayerMoveEvent: {} -> {:?}",
+        axe_man.get_identifier(),
+        trigger.event()
+    );
+}
+
+fn player_interact_event(
+    trigger: Trigger<PlayerInteractEvent>,
+    mut _shieldtank_commands: ShieldtankCommands,
+    shieldtank_query: ShieldtankQuery,
+) {
+    let Some(axe_man) = shieldtank_query.get_entity(trigger.entity()).ok() else {
+        return;
+    };
+
+    info!("PlayerInteractEvent: {}", axe_man.get_identifier());
+
+    let location = axe_man.get_transform().translation.truncate();
+
+    let Some(level) = axe_man.get_level() else {
+        error!("couldn't find level?");
+        return;
+    };
+
+    let Some(int_grid_layer) = level.layer_by_identifier("IntGrid") else {
+        error!("couldn't find IntGrid layer?");
+        return;
+    };
+
+    let int_grid_at = int_grid_layer.int_grid_at(location);
+
+    info!("int_grid_at: {:?}", int_grid_at);
 }
