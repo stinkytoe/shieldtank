@@ -4,7 +4,7 @@ use bevy_ldtk_asset::tileset_rectangle::TilesetRectangle as LdtkTilesetRectangle
 use bevy_log::error;
 use bevy_math::Rect;
 use bevy_reflect::Reflect;
-use bevy_sprite::{Anchor, Sprite};
+use bevy_sprite::Sprite;
 
 use crate::error::Result;
 use crate::item::entity::iter::EntityItemIteratorExt as _;
@@ -13,13 +13,12 @@ use crate::shieldtank_error;
 
 #[derive(Clone, Debug, Component, Reflect)]
 pub struct TilesetRectangle {
-    pub anchor: Anchor,
     pub tile: LdtkTilesetRectangle,
 }
 
 impl TilesetRectangle {
-    pub fn new(anchor: Anchor, tile: LdtkTilesetRectangle) -> Self {
-        Self { anchor, tile }
+    pub fn new(tile: LdtkTilesetRectangle) -> Self {
+        Self { tile }
     }
 }
 
@@ -47,7 +46,7 @@ pub(crate) fn tileset_rectangle_system(mut commands: Commands, shieldtank_query:
             let corner = tile.tile.corner.as_vec2();
 
             let rect = Some(Rect::from_corners(corner, corner + size));
-            let anchor = tile.anchor;
+            let anchor = item.get_asset().anchor;
 
             let sprite = Sprite {
                 image,

@@ -1,13 +1,47 @@
 use bevy_app::Plugin;
+use bevy_color::Color;
 use bevy_ecs::component::Component;
 use bevy_ldtk_asset::layer::{Layer as LayerAsset, LayerType, TilesLayer};
-use bevy_ldtk_asset::layer_definition::{IntGridValue, LayerDefinition};
+use bevy_ldtk_asset::layer_definition::IntGridValue as LdtkIntGridValue;
+use bevy_ldtk_asset::layer_definition::LayerDefinition;
 use bevy_math::I64Vec2;
 use bevy_reflect::Reflect;
 use bevy_utils::HashMap;
 
 use crate::error::Result;
 use crate::shieldtank_error;
+use crate::tileset_rectangle::TilesetRectangle;
+
+#[derive(Debug, Reflect)]
+pub struct IntGridValue {
+    pub color: Color,
+    pub group_uid: i64,
+    pub identifier: Option<String>,
+    pub tile: Option<TilesetRectangle>,
+    pub value: i64,
+}
+
+impl IntGridValue {
+    pub(crate) fn new(value: &LdtkIntGridValue) -> Self {
+        let color = value.color;
+        let group_uid = value.group_uid;
+        let identifier = value.identifier.clone();
+        let tile = value
+            .tile
+            .as_ref()
+            .map(|ldtk_tileset_rectangle| TilesetRectangle::new(ldtk_tileset_rectangle.clone()));
+
+        let value = value.value;
+
+        Self {
+            color,
+            group_uid,
+            identifier,
+            tile,
+            value,
+        }
+    }
+}
 
 #[derive(Component, Debug, Reflect)]
 pub struct IntGrid {
@@ -16,13 +50,6 @@ pub struct IntGrid {
 }
 
 impl IntGrid {
-    pub fn new(size: I64Vec2) -> Self {
-        Self {
-            size,
-            values: HashMap::default(),
-        }
-    }
-
     pub fn from_layer(
         layer_instance: &LayerAsset,
         layer_definition: &LayerDefinition,
@@ -32,10 +59,6 @@ impl IntGrid {
         };
 
         let size = layer_instance.grid_size;
-
-        if int_grid.is_empty() {
-            return Ok(Self::new(size));
-        }
 
         let total_grids = (size.x * size.y) as usize;
 
@@ -54,14 +77,16 @@ impl IntGrid {
             .map(|(index, value)| (index as i64, value))
             .map(|(index, value)| {
                 let grid = I64Vec2::new(index % columns, index / columns);
-                let int_grid_value = layer_definition
-                    .int_grid_values
-                    .get(value)
-                    .ok_or(shieldtank_error!(
-                        "int grid value of {value} not found in layer {}!",
-                        layer_instance.identifier
-                    ))?
-                    .clone();
+                let ldtk_int_grid_value =
+                    layer_definition
+                        .int_grid_values
+                        .get(value)
+                        .ok_or(shieldtank_error!(
+                            "int grid value of {value} not found in layer {}!",
+                            layer_instance.identifier
+                        ))?;
+
+                let int_grid_value = IntGridValue::new(ldtk_int_grid_value);
 
                 Ok((grid, int_grid_value))
             })
@@ -88,8 +113,8 @@ impl IntGrid {
     }
 
     /// Gets Some(IntGridValue) if present, or None if either out of bounds or not present.
-    pub fn get(&self, grid: I64Vec2) -> Option<IntGridValue> {
-        self.values.get(&grid).cloned()
+    pub fn get(&self, grid: I64Vec2) -> Option<&IntGridValue> {
+        self.values.get(&grid)
     }
 
     /// If grid is in bounds, then sets the value at that location to the given value.
