@@ -1,4 +1,5 @@
 use bevy_app::{Plugin, PostUpdate};
+use bevy_ecs::change_detection::DetectChanges as _;
 use bevy_ecs::{component::Component, system::Commands};
 use bevy_ldtk_asset::tileset_rectangle::TilesetRectangle as LdtkTilesetRectangle;
 use bevy_log::error;
@@ -7,7 +8,6 @@ use bevy_reflect::Reflect;
 use bevy_sprite::Sprite;
 
 use crate::error::Result;
-use crate::item::entity::iter::EntityItemIteratorExt as _;
 use crate::query::ShieldtankQuery;
 use crate::shieldtank_error;
 
@@ -25,7 +25,12 @@ impl TilesetRectangle {
 pub(crate) fn tileset_rectangle_system(mut commands: Commands, shieldtank_query: ShieldtankQuery) {
     shieldtank_query
         .iter_entities()
-        .filter_tileset_rectangle_changed()
+        .filter(|item| {
+            item.get_tileset_rectangle()
+                .as_ref()
+                .and_then(|tileset_rectangle| tileset_rectangle.is_changed().then_some(()))
+                .is_some()
+        })
         .map(|item| -> Result<()> {
             let Some(tile) = item.get_tileset_rectangle() else {
                 return Ok(());
