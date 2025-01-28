@@ -43,6 +43,7 @@ impl IntGridValue {
     }
 }
 
+// TODO: inspect this whole integration for improvements
 #[derive(Component, Debug, Reflect)]
 pub struct IntGrid {
     size: I64Vec2,
