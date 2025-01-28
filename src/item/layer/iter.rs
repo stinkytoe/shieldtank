@@ -1,5 +1,3 @@
-use bevy_ecs::change_detection::DetectChanges as _;
-
 use crate::item::layer::LayerItem;
 
 pub trait LayerItemIteratorExt<'w, 's>
