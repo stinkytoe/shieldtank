@@ -57,12 +57,13 @@ impl LayerItem<'_, '_> {
         self.get_asset().layer_type.is_entities_layer()
     }
 
-    pub fn int_grid_at(&self, location: Vec2) -> Option<&IntGridValue> {
+    pub fn int_grid_at(&self, location: Vec2) -> Option<IntGridValue> {
         let grid_cell_size = self.get_asset().grid_cell_size as f32;
         let location = (Vec2::new(1.0, -1.0) * location / grid_cell_size).as_i64vec2();
 
         self.get_int_grid()
             .as_ref()
             .and_then(|int_grid| int_grid.get(location))
+            .cloned()
     }
 }

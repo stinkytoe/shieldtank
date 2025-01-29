@@ -1,6 +1,8 @@
 use bevy_ldtk_asset::project::Project as ProjectAsset;
+use bevy_math::Vec2;
 
 use crate::component::project::ProjectComponentQueryData;
+use crate::int_grid::IntGridValue;
 use crate::item::entity::EntityItem;
 use crate::item::layer::LayerItem;
 use crate::item::level::LevelItem;
@@ -25,5 +27,26 @@ impl ProjectItem<'_, '_> {
 
     pub fn iter_worlds(&self) -> impl Iterator<Item = WorldItem> {
         iter_descendents!(self, iter_worlds, get_project)
+    }
+}
+
+impl ProjectItem<'_, '_> {
+    pub fn int_grid_at(&self, location: Vec2) -> Option<IntGridValue> {
+        let mut world_rev_z_order: Vec<_> = self.iter_worlds().collect();
+
+        world_rev_z_order.sort_by(|item_a, item_b| {
+            item_b
+                .get_transform()
+                .translation
+                .z
+                .partial_cmp(&item_a.get_transform().translation.z)
+                .expect("partial_cmp failed in int_grid_at")
+        });
+
+        world_rev_z_order.iter().find_map(|item| {
+            let world_location = item.location();
+
+            item.int_grid_at(location - world_location)
+        })
     }
 }

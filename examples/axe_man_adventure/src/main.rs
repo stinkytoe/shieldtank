@@ -285,22 +285,23 @@ fn player_interact_event(
         return;
     };
 
-    let Some(level) = axe_man.get_level() else {
-        error!("couldn't find level?");
-        return;
-    };
-
-    let Some(int_grid_layer) = level.layer_by_identifier("IntGrid") else {
-        error!("couldn't find IntGrid layer?");
-        return;
-    };
-
-    let Some(_world) = axe_man.get_world() else {
+    let Some(world) = axe_man.get_world() else {
         error!("couldn't find world?");
         return;
     };
 
-    let int_grid_at = int_grid_layer.int_grid_at(axe_man.location());
+    let Some(int_grid_at) = world.int_grid_at(axe_man.world_location()) else {
+        info!("no int grid at location!");
+        return;
+    };
 
-    info!("int_grid_at: {:?}", int_grid_at);
+    match int_grid_at.identifier.as_deref() {
+        Some("grass") => info!("Walking on grass!"),
+        Some("dirt") => info!("Walking on dirt!"),
+        Some("tree") => info!("Walking under a tree!"),
+        Some("bridge") => info!("Walking on a bridge!"),
+        Some("water") => info!("Walking on water!"),
+        Some(unknown) => info!("Walking on unknown terrain: {unknown}"),
+        None => info!("no identifier..."),
+    }
 }

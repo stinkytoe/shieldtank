@@ -12,7 +12,7 @@ use crate::error::Result;
 use crate::shieldtank_error;
 use crate::tileset_rectangle::TilesetRectangle;
 
-#[derive(Debug, Reflect)]
+#[derive(Clone, Debug, Reflect)]
 pub struct IntGridValue {
     pub color: Color,
     pub group_uid: i64,
