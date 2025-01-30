@@ -4,6 +4,8 @@ pub mod systems;
 
 use bevy_ecs::world::Ref;
 use bevy_ldtk_asset::entity::Entity as EntityAsset;
+use bevy_ldtk_asset::prelude::LdtkAssetWithFieldInstances;
+use bevy_math::Rect;
 use bevy_math::Vec2;
 use bevy_sprite::Sprite;
 
@@ -91,5 +93,51 @@ impl EntityItem<'_, '_> {
             .tags
             .iter()
             .any(|inner_tag| inner_tag == tag)
+    }
+
+    pub fn get_field_tile(&self, identifier: &str) -> Option<TilesetRectangle> {
+        self.get_asset()
+            .get_field_instance(identifier)?
+            .get_tile()
+            .map(|value| TilesetRectangle::new(value.clone()))
+    }
+
+    pub fn get_field_array_tiles(&self, identifier: &str) -> Option<Vec<TilesetRectangle>> {
+        self.get_asset()
+            .get_field_instance(identifier)?
+            .get_array_tile()
+            .map(|value| {
+                value
+                    .iter()
+                    .map(|value| TilesetRectangle::new(value.clone()))
+                    .collect()
+            })
+    }
+}
+
+impl EntityItem<'_, '_> {
+    pub fn get_region(&self) -> Rect {
+        let anchor = self.get_asset().anchor.as_vec();
+        let size = self.get_asset().size.as_vec2();
+
+        let p0 = Vec2::new(-anchor.x - 0.5, -anchor.y + 0.5) * size;
+        let p1 = p0 + size * Vec2::new(1.0, -1.0);
+
+        Rect::from_corners(p0, p1)
+    }
+
+    pub fn location_in_region(&self, location: Vec2) -> bool {
+        let offset = location - self.location();
+        self.get_region().contains(offset)
+    }
+
+    pub fn level_location_in_region(&self, level_location: Vec2) -> bool {
+        let offset = level_location - self.level_location();
+        self.get_region().contains(offset)
+    }
+
+    pub fn world_location_in_region(&self, world_location: Vec2) -> bool {
+        let offset = world_location - self.world_location();
+        self.get_region().contains(offset)
     }
 }

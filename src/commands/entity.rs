@@ -1,4 +1,5 @@
 use bevy_ldtk_asset::entity::Entity as EntityAsset;
+use bevy_math::Vec2;
 
 use crate::commands::ShieldtankItemCommands;
 use crate::component::entity::EntityComponentQueryData;
@@ -25,5 +26,13 @@ impl EntityCommands<'_, '_> {
         }
 
         self
+    }
+
+    pub fn set_world_location(&mut self, world_location: Vec2) -> &mut Self {
+        let self_world_location = self.item.world_location();
+
+        let offset = world_location - self_world_location;
+
+        self.set_location(self.item.location() + offset)
     }
 }

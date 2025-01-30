@@ -53,13 +53,16 @@ pub(crate) fn tileset_rectangle_system(mut commands: Commands, shieldtank_query:
             let rect = Some(Rect::from_corners(corner, corner + size));
             let anchor = item.get_asset().anchor;
 
-            let sprite = Sprite {
-                image,
-                custom_size,
-                rect,
-                anchor,
-                ..Default::default()
+            let mut sprite = if let Some(sprite) = item.get_sprite() {
+                (*sprite).clone()
+            } else {
+                Sprite::default()
             };
+
+            sprite.image = image;
+            sprite.custom_size = custom_size;
+            sprite.rect = rect;
+            sprite.anchor = anchor;
 
             commands.entity(item.get_ecs_entity()).insert(sprite);
 
