@@ -4,21 +4,19 @@ use bevy::color::palettes::tailwind::GRAY_500;
 use bevy::prelude::*;
 use bevy::window::WindowMode;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use shieldtank::bevy_ldtk_asset::iid::{iid, Iid};
-use shieldtank::commands::ShieldtankCommands;
-use shieldtank::component::project::ProjectComponent;
-use shieldtank::item::entity::iter::HasTagIteratorExt;
-use shieldtank::item::iter::recurrent_identifier::ItemRecurrentIdentifierIteratorExt;
-use shieldtank::item::iter::ItemIteratorExt;
-use shieldtank::plugin::ShieldtankPlugins;
-use shieldtank::project_config::ProjectConfig;
-use shieldtank::query::ShieldtankQuery;
+
+use shieldtank::prelude::*;
 
 const RESOLUTION: Vec2 = Vec2::new(1280.0, 960.0);
 const GLOBAL_FRAME_TIME: f32 = 1.0 / 3.75;
 const AXE_MAN_IID: Iid = iid!("a0170640-9b00-11ef-aa23-11f9c6be2b6e");
+const PLAYER_MOVE_SPEED: f32 = 40.0;
 
-#[derive(Component)]
+//
+// Components
+//
+
+#[derive(Component, Reflect)]
 struct MessageBoard;
 
 #[derive(Component, Reflect)]
@@ -29,24 +27,18 @@ enum Direction {
     West,
 }
 
+#[derive(Component, Reflect)]
+struct PlayerMove {
+    target: Vec2,
+}
+
+//
+// Events
+//
+
 #[derive(Event)]
 struct GlobalAnimationEvent {
     frame: usize,
-}
-
-#[derive(Debug, Resource, Reflect)]
-pub(crate) struct AnimationTimer {
-    pub(crate) timer: Timer,
-    pub(crate) frame: usize,
-}
-
-impl AnimationTimer {
-    pub fn new(frame_time: f32) -> Self {
-        Self {
-            timer: Timer::new(Duration::from_secs_f32(frame_time), TimerMode::Repeating),
-            frame: 0,
-        }
-    }
 }
 
 #[derive(Debug, Event)]
@@ -57,8 +49,51 @@ enum PlayerMoveEvent {
     Left,
 }
 
+impl PlayerMoveEvent {
+    fn as_vec2(&self) -> Vec2 {
+        match self {
+            PlayerMoveEvent::Up => (0.0, 1.0).into(),
+            PlayerMoveEvent::Right => (1.0, 0.0).into(),
+            PlayerMoveEvent::Down => (0.0, -1.0).into(),
+            PlayerMoveEvent::Left => (-1.0, 0.0).into(),
+        }
+    }
+
+    fn as_direction(&self) -> Direction {
+        match self {
+            PlayerMoveEvent::Up => Direction::North,
+            PlayerMoveEvent::Right => Direction::East,
+            PlayerMoveEvent::Down => Direction::South,
+            PlayerMoveEvent::Left => Direction::West,
+        }
+    }
+}
+
 #[derive(Event)]
 struct PlayerInteractEvent;
+
+//
+// Resources
+//
+
+#[derive(Debug, Resource, Reflect)]
+pub(crate) struct AnimationTimer {
+    pub(crate) timer: Timer,
+    pub(crate) frame: usize,
+}
+
+impl AnimationTimer {
+    fn new(frame_time: f32) -> Self {
+        Self {
+            timer: Timer::new(Duration::from_secs_f32(frame_time), TimerMode::Repeating),
+            frame: 0,
+        }
+    }
+}
+
+//
+// Main
+//
 
 fn main() {
     let log_plugin_settings = bevy::log::LogPlugin {
@@ -94,6 +129,7 @@ fn main() {
         WorldInspectorPlugin::default(),
     ))
     .register_type::<Direction>()
+    .register_type::<PlayerMove>()
     .add_observer(animate_water)
     .add_observer(player_move_event)
     .add_observer(player_interact_event)
@@ -104,12 +140,17 @@ fn main() {
             update_global_animation_timer,
             initialize_animate_tag,
             player_keyboard_commands,
+            player_move,
         ),
     )
     .insert_resource(AnimationTimer::new(GLOBAL_FRAME_TIME));
 
     app.run();
 }
+
+//
+// Systems
+//
 
 fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
     debug!("Spawning project...");
@@ -214,42 +255,55 @@ fn player_keyboard_commands(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut shieldtank_commands: ShieldtankCommands,
     shieldtank_query: ShieldtankQuery,
+    player_move_query: Query<Entity, With<PlayerMove>>,
 ) {
     let Some(axe_man) = shieldtank_query.entity_by_iid(AXE_MAN_IID) else {
         return;
     };
 
-    if keyboard_input.just_pressed(KeyCode::ArrowUp) || keyboard_input.just_pressed(KeyCode::KeyW) {
-        info!("Player move up!");
-        shieldtank_commands
-            .entity(&axe_man)
-            .trigger(PlayerMoveEvent::Up);
-    }
+    if player_move_query.contains(axe_man.get_ecs_entity()) {
+        return;
+    };
 
-    if keyboard_input.just_pressed(KeyCode::ArrowRight)
-        || keyboard_input.just_pressed(KeyCode::KeyD)
-    {
-        info!("Player move right!");
-        shieldtank_commands
-            .entity(&axe_man)
-            .trigger(PlayerMoveEvent::Right);
-    }
+    let up_pressed =
+        keyboard_input.pressed(KeyCode::ArrowUp) || keyboard_input.pressed(KeyCode::KeyW);
 
-    if keyboard_input.just_pressed(KeyCode::ArrowDown) || keyboard_input.just_pressed(KeyCode::KeyS)
-    {
-        info!("Player move down!");
-        shieldtank_commands
-            .entity(&axe_man)
-            .trigger(PlayerMoveEvent::Down);
-    }
+    let right_pressed =
+        keyboard_input.pressed(KeyCode::ArrowRight) || keyboard_input.pressed(KeyCode::KeyD);
 
-    if keyboard_input.just_pressed(KeyCode::ArrowLeft) || keyboard_input.just_pressed(KeyCode::KeyA)
-    {
-        info!("Player move left!");
-        shieldtank_commands
-            .entity(&axe_man)
-            .trigger(PlayerMoveEvent::Left);
-    }
+    let down_pressed =
+        keyboard_input.pressed(KeyCode::ArrowDown) || keyboard_input.pressed(KeyCode::KeyS);
+
+    let left_pressed =
+        keyboard_input.pressed(KeyCode::ArrowLeft) || keyboard_input.pressed(KeyCode::KeyA);
+
+    match (up_pressed, right_pressed, down_pressed, left_pressed) {
+        (true, false, false, false) => {
+            info!("Player move up!");
+            shieldtank_commands
+                .entity(&axe_man)
+                .trigger(PlayerMoveEvent::Up);
+        }
+        (false, true, false, false) => {
+            info!("Player move right!");
+            shieldtank_commands
+                .entity(&axe_man)
+                .trigger(PlayerMoveEvent::Right);
+        }
+        (false, false, true, false) => {
+            info!("Player move down!");
+            shieldtank_commands
+                .entity(&axe_man)
+                .trigger(PlayerMoveEvent::Down);
+        }
+        (false, false, false, true) => {
+            info!("Player move left!");
+            shieldtank_commands
+                .entity(&axe_man)
+                .trigger(PlayerMoveEvent::Left);
+        }
+        _ => (),
+    };
 
     if keyboard_input.just_pressed(KeyCode::Space) || keyboard_input.just_pressed(KeyCode::KeyF) {
         info!("Player pressed interact key!");
@@ -261,27 +315,28 @@ fn player_keyboard_commands(
 
 fn player_move_event(
     trigger: Trigger<PlayerMoveEvent>,
-    mut _shieldtank_commands: ShieldtankCommands,
+    mut shieldtank_commands: ShieldtankCommands,
     shieldtank_query: ShieldtankQuery,
 ) {
     let Some(axe_man) = shieldtank_query.get_entity(trigger.entity()).ok() else {
         return;
     };
 
+    let player_move_event = trigger.event();
+
     info!(
         "PlayerMoveEvent: {} -> {:?}",
         axe_man.get_identifier(),
-        trigger.event()
+        player_move_event
     );
-}
 
-fn player_interact_event(
-    trigger: Trigger<PlayerInteractEvent>,
-    mut _shieldtank_commands: ShieldtankCommands,
-    shieldtank_query: ShieldtankQuery,
-) {
-    let Some(axe_man) = shieldtank_query.get_entity(trigger.entity()).ok() else {
-        warn!("axe_man not found. not loaded yet?");
+    let Some(layer) = axe_man.get_layer() else {
+        error!("couldn't find layer?");
+        return;
+    };
+
+    let Some(_level) = axe_man.get_level() else {
+        error!("couldn't find level?");
         return;
     };
 
@@ -290,18 +345,102 @@ fn player_interact_event(
         return;
     };
 
-    let Some(int_grid_at) = world.int_grid_at(axe_man.world_location()) else {
+    let grid_cell_size = layer.get_asset().grid_cell_size as f32;
+
+    let axe_man_location = axe_man.location();
+
+    let axe_man_world_location = axe_man.world_location();
+
+    let world_attempted_move =
+        axe_man_world_location + grid_cell_size * player_move_event.as_vec2();
+
+    let Some(int_grid_at) = world.int_grid_at(world_attempted_move) else {
         info!("no int grid at location!");
         return;
     };
 
-    match int_grid_at.identifier.as_deref() {
-        Some("grass") => info!("Walking on grass!"),
-        Some("dirt") => info!("Walking on dirt!"),
-        Some("tree") => info!("Walking under a tree!"),
-        Some("bridge") => info!("Walking on a bridge!"),
-        Some("water") => info!("Walking on water!"),
-        Some(unknown) => info!("Walking on unknown terrain: {unknown}"),
-        None => info!("no identifier..."),
+    let movable_terrain = match int_grid_at.identifier.as_deref() {
+        Some("grass") => {
+            info!("Walking on grass!");
+            true
+        }
+        Some("dirt") => {
+            info!("Walking on dirt!");
+            true
+        }
+        Some("tree") => {
+            info!("Walking under a tree!");
+            true
+        }
+        Some("bridge") => {
+            info!("Walking on a bridge!");
+            true
+        }
+        Some("water") => {
+            info!("Walking on water!");
+            false
+        }
+        Some(unknown) => {
+            info!("Walking on unknown terrain: {unknown}");
+            false
+        }
+        None => {
+            info!("no identifier...");
+            false
+        }
+    };
+
+    if movable_terrain {
+        let layer_attempted_move = axe_man_location + grid_cell_size * player_move_event.as_vec2();
+        shieldtank_commands
+            .entity(&axe_man)
+            .insert(player_move_event.as_direction())
+            .insert(PlayerMove {
+                target: layer_attempted_move,
+            });
+    }
+}
+
+fn player_interact_event(
+    trigger: Trigger<PlayerInteractEvent>,
+    mut _shieldtank_commands: ShieldtankCommands,
+    shieldtank_query: ShieldtankQuery,
+) {
+    let Some(axe_man) = shieldtank_query.get_entity(trigger.entity()).ok() else {
+        return;
+    };
+
+    info!("interaction event! {}", axe_man.get_identifier());
+}
+
+fn player_move(
+    time: Res<Time>,
+    mut shieldtank_commands: ShieldtankCommands,
+    shieldtank_query: ShieldtankQuery,
+    player_move_query: Query<(Entity, &PlayerMove), With<PlayerMove>>,
+) {
+    let Some((axe_man_ecs_entity, PlayerMove { target })) = player_move_query.get_single().ok()
+    else {
+        return;
+    };
+
+    let Some(axe_man) = shieldtank_query.get_entity(axe_man_ecs_entity).ok() else {
+        warn!("some other entity besides axe man with a PlayerMove component?");
+        return;
+    };
+
+    let axe_man_location = axe_man.location();
+
+    let to_target = target - axe_man_location;
+
+    if to_target.length_squared() < 0.01 {
+        shieldtank_commands.entity(&axe_man).remove::<PlayerMove>();
+        shieldtank_commands.entity(&axe_man).set_location(*target);
+    } else {
+        let new_location = axe_man_location
+            + time.delta_secs() * PLAYER_MOVE_SPEED * to_target.normalize_or_zero();
+        shieldtank_commands
+            .entity(&axe_man)
+            .set_location(new_location);
     }
 }

@@ -4,6 +4,7 @@ use bevy_ecs::query::QueryData;
 use bevy_ecs::system::EntityCommands as EcsEntityCommands;
 use bevy_ecs::system::{Commands, SystemParam};
 use bevy_ldtk_asset::ldtk_asset_trait::LdtkAsset;
+use bevy_math::Vec2;
 use bevy_reflect::Reflect;
 
 use crate::commands::entity::EntityCommands;
@@ -86,5 +87,16 @@ impl<A: LdtkAsset, D: QueryData> ShieldtankItemCommands<'_, '_, A, D> {
 
     pub fn get_ecs_entity_commands(&mut self) -> EcsEntityCommands {
         self.commands.entity(self.item.get_ecs_entity())
+    }
+}
+
+impl<A: LdtkAsset, D: QueryData> ShieldtankItemCommands<'_, '_, A, D> {
+    pub fn set_location(&mut self, location: Vec2) -> &mut Self {
+        let old_transform = **self.item.get_transform();
+        let old_z = old_transform.translation.z;
+
+        self.insert(old_transform.with_translation(location.extend(old_z)));
+
+        self
     }
 }
