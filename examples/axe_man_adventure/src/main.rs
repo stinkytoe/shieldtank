@@ -317,10 +317,13 @@ fn player_move_event(
     trigger: Trigger<PlayerMoveEvent>,
     mut shieldtank_commands: ShieldtankCommands,
     shieldtank_query: ShieldtankQuery,
+    mut message_board_query: Query<&mut Text, With<MessageBoard>>,
 ) {
     let Some(axe_man) = shieldtank_query.get_entity(trigger.entity()).ok() else {
         return;
     };
+
+    let mut message_board = message_board_query.single_mut();
 
     let player_move_event = trigger.event();
 
@@ -332,11 +335,6 @@ fn player_move_event(
 
     let Some(layer) = axe_man.get_layer() else {
         error!("couldn't find layer?");
-        return;
-    };
-
-    let Some(_level) = axe_man.get_level() else {
-        error!("couldn't find level?");
         return;
     };
 
@@ -362,22 +360,27 @@ fn player_move_event(
     let movable_terrain = match int_grid_at.identifier.as_deref() {
         Some("grass") => {
             info!("Walking on grass!");
+            message_board.0 = "The Axe Man is walking on the grass".to_string();
             true
         }
         Some("dirt") => {
             info!("Walking on dirt!");
+            message_board.0 = "The Axe Man is walking on dirt".to_string();
             true
         }
         Some("tree") => {
             info!("Walking under a tree!");
+            message_board.0 = "The Axe Man is shading under a tree".to_string();
             true
         }
         Some("bridge") => {
             info!("Walking on a bridge!");
+            message_board.0 = "The Axe Man is crossing The Bridge of Woe".to_string();
             true
         }
         Some("water") => {
             info!("Walking on water!");
+            message_board.0 = "The Axe Man cannot walk on water!".to_string();
             false
         }
         Some(unknown) => {
