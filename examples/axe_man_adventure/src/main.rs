@@ -19,7 +19,7 @@ const PLAYER_MOVE_SPEED: f32 = 40.0;
 #[derive(Component, Reflect)]
 struct MessageBoard;
 
-#[derive(PartialEq, Eq, Component, Reflect)]
+#[derive(Debug, PartialEq, Eq, Component, Reflect)]
 enum Direction {
     North,
     East,
@@ -36,6 +36,12 @@ struct PlayerMove {
 enum PlayerState {
     Alive,
     Dead,
+}
+
+#[derive(Component, Reflect)]
+struct AnimationOverride {
+    // pub(crate) timer: Timer,
+    // pub(crate) frame: usize,
 }
 
 //
@@ -115,7 +121,7 @@ fn main() {
         ..default()
     };
 
-    let window_plugin_settings = WindowPlugin {
+    let window_plugin_settings: WindowPlugin = WindowPlugin {
         primary_window: Some(Window {
             mode: WindowMode::Windowed,
             resolution: RESOLUTION.into(),
@@ -138,19 +144,20 @@ fn main() {
     .register_type::<Direction>()
     .register_type::<PlayerMove>()
     .register_type::<PlayerState>()
-    .add_observer(animate_idle_sprites)
+    .add_observer(animate_idle_entities)
     .add_observer(animate_water)
-    .add_observer(player_move_event)
     .add_observer(player_interact_event)
+    .add_observer(player_move_event)
     .add_systems(Startup, startup)
     .add_systems(
         Update,
         (
-            update_global_animation_timer,
+            flip_sprites,
             initialize_entities,
             initialize_axe_man,
             player_keyboard_commands,
             player_move,
+            update_global_animation_timer,
         ),
     )
     .insert_resource(GlobalAnimationTimer::new(GLOBAL_FRAME_TIME));
@@ -159,7 +166,7 @@ fn main() {
 }
 
 //
-// Systems
+// Startup
 //
 
 fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
@@ -195,41 +202,24 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
     ));
 }
 
-fn update_global_animation_timer(
-    time: Res<Time>,
-    mut global_animation_timer: ResMut<GlobalAnimationTimer>,
-    mut commands: Commands,
-    mut shieldtank_commands: ShieldtankCommands,
-    shieldtank_query: ShieldtankQuery,
-) {
-    global_animation_timer.timer.tick(time.delta());
+//
+// Observers
+//
 
-    if global_animation_timer.timer.just_finished() {
-        global_animation_timer.frame += 1;
-        global_animation_timer.frame %= 4;
-
-        commands.trigger(LayerAnimationEvent);
-
-        shieldtank_query
-            .iter_entities()
-            .filter_tag("animate")
-            .for_each(|shieldtank_entity| {
-                shieldtank_commands
-                    .entity(&shieldtank_entity)
-                    .trigger(EntityAnimationEvent);
-            });
-    }
-}
-
-fn animate_idle_sprites(
+fn animate_idle_entities(
     trigger: Trigger<EntityAnimationEvent>,
     mut shieldtank_commands: ShieldtankCommands,
     shieldtank_query: ShieldtankQuery,
     direction_query: Query<&Direction>,
     player_move_query: Query<&PlayerMove>,
+    animation_override_query: Query<&AnimationOverride>,
     global_animation_timer: Res<GlobalAnimationTimer>,
 ) {
     let triggered_entity = trigger.entity();
+
+    if animation_override_query.contains(triggered_entity) {
+        return;
+    };
 
     let Some(shieldtank_entity) = shieldtank_query.get_entity(triggered_entity).ok() else {
         return;
@@ -268,12 +258,6 @@ fn animate_idle_sprites(
     shieldtank_commands
         .entity(&shieldtank_entity)
         .insert(tile.clone());
-
-    if *direction == Direction::West {
-        shieldtank_commands.entity(&shieldtank_entity).flip_x(true);
-    } else {
-        shieldtank_commands.entity(&shieldtank_entity).flip_x(false);
-    }
 }
 
 fn animate_water(
@@ -303,6 +287,144 @@ fn animate_water(
             } else {
                 shieldtank_commands.layer(&layer).insert(Visibility::Hidden);
             }
+        }
+    }
+}
+
+fn player_interact_event(
+    trigger: Trigger<PlayerInteractEvent>,
+    mut _shieldtank_commands: ShieldtankCommands,
+    shieldtank_query: ShieldtankQuery,
+) {
+    let Some(axe_man) = shieldtank_query.get_entity(trigger.entity()).ok() else {
+        return;
+    };
+
+    info!("interaction event! {}", axe_man.get_identifier());
+}
+
+fn player_move_event(
+    trigger: Trigger<PlayerMoveEvent>,
+    mut shieldtank_commands: ShieldtankCommands,
+    shieldtank_query: ShieldtankQuery,
+    mut message_board_query: Query<&mut Text, With<MessageBoard>>,
+) {
+    let Some(axe_man) = shieldtank_query.get_entity(trigger.entity()).ok() else {
+        return;
+    };
+
+    let mut message_board = message_board_query.single_mut();
+
+    let player_move_event = trigger.event();
+
+    shieldtank_commands
+        .entity(&axe_man)
+        .insert(player_move_event.as_direction())
+        .trigger(EntityAnimationEvent);
+
+    info!(
+        "PlayerMoveEvent: {} -> {:?}",
+        axe_man.get_identifier(),
+        player_move_event
+    );
+
+    let Some(layer) = axe_man.get_layer() else {
+        error!("couldn't find layer?");
+        return;
+    };
+
+    let Some(world) = axe_man.get_world() else {
+        error!("couldn't find world?");
+        return;
+    };
+
+    let grid_cell_size = layer.get_asset().grid_cell_size as f32;
+
+    let axe_man_world_location = axe_man.world_location();
+
+    let world_attempted_move =
+        axe_man_world_location + grid_cell_size * player_move_event.as_vec2();
+
+    if let Some(entity_at) = world
+        .iter_entities()
+        .filter_world_location_in_region(world_attempted_move)
+        .next()
+    {
+        info!("Entity {} occupies space...", entity_at.get_identifier());
+        // TODO: Add bump event
+        return;
+    };
+
+    if let Some(int_grid_at) = world.int_grid_at(world_attempted_move) {
+        // TODO: Change to an attempt_move event of some kind
+        let movable_terrain = match int_grid_at.identifier.as_deref() {
+            Some("grass") => {
+                info!("Walking on grass!");
+                message_board.0 = "The Axe Man is walking on the grass.".to_string();
+                true
+            }
+            Some("dirt") => {
+                info!("Walking on dirt!");
+                message_board.0 = "The Axe Man is walking on dirt.".to_string();
+                true
+            }
+            Some("tree") => {
+                info!("Walking under a tree!");
+                message_board.0 = "The Axe Man is shading under a tree.".to_string();
+                true
+            }
+            Some("bridge") => {
+                info!("Walking on a bridge!");
+                message_board.0 = "The Axe Man is crossing The Bridge of Woe!".to_string();
+                true
+            }
+            Some("water") => {
+                info!("Walking on water!");
+                message_board.0 = "The Axe Man cannot walk on water!".to_string();
+                false
+            }
+            Some(unknown) => {
+                info!("Walking on unknown terrain: {unknown}");
+                false
+            }
+            None => {
+                info!("no identifier...");
+                false
+            }
+        };
+
+        if movable_terrain {
+            shieldtank_commands.entity(&axe_man).insert(PlayerMove {
+                target: world_attempted_move,
+            });
+        }
+    }
+}
+
+//
+// Systems
+//
+
+fn flip_sprites(
+    direction_changed_query: Query<(Entity, &Direction), Changed<Direction>>,
+    mut shieldtank_commands: ShieldtankCommands,
+    shieldtank_query: ShieldtankQuery,
+) {
+    for (ecs_entity, direction) in direction_changed_query.iter() {
+        let Some(shieldtank_entity) = shieldtank_query.get_entity(ecs_entity).ok() else {
+            return;
+        };
+
+        info!(
+            "Direction changed/added: {} {:?}",
+            shieldtank_entity.get_identifier(),
+            direction,
+        );
+
+        if *direction == Direction::West {
+            shieldtank_commands.entity(&shieldtank_entity).flip_x(true);
+        } else {
+            shieldtank_commands.entity(&shieldtank_entity).flip_x(false);
         }
     }
 }
@@ -411,116 +533,6 @@ fn player_keyboard_commands(
     }
 }
 
-fn player_move_event(
-    trigger: Trigger<PlayerMoveEvent>,
-    mut shieldtank_commands: ShieldtankCommands,
-    shieldtank_query: ShieldtankQuery,
-    mut message_board_query: Query<&mut Text, With<MessageBoard>>,
-) {
-    let Some(axe_man) = shieldtank_query.get_entity(trigger.entity()).ok() else {
-        return;
-    };
-
-    let mut message_board = message_board_query.single_mut();
-
-    let player_move_event = trigger.event();
-
-    shieldtank_commands
-        .entity(&axe_man)
-        .insert(player_move_event.as_direction())
-        .trigger(EntityAnimationEvent);
-
-    info!(
-        "PlayerMoveEvent: {} -> {:?}",
-        axe_man.get_identifier(),
-        player_move_event
-    );
-
-    let Some(layer) = axe_man.get_layer() else {
-        error!("couldn't find layer?");
-        return;
-    };
-
-    let Some(world) = axe_man.get_world() else {
-        error!("couldn't find world?");
-        return;
-    };
-
-    let grid_cell_size = layer.get_asset().grid_cell_size as f32;
-
-    let axe_man_world_location = axe_man.world_location();
-
-    let world_attempted_move =
-        axe_man_world_location + grid_cell_size * player_move_event.as_vec2();
-
-    if let Some(entity_at) = world
-        .iter_entities()
-        .filter_world_location_in_region(world_attempted_move)
-        .next()
-    {
-        info!("Entity {} occupies space...", entity_at.get_identifier());
-        // TODO: Add bump event
-        return;
-    };
-
-    if let Some(int_grid_at) = world.int_grid_at(world_attempted_move) {
-        // TODO: Change to an attempt_move event of some kind
-        let movable_terrain = match int_grid_at.identifier.as_deref() {
-            Some("grass") => {
-                info!("Walking on grass!");
-                message_board.0 = "The Axe Man is walking on the grass.".to_string();
-                true
-            }
-            Some("dirt") => {
-                info!("Walking on dirt!");
-                message_board.0 = "The Axe Man is walking on dirt.".to_string();
-                true
-            }
-            Some("tree") => {
-                info!("Walking under a tree!");
-                message_board.0 = "The Axe Man is shading under a tree.".to_string();
-                true
-            }
-            Some("bridge") => {
-                info!("Walking on a bridge!");
-                message_board.0 = "The Axe Man is crossing The Bridge of Woe!".to_string();
-                true
-            }
-            Some("water") => {
-                info!("Walking on water!");
-                message_board.0 = "The Axe Man cannot walk on water!".to_string();
-                false
-            }
-            Some(unknown) => {
-                info!("Walking on unknown terrain: {unknown}");
-                false
-            }
-            None => {
-                info!("no identifier...");
-                false
-            }
-        };
-
-        if movable_terrain {
-            shieldtank_commands.entity(&axe_man).insert(PlayerMove {
-                target: world_attempted_move,
-            });
-        }
-    }
-}
-
-fn player_interact_event(
-    trigger: Trigger<PlayerInteractEvent>,
-    mut _shieldtank_commands: ShieldtankCommands,
-    shieldtank_query: ShieldtankQuery,
-) {
-    let Some(axe_man) = shieldtank_query.get_entity(trigger.entity()).ok() else {
-        return;
-    };
-
-    info!("interaction event! {}", axe_man.get_identifier());
-}
-
 fn player_move(
     time: Res<Time>,
     mut shieldtank_commands: ShieldtankCommands,
@@ -553,5 +565,31 @@ fn player_move(
         shieldtank_commands
             .entity(&axe_man)
             .set_world_location(new_location);
+    }
+}
+
+fn update_global_animation_timer(
+    time: Res<Time>,
+    mut global_animation_timer: ResMut<GlobalAnimationTimer>,
+    mut commands: Commands,
+    mut shieldtank_commands: ShieldtankCommands,
+    shieldtank_query: ShieldtankQuery,
+) {
+    global_animation_timer.timer.tick(time.delta());
+
+    if global_animation_timer.timer.just_finished() {
+        global_animation_timer.frame += 1;
+        global_animation_timer.frame %= 4;
+
+        commands.trigger(LayerAnimationEvent);
+
+        shieldtank_query
+            .iter_entities()
+            .filter_tag("animate")
+            .for_each(|shieldtank_entity| {
+                shieldtank_commands
+                    .entity(&shieldtank_entity)
+                    .trigger(EntityAnimationEvent);
+            });
     }
 }

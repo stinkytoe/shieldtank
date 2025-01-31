@@ -1,5 +1,6 @@
 use bevy_ldtk_asset::entity::Entity as EntityAsset;
 use bevy_math::Vec2;
+use bevy_sprite::Sprite;
 
 use crate::commands::ShieldtankItemCommands;
 use crate::component::entity::EntityComponentQueryData;
@@ -9,23 +10,27 @@ pub type EntityCommands<'w, 's> =
 
 impl EntityCommands<'_, '_> {
     pub fn flip_x(&mut self, flip: bool) -> &mut Self {
-        // TODO: This is a no-op if we don't contain a Sprite component. Is this what we intend?
-        if let Some(mut sprite) = self.item.get_sprite().as_deref().cloned() {
-            sprite.flip_x = flip;
-            self.insert(sprite);
-        }
+        let mut sprite = if let Some(sprite) = self.item.get_sprite() {
+            (*sprite).clone()
+        } else {
+            Sprite::default()
+        };
 
-        self
+        sprite.flip_x = flip;
+
+        self.insert(sprite)
     }
 
     pub fn flip_y(&mut self, flip: bool) -> &mut Self {
-        // TODO: This is a no-op if we don't contain a Sprite component. Is this what we intend?
-        if let Some(mut sprite) = self.item.get_sprite().as_deref().cloned() {
-            sprite.flip_y = flip;
-            self.insert(sprite);
-        }
+        let mut sprite = if let Some(sprite) = self.item.get_sprite() {
+            (*sprite).clone()
+        } else {
+            Sprite::default()
+        };
 
-        self
+        sprite.flip_y = flip;
+
+        self.insert(sprite)
     }
 
     pub fn set_world_location(&mut self, world_location: Vec2) -> &mut Self {
