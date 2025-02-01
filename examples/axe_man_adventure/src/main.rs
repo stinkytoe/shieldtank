@@ -199,8 +199,8 @@ fn main() {
 
     app.register_type::<AnimationOverride>()
         .register_type::<Direction>()
-        .register_type::<PlayerMove>()
-        .register_type::<LivingState>();
+        .register_type::<LivingState>()
+        .register_type::<PlayerMove>();
 
     app.insert_resource(GlobalAnimationTimer::new());
 
@@ -221,6 +221,8 @@ fn main() {
             update_global_animation_timer,
         ),
     );
+
+    app.add_systems(OnEnter(GameState::Playing), load_project);
 
     app.add_systems(
         Update,
@@ -255,11 +257,6 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
         Transform::from_xyz(0.0, -128.0, 0.0).with_scale(Vec2::splat(0.4).extend(1.0)),
     ));
 
-    commands.spawn(ProjectComponent {
-        handle: asset_server.load(PROJECT_FILE),
-        config: asset_server.add(ProjectConfig::default()),
-    });
-
     commands.spawn((
         Name::new("MessageBoard"),
         Text::new("The Axe Man begins his adventure!"),
@@ -279,6 +276,13 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
         },
         MessageBoard,
     ));
+}
+
+fn load_project(mut commands: Commands, asset_server: Res<AssetServer>) {
+    commands.spawn(ProjectComponent {
+        handle: asset_server.load(PROJECT_FILE),
+        config: asset_server.add(ProjectConfig::default()),
+    });
 }
 
 //
@@ -583,11 +587,13 @@ fn player_interact_event(
         shieldtank_commands
             .entity(&axe_man)
             .insert(AnimationOverride::attack_animation());
+
+        message_board.0 = "The Axe Man swats at a mosquito.".to_string();
     };
 }
 
 //
-// Systems
+// Always Runnint Systems
 //
 
 fn animation_override(
@@ -639,24 +645,6 @@ fn animation_override(
     }
 }
 
-fn flip_sprites(
-    direction_changed_query: Query<(Entity, &Direction), Changed<Direction>>,
-    mut shieldtank_commands: ShieldtankCommands,
-    shieldtank_query: ShieldtankQuery,
-) {
-    for (ecs_entity, direction) in direction_changed_query.iter() {
-        let Some(shieldtank_entity) = shieldtank_query.get_entity(ecs_entity).ok() else {
-            return;
-        };
-
-        if *direction == Direction::West {
-            shieldtank_commands.entity(&shieldtank_entity).flip_x(true);
-        } else {
-            shieldtank_commands.entity(&shieldtank_entity).flip_x(false);
-        }
-    }
-}
-
 fn initialize_entities(
     mut shieldtank_commands: ShieldtankCommands,
     shieldtank_query: ShieldtankQuery,
@@ -693,6 +681,54 @@ fn initialize_axe_man(
     shieldtank_commands
         .entity(&axe_man)
         .insert(LivingState::Alive);
+}
+
+fn update_global_animation_timer(
+    time: Res<Time>,
+    mut global_animation_timer: ResMut<GlobalAnimationTimer>,
+    mut commands: Commands,
+    mut shieldtank_commands: ShieldtankCommands,
+    shieldtank_query: ShieldtankQuery,
+) {
+    global_animation_timer.timer.tick(time.delta());
+
+    if global_animation_timer.timer.just_finished() {
+        global_animation_timer.frame += 1;
+        global_animation_timer.frame %= 4;
+
+        commands.trigger(LayerAnimationEvent);
+
+        shieldtank_query
+            .iter_entities()
+            .filter_tag("animate")
+            .for_each(|shieldtank_entity| {
+                shieldtank_commands
+                    .entity(&shieldtank_entity)
+                    .trigger(EntityAnimationEvent);
+            });
+    }
+}
+
+//
+// Playing Systems
+//
+
+fn flip_sprites(
+    direction_changed_query: Query<(Entity, &Direction), Changed<Direction>>,
+    mut shieldtank_commands: ShieldtankCommands,
+    shieldtank_query: ShieldtankQuery,
+) {
+    for (ecs_entity, direction) in direction_changed_query.iter() {
+        let Some(shieldtank_entity) = shieldtank_query.get_entity(ecs_entity).ok() else {
+            return;
+        };
+
+        if *direction == Direction::West {
+            shieldtank_commands.entity(&shieldtank_entity).flip_x(true);
+        } else {
+            shieldtank_commands.entity(&shieldtank_entity).flip_x(false);
+        }
+    }
 }
 
 fn lancer_brood(
@@ -823,28 +859,6 @@ fn player_move(
     }
 }
 
-fn update_global_animation_timer(
-    time: Res<Time>,
-    mut global_animation_timer: ResMut<GlobalAnimationTimer>,
-    mut commands: Commands,
-    mut shieldtank_commands: ShieldtankCommands,
-    shieldtank_query: ShieldtankQuery,
-) {
-    global_animation_timer.timer.tick(time.delta());
-
-    if global_animation_timer.timer.just_finished() {
-        global_animation_timer.frame += 1;
-        global_animation_timer.frame %= 4;
-
-        commands.trigger(LayerAnimationEvent);
-
-        shieldtank_query
-            .iter_entities()
-            .filter_tag("animate")
-            .for_each(|shieldtank_entity| {
-                shieldtank_commands
-                    .entity(&shieldtank_entity)
-                    .trigger(EntityAnimationEvent);
-            });
-    }
-}
+//
+// Game Over Systems
+//
