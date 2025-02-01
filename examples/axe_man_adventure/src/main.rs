@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 use bevy::color::palettes::tailwind::GRAY_500;
+use bevy::ecs::identifier::error;
 use bevy::prelude::*;
 use bevy::window::WindowMode;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
@@ -32,7 +33,7 @@ struct PlayerMove {
     target: Vec2,
 }
 
-#[derive(Component, Reflect)]
+#[derive(PartialEq, Eq, Component, Reflect)]
 enum PlayerState {
     Alive,
     Dead,
@@ -140,16 +141,19 @@ fn main() {
             .set(ImagePlugin::default_nearest()),
         ShieldtankPlugins,
         WorldInspectorPlugin::default(),
-    ))
-    .register_type::<Direction>()
-    .register_type::<PlayerMove>()
-    .register_type::<PlayerState>()
-    .add_observer(animate_idle_entities)
-    .add_observer(animate_water)
-    .add_observer(player_interact_event)
-    .add_observer(player_move_event)
-    .add_systems(Startup, startup)
-    .add_systems(
+    ));
+
+    app.register_type::<Direction>()
+        .register_type::<PlayerMove>()
+        .register_type::<PlayerState>();
+
+    app.insert_resource(GlobalAnimationTimer::new(GLOBAL_FRAME_TIME))
+        .add_observer(animate_idle_entities)
+        .add_observer(animate_water)
+        .add_observer(player_interact_event)
+        .add_observer(player_move_event);
+
+    app.add_systems(Startup, startup).add_systems(
         Update,
         (
             flip_sprites,
@@ -159,8 +163,7 @@ fn main() {
             player_move,
             update_global_animation_timer,
         ),
-    )
-    .insert_resource(GlobalAnimationTimer::new(GLOBAL_FRAME_TIME));
+    );
 
     app.run();
 }
@@ -208,33 +211,38 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
 
 fn animate_idle_entities(
     trigger: Trigger<EntityAnimationEvent>,
+    global_animation_timer: Res<GlobalAnimationTimer>,
     mut shieldtank_commands: ShieldtankCommands,
     shieldtank_query: ShieldtankQuery,
     direction_query: Query<&Direction>,
-    player_move_query: Query<&PlayerMove>,
-    animation_override_query: Query<&AnimationOverride>,
-    global_animation_timer: Res<GlobalAnimationTimer>,
+    player_query: Query<(
+        Option<&AnimationOverride>,
+        Option<&PlayerState>,
+        Option<&PlayerMove>,
+    )>,
 ) {
-    let triggered_entity = trigger.entity();
+    let ecs_entity = trigger.entity();
 
-    if animation_override_query.contains(triggered_entity) {
-        return;
+    let (animation_override, player_state, player_move) = player_query
+        .get(ecs_entity)
+        .inspect_err(|e| {
+            error!("player_query failed? {e}");
+        })
+        .unwrap();
+
+    let (frame, animation_set) = match (animation_override, player_state, player_move) {
+        (Some(_), _, _) => return,
+        (_, Some(PlayerState::Dead), _) => (3, "Dead"),
+        (_, _, Some(_)) => (global_animation_timer.frame, "Walk"),
+        (_, _, None) => (global_animation_timer.frame, "Idle"),
     };
 
-    let Some(shieldtank_entity) = shieldtank_query.get_entity(triggered_entity).ok() else {
+    let Some(shieldtank_entity) = shieldtank_query.get_entity(ecs_entity).ok() else {
         return;
     };
-
-    let frame = global_animation_timer.frame;
 
     let Some(direction) = direction_query.get(shieldtank_entity.get_ecs_entity()).ok() else {
         return;
-    };
-
-    let animation_set = if player_move_query.contains(triggered_entity) {
-        "Walk"
-    } else {
-        "Idle"
     };
 
     let animation_direction = match direction {
@@ -246,12 +254,12 @@ fn animate_idle_entities(
     let field_array_name = format!("{animation_set}{animation_direction}");
 
     let Some(tile_array) = shieldtank_entity.get_field_array_tiles(&field_array_name) else {
-        error!("aaah!");
+        error!("Could not find field array tile: {field_array_name}");
         return;
     };
 
     let Some(tile) = tile_array.get(frame) else {
-        error!("aaah!");
+        error!("field array {field_array_name} index out of range: {frame}");
         return;
     };
 
@@ -293,7 +301,7 @@ fn animate_water(
 
 fn player_interact_event(
     trigger: Trigger<PlayerInteractEvent>,
-    mut _shieldtank_commands: ShieldtankCommands,
+    mut shieldtank_commands: ShieldtankCommands,
     shieldtank_query: ShieldtankQuery,
 ) {
     let Some(axe_man) = shieldtank_query.get_entity(trigger.entity()).ok() else {
@@ -301,6 +309,10 @@ fn player_interact_event(
     };
 
     info!("interaction event! {}", axe_man.get_identifier());
+
+    shieldtank_commands
+        .entity(&axe_man)
+        .insert(AnimationOverride {});
 }
 
 fn player_move_event(
