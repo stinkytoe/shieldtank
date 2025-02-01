@@ -1,7 +1,6 @@
 use std::time::Duration;
 
 use bevy::color::palettes::tailwind::GRAY_500;
-use bevy::ecs::identifier::error;
 use bevy::prelude::*;
 use bevy::window::WindowMode;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
@@ -9,9 +8,15 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use shieldtank::prelude::*;
 
 const RESOLUTION: Vec2 = Vec2::new(1280.0, 960.0);
+
 const GLOBAL_FRAME_TIME: f32 = 1.0 / 3.75;
-const AXE_MAN_IID: Iid = iid!("a0170640-9b00-11ef-aa23-11f9c6be2b6e");
+const ATTACK_FRAME_TIME: f32 = 1.0 / 15.0;
+const DEAD_FRAME_TIME: f32 = 1.0 / 7.5;
+
 const PLAYER_MOVE_SPEED: f32 = 40.0;
+
+const AXE_MAN_IID: Iid = iid!("a0170640-9b00-11ef-aa23-11f9c6be2b6e");
+const LANCER_IID: Iid = iid!("85f22ca0-fec0-11ee-8cdd-41f7def1ae8a");
 
 //
 // Components
@@ -34,15 +39,40 @@ struct PlayerMove {
 }
 
 #[derive(PartialEq, Eq, Component, Reflect)]
-enum PlayerState {
+enum LivingState {
     Alive,
     Dead,
 }
 
 #[derive(Component, Reflect)]
 struct AnimationOverride {
-    // pub(crate) timer: Timer,
-    // pub(crate) frame: usize,
+    timer: Timer,
+    frame: usize,
+    animation_set: &'static str,
+}
+
+impl AnimationOverride {
+    fn new_attack_animation() -> Self {
+        Self {
+            timer: Timer::new(
+                Duration::from_secs_f32(ATTACK_FRAME_TIME),
+                TimerMode::Repeating,
+            ),
+            frame: 0,
+            animation_set: "Attack",
+        }
+    }
+
+    fn new_dying_animation() -> Self {
+        Self {
+            timer: Timer::new(
+                Duration::from_secs_f32(DEAD_FRAME_TIME),
+                TimerMode::Repeating,
+            ),
+            frame: 0,
+            animation_set: "Dead",
+        }
+    }
 }
 
 //
@@ -97,9 +127,12 @@ pub(crate) struct GlobalAnimationTimer {
 }
 
 impl GlobalAnimationTimer {
-    fn new(frame_time: f32) -> Self {
+    fn new() -> Self {
         Self {
-            timer: Timer::new(Duration::from_secs_f32(frame_time), TimerMode::Repeating),
+            timer: Timer::new(
+                Duration::from_secs_f32(GLOBAL_FRAME_TIME),
+                TimerMode::Repeating,
+            ),
             frame: 0,
         }
     }
@@ -143,11 +176,12 @@ fn main() {
         WorldInspectorPlugin::default(),
     ));
 
-    app.register_type::<Direction>()
+    app.register_type::<AnimationOverride>()
+        .register_type::<Direction>()
         .register_type::<PlayerMove>()
-        .register_type::<PlayerState>();
+        .register_type::<LivingState>();
 
-    app.insert_resource(GlobalAnimationTimer::new(GLOBAL_FRAME_TIME))
+    app.insert_resource(GlobalAnimationTimer::new())
         .add_observer(animate_idle_entities)
         .add_observer(animate_water)
         .add_observer(player_interact_event)
@@ -156,9 +190,11 @@ fn main() {
     app.add_systems(Startup, startup).add_systems(
         Update,
         (
+            animation_override,
             flip_sprites,
             initialize_entities,
             initialize_axe_man,
+            lancer_brood,
             player_keyboard_commands,
             player_move,
             update_global_animation_timer,
@@ -209,39 +245,35 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
 // Observers
 //
 
+#[allow(clippy::type_complexity)]
 fn animate_idle_entities(
     trigger: Trigger<EntityAnimationEvent>,
     global_animation_timer: Res<GlobalAnimationTimer>,
     mut shieldtank_commands: ShieldtankCommands,
     shieldtank_query: ShieldtankQuery,
-    direction_query: Query<&Direction>,
     player_query: Query<(
+        &Direction,
         Option<&AnimationOverride>,
-        Option<&PlayerState>,
+        Option<&LivingState>,
         Option<&PlayerMove>,
     )>,
 ) {
     let ecs_entity = trigger.entity();
 
-    let (animation_override, player_state, player_move) = player_query
-        .get(ecs_entity)
-        .inspect_err(|e| {
-            error!("player_query failed? {e}");
-        })
-        .unwrap();
+    let Some((direction, animation_override, player_state, player_move)) =
+        player_query.get(ecs_entity).ok()
+    else {
+        return;
+    };
 
     let (frame, animation_set) = match (animation_override, player_state, player_move) {
         (Some(_), _, _) => return,
-        (_, Some(PlayerState::Dead), _) => (3, "Dead"),
+        (_, Some(LivingState::Dead), _) => (3, "Dead"),
         (_, _, Some(_)) => (global_animation_timer.frame, "Walk"),
         (_, _, None) => (global_animation_timer.frame, "Idle"),
     };
 
     let Some(shieldtank_entity) = shieldtank_query.get_entity(ecs_entity).ok() else {
-        return;
-    };
-
-    let Some(direction) = direction_query.get(shieldtank_entity.get_ecs_entity()).ok() else {
         return;
     };
 
@@ -312,7 +344,16 @@ fn player_interact_event(
 
     shieldtank_commands
         .entity(&axe_man)
-        .insert(AnimationOverride {});
+        .insert(AnimationOverride::new_attack_animation());
+
+    let Some(lancer) = shieldtank_query.entity_by_iid(LANCER_IID) else {
+        return;
+    };
+
+    shieldtank_commands
+        .entity(&lancer)
+        .insert(AnimationOverride::new_dying_animation())
+        .insert(LivingState::Dead);
 }
 
 fn player_move_event(
@@ -417,6 +458,55 @@ fn player_move_event(
 // Systems
 //
 
+fn animation_override(
+    time: Res<Time>,
+    mut query: Query<(Entity, &mut AnimationOverride, &Direction)>,
+    mut shieldtank_commands: ShieldtankCommands,
+    shieldtank_query: ShieldtankQuery,
+) {
+    for (ecs_entity, mut animation_override, direction) in query.iter_mut() {
+        animation_override.timer.tick(time.delta());
+
+        if animation_override.timer.just_finished() {
+            let Some(shieldtank_entity) = shieldtank_query.get_entity(ecs_entity).ok() else {
+                return;
+            };
+
+            let frame = animation_override.frame;
+            let animation_set = animation_override.animation_set;
+
+            if frame < 3 {
+                animation_override.frame += 1;
+                let animation_direction = match direction {
+                    Direction::North => "North",
+                    Direction::South => "South",
+                    Direction::East | Direction::West => "Profile",
+                };
+
+                let field_array_name = format!("{animation_set}{animation_direction}");
+
+                let Some(tile_array) = shieldtank_entity.get_field_array_tiles(&field_array_name)
+                else {
+                    error!("aah!");
+                    return;
+                };
+
+                let Some(tile) = tile_array.get(frame).cloned() else {
+                    error!("aah!");
+                    return;
+                };
+
+                shieldtank_commands.entity(&shieldtank_entity).insert(tile);
+            } else {
+                shieldtank_commands
+                    .entity(&shieldtank_entity)
+                    .remove::<AnimationOverride>()
+                    .trigger(EntityAnimationEvent);
+            }
+        }
+    }
+}
+
 fn flip_sprites(
     direction_changed_query: Query<(Entity, &Direction), Changed<Direction>>,
     mut shieldtank_commands: ShieldtankCommands,
@@ -426,12 +516,6 @@ fn flip_sprites(
         let Some(shieldtank_entity) = shieldtank_query.get_entity(ecs_entity).ok() else {
             return;
         };
-
-        info!(
-            "Direction changed/added: {} {:?}",
-            shieldtank_entity.get_identifier(),
-            direction,
-        );
 
         if *direction == Direction::West {
             shieldtank_commands.entity(&shieldtank_entity).flip_x(true);
@@ -456,11 +540,7 @@ fn initialize_entities(
                 item.get_iid()
             );
 
-            if item.get_identifier() == "Lancer" {
-                shieldtank_commands.entity(&item).insert(Direction::West);
-            } else {
-                shieldtank_commands.entity(&item).insert(Direction::East);
-            }
+            shieldtank_commands.entity(&item).insert(Direction::East);
         });
 }
 
@@ -480,7 +560,31 @@ fn initialize_axe_man(
 
     shieldtank_commands
         .entity(&axe_man)
-        .insert(PlayerState::Alive);
+        .insert(LivingState::Alive);
+}
+
+fn lancer_brood(mut shieldtank_commands: ShieldtankCommands, shieldtank_query: ShieldtankQuery) {
+    let Some(axe_man) = shieldtank_query.entity_by_iid(AXE_MAN_IID) else {
+        return;
+    };
+
+    let Some(lancer) = shieldtank_query.entity_by_iid(LANCER_IID) else {
+        return;
+    };
+
+    let dir_vec = axe_man.world_location() - lancer.world_location();
+
+    let direction = match (dir_vec.x < dir_vec.y, -dir_vec.x < dir_vec.y) {
+        (true, true) => Direction::North,
+        (true, false) => Direction::West,
+        (false, true) => Direction::East,
+        (false, false) => Direction::South,
+    };
+
+    shieldtank_commands
+        .entity(&lancer)
+        .insert(direction)
+        .trigger(EntityAnimationEvent);
 }
 
 fn player_keyboard_commands(
