@@ -1,6 +1,10 @@
 pub use crate::bevy_ldtk_asset::iid::{iid, Iid};
 pub use crate::commands::ShieldtankCommands;
+pub use crate::component::entity::EntityComponent;
+pub use crate::component::layer::LayerComponent;
+pub use crate::component::level::LevelComponent;
 pub use crate::component::project::ProjectComponent;
+pub use crate::component::world::WorldComponent;
 pub use crate::item::entity::iter::HasTagIteratorExt as _;
 pub use crate::item::entity::iter::LocationInRegionIteratorExt as _;
 pub use crate::item::entity::iter::WorldLocationInRegionIteratorExt as _;

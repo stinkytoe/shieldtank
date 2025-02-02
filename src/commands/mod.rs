@@ -3,6 +3,7 @@ use bevy_ecs::event::Event;
 use bevy_ecs::query::QueryData;
 use bevy_ecs::system::EntityCommands as EcsEntityCommands;
 use bevy_ecs::system::{Commands, SystemParam};
+use bevy_hierarchy::DespawnRecursiveExt;
 use bevy_ldtk_asset::ldtk_asset_trait::LdtkAsset;
 use bevy_math::Vec2;
 use bevy_reflect::Reflect;
@@ -81,6 +82,28 @@ impl<A: LdtkAsset, D: QueryData> ShieldtankItemCommands<'_, '_, A, D> {
         self.commands
             .entity(self.item.get_ecs_entity())
             .trigger(event);
+
+        self
+    }
+
+    pub fn despawn(&mut self) -> &mut Self {
+        self.commands.entity(self.item.get_ecs_entity()).despawn();
+
+        self
+    }
+
+    pub fn despawn_recursive(&mut self) -> &mut Self {
+        self.commands
+            .entity(self.item.get_ecs_entity())
+            .despawn_recursive();
+
+        self
+    }
+
+    pub fn despawn_descendants(&mut self) -> &mut Self {
+        self.commands
+            .entity(self.item.get_ecs_entity())
+            .despawn_descendants();
 
         self
     }

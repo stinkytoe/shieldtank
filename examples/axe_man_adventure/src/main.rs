@@ -3,7 +3,6 @@ use std::time::Duration;
 use bevy::color::palettes::tailwind::GRAY_500;
 use bevy::prelude::*;
 use bevy::window::WindowMode;
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use shieldtank::prelude::*;
 
@@ -23,9 +22,11 @@ const LANCER_IID: Iid = iid!("85f22ca0-fec0-11ee-8cdd-41f7def1ae8a");
 //
 // Game State
 //
+
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default, States)]
 enum GameState {
     #[default]
+    Title,
     Playing,
     GameOver,
 }
@@ -37,7 +38,7 @@ enum GameState {
 #[derive(Component, Reflect)]
 struct MessageBoard;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Component, Reflect)]
+#[derive(Clone, Copy, PartialEq, Eq, Component, Reflect)]
 enum Direction {
     North,
     East,
@@ -108,7 +109,7 @@ struct EntityAnimationEvent;
 #[derive(Event)]
 struct LayerAnimationEvent;
 
-#[derive(Debug, Event)]
+#[derive(Event)]
 enum PlayerMoveEvent {
     Up,
     Right,
@@ -135,11 +136,17 @@ struct PlayerBumpEvent {
     ecs_entity: Entity,
 }
 
+#[derive(Event)]
+enum GameOverEvent {
+    Win,
+    Lose,
+}
+
 //
 // Resources
 //
 
-#[derive(Debug, Resource, Reflect)]
+#[derive(Resource, Reflect)]
 struct GlobalAnimationTimer {
     timer: Timer,
     frame: usize,
@@ -192,26 +199,30 @@ fn main() {
             .set(window_plugin_settings)
             .set(ImagePlugin::default_nearest()),
         ShieldtankPlugins,
-        WorldInspectorPlugin::default(),
     ));
 
-    app.init_state::<GameState>();
+    #[cfg(debug_assertions)]
+    {
+        use bevy_inspector_egui::quick::WorldInspectorPlugin;
+        app.add_plugins(WorldInspectorPlugin::default());
+        app.register_type::<AnimationOverride>()
+            .register_type::<Direction>()
+            .register_type::<LivingState>()
+            .register_type::<PlayerMove>();
+    }
 
-    app.register_type::<AnimationOverride>()
-        .register_type::<Direction>()
-        .register_type::<LivingState>()
-        .register_type::<PlayerMove>();
+    app.init_state::<GameState>();
 
     app.insert_resource(GlobalAnimationTimer::new());
 
     app.add_observer(animate_idle_entities)
         .add_observer(animate_water)
+        .add_observer(game_over_event)
         .add_observer(player_bump_event)
         .add_observer(player_move_event)
         .add_observer(player_interact_event);
 
     app.add_systems(Startup, startup);
-
     app.add_systems(
         Update,
         (
@@ -222,8 +233,13 @@ fn main() {
         ),
     );
 
-    app.add_systems(OnEnter(GameState::Playing), load_project);
+    app.add_systems(OnEnter(GameState::Title), start_title);
+    app.add_systems(
+        Update,
+        title_keyboard_commands.run_if(in_state(GameState::Title)),
+    );
 
+    app.add_systems(OnEnter(GameState::Playing), start_playing);
     app.add_systems(
         Update,
         (
@@ -237,10 +253,7 @@ fn main() {
 
     app.add_systems(
         Update,
-        (|| {
-            info!("Game Over!");
-        })
-        .run_if(in_state(GameState::GameOver)),
+        game_over_keyboard_input.run_if(in_state(GameState::GameOver)),
     );
 
     app.run();
@@ -250,16 +263,26 @@ fn main() {
 // Startup
 //
 
-fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    debug!("Spawning project...");
+fn startup(mut commands: Commands) {
     commands.spawn((
         Camera2d,
         Transform::from_xyz(0.0, -128.0, 0.0).with_scale(Vec2::splat(0.4).extend(1.0)),
     ));
+}
+
+//
+// Title Screen
+//
+
+fn start_title(mut commands: Commands, asset_server: Res<AssetServer>) {
+    commands.spawn(WorldComponent {
+        handle: asset_server.load(PROJECT_FILE.to_string() + "#worlds:Title"),
+        config: asset_server.add(ProjectConfig::default()),
+    });
 
     commands.spawn((
         Name::new("MessageBoard"),
-        Text::new("The Axe Man begins his adventure!"),
+        Text::new("Press F or Space to start!"),
         TextFont {
             font: asset_server.load("fonts/Primitive.ttf"),
             font_size: 50.0,
@@ -278,11 +301,19 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
     ));
 }
 
-fn load_project(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn(ProjectComponent {
-        handle: asset_server.load(PROJECT_FILE),
-        config: asset_server.add(ProjectConfig::default()),
-    });
+fn title_keyboard_commands(
+    keyboard_input: Res<ButtonInput<KeyCode>>,
+    mut shieldtank_commands: ShieldtankCommands,
+    shieldtank_query: ShieldtankQuery,
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    if keyboard_input.any_just_pressed([KeyCode::KeyF, KeyCode::Space].into_iter()) {
+        shieldtank_query.iter_worlds().for_each(|world| {
+            shieldtank_commands.world(&world).despawn_recursive();
+        });
+
+        next_state.set(GameState::Playing);
+    }
 }
 
 //
@@ -375,12 +406,17 @@ fn animate_water(
     }
 }
 
+fn game_over_event(trigger: Trigger<GameOverEvent>, mut next_state: ResMut<NextState<GameState>>) {
+    let _win_or_lose = trigger.event();
+    next_state.set(GameState::GameOver);
+}
+
 fn player_bump_event(
     trigger: Trigger<PlayerBumpEvent>,
+    mut commands: Commands,
     mut shieldtank_commands: ShieldtankCommands,
     shieldtank_query: ShieldtankQuery,
     mut message_board_query: Query<&mut Text, With<MessageBoard>>,
-    mut next_state: ResMut<NextState<GameState>>,
 ) {
     let bumped_entity = trigger.event().ecs_entity;
 
@@ -410,7 +446,7 @@ fn player_bump_event(
 
         message_board.0 = "The Axe man was slain!".to_string();
 
-        next_state.set(GameState::GameOver);
+        commands.trigger(GameOverEvent::Lose);
     }
 }
 
@@ -427,12 +463,6 @@ fn player_move_event(
     let mut message_board = message_board_query.single_mut();
 
     let player_move_event = trigger.event();
-
-    info!(
-        "PlayerMoveEvent: {} -> {:?}",
-        axe_man.get_identifier(),
-        player_move_event
-    );
 
     let direction = player_move_event.as_direction();
 
@@ -462,8 +492,6 @@ fn player_move_event(
         .filter_world_location_in_region(world_attempted_move)
         .next()
     {
-        info!("Entity {} occupies space...", entity_at.get_identifier());
-
         shieldtank_commands
             .entity(&axe_man)
             .trigger(PlayerBumpEvent {
@@ -477,36 +505,31 @@ fn player_move_event(
         // TODO: Change to an attempt_move event of some kind
         let movable_terrain = match int_grid_at.identifier.as_deref() {
             Some("grass") => {
-                info!("Walking on grass!");
                 message_board.0 = "The Axe Man is walking on the grass.".to_string();
                 true
             }
             Some("dirt") => {
-                info!("Walking on dirt!");
                 message_board.0 = "The Axe Man is walking on dirt.".to_string();
                 true
             }
             Some("tree") => {
-                info!("Walking under a tree!");
                 message_board.0 = "The Axe Man is shading under a tree.".to_string();
                 true
             }
             Some("bridge") => {
-                info!("Walking on a bridge!");
                 message_board.0 = "The Axe Man is crossing The Bridge of Woe!".to_string();
                 true
             }
             Some("water") => {
-                info!("Walking on water!");
                 message_board.0 = "The Axe Man cannot walk on water!".to_string();
                 false
             }
             Some(unknown) => {
-                info!("Walking on unknown terrain: {unknown}");
+                error!("Walking on unknown terrain: {unknown}");
                 false
             }
             None => {
-                info!("no identifier...");
+                error!("Int grid with no identifier...");
                 false
             }
         };
@@ -521,11 +544,11 @@ fn player_move_event(
 
 fn player_interact_event(
     trigger: Trigger<PlayerInteract>,
+    mut commands: Commands,
     mut shieldtank_commands: ShieldtankCommands,
     shieldtank_query: ShieldtankQuery,
     direction_query: Query<&Direction>,
     mut message_board_query: Query<&mut Text, With<MessageBoard>>,
-    mut next_state: ResMut<NextState<GameState>>,
 ) {
     let ecs_entity = trigger.entity();
 
@@ -547,8 +570,6 @@ fn player_interact_event(
 
     let mut message_board = message_board_query.single_mut();
 
-    info!("interaction event! {}", axe_man.get_identifier());
-
     let axe_man_world_location = axe_man.world_location();
 
     let grid_cell_size = layer.get_asset().grid_cell_size as f32;
@@ -560,11 +581,6 @@ fn player_interact_event(
         .filter_world_location_in_region(world_attempted_move)
         .next()
     {
-        info!(
-            "The Axe Man has interacted with: {}",
-            interacted_entity.get_identifier()
-        );
-
         let Some(lancer) = shieldtank_query.entity_by_iid(LANCER_IID) else {
             return;
         };
@@ -581,7 +597,7 @@ fn player_interact_event(
 
             message_board.0 = "The Axe Man has slain the Vile Lancer!".to_string();
 
-            next_state.set(GameState::GameOver);
+            commands.trigger(GameOverEvent::Win);
         }
     } else {
         shieldtank_commands
@@ -654,12 +670,6 @@ fn initialize_entities(
         .filter_just_finalized()
         .filter_tag("animate")
         .for_each(|item| {
-            info!(
-                "Entity with animate tag spawned: {}\tiid: {}",
-                item.get_identifier(),
-                item.get_iid()
-            );
-
             shieldtank_commands.entity(&item).insert(Direction::East);
         });
 }
@@ -675,8 +685,6 @@ fn initialize_axe_man(
     else {
         return;
     };
-
-    info!("Setting components for The Axe Man!");
 
     shieldtank_commands
         .entity(&axe_man)
@@ -712,6 +720,20 @@ fn update_global_animation_timer(
 //
 // Playing Systems
 //
+
+fn start_playing(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut message_board_query: Query<&mut Text, With<MessageBoard>>,
+) {
+    commands.spawn(WorldComponent {
+        handle: asset_server.load(PROJECT_FILE.to_string() + "#worlds:World"),
+        config: asset_server.add(ProjectConfig::default()),
+    });
+
+    let mut message_board = message_board_query.single_mut();
+    message_board.0 = "The Axe Man begins his adventure!".to_string();
+}
 
 fn flip_sprites(
     direction_changed_query: Query<(Entity, &Direction), Changed<Direction>>,
@@ -792,25 +814,21 @@ fn player_keyboard_commands(
 
     match (up_pressed, right_pressed, down_pressed, left_pressed) {
         (true, false, false, false) => {
-            info!("Player move up!");
             shieldtank_commands
                 .entity(&axe_man)
                 .trigger(PlayerMoveEvent::Up);
         }
         (false, true, false, false) => {
-            info!("Player move right!");
             shieldtank_commands
                 .entity(&axe_man)
                 .trigger(PlayerMoveEvent::Right);
         }
         (false, false, true, false) => {
-            info!("Player move down!");
             shieldtank_commands
                 .entity(&axe_man)
                 .trigger(PlayerMoveEvent::Down);
         }
         (false, false, false, true) => {
-            info!("Player move left!");
             shieldtank_commands
                 .entity(&axe_man)
                 .trigger(PlayerMoveEvent::Left);
@@ -819,7 +837,6 @@ fn player_keyboard_commands(
     };
 
     if keyboard_input.just_pressed(KeyCode::Space) || keyboard_input.just_pressed(KeyCode::KeyF) {
-        info!("Player pressed interact key!");
         shieldtank_commands.entity(&axe_man).trigger(PlayerInteract);
     }
 }
@@ -862,3 +879,25 @@ fn player_move(
 //
 // Game Over Systems
 //
+
+fn game_over_keyboard_input(
+    mut commands: Commands,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
+    mut next_state: ResMut<NextState<GameState>>,
+    mut shieldtank_commands: ShieldtankCommands,
+    shieldtank_query: ShieldtankQuery,
+    message_board_query: Query<Entity, With<MessageBoard>>,
+) {
+    if keyboard_input.any_just_pressed([KeyCode::KeyF].into_iter()) {
+        info!("A key pressed during game over...");
+
+        shieldtank_query.iter_worlds().for_each(|world| {
+            shieldtank_commands.world(&world).despawn_recursive();
+        });
+
+        next_state.set(GameState::Title);
+
+        let message_board = message_board_query.single();
+        commands.entity(message_board).despawn_recursive();
+    }
+}
