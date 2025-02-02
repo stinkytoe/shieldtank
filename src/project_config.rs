@@ -7,15 +7,15 @@ use crate::load_pattern::LoadPattern;
 
 #[derive(Debug, Asset, Reflect, Deserialize, Serialize)]
 pub struct ProjectConfig {
-    load_pattern: LoadPattern,
-    load_level_background: LoadPattern,
-    load_layer_tiles: LoadPattern,
-    load_entity_tileset_rectangles: LoadPattern,
-    levels_override_transform: bool,
-    layers_override_transform: bool,
-    entities_override_transform: bool,
-    level_separation: f32,
-    layer_separation: f32,
+    pub load_pattern: LoadPattern,
+    pub load_level_background: LoadPattern,
+    pub load_layer_tiles: LoadPattern,
+    pub load_entity_tileset_rectangles: LoadPattern,
+    pub levels_override_transform: bool,
+    pub layers_override_transform: bool,
+    pub entities_override_transform: bool,
+    pub level_separation: f32,
+    pub layer_separation: f32,
 }
 
 impl Default for ProjectConfig {
