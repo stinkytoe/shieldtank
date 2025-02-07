@@ -5,6 +5,11 @@
 [![Crates.io Version](https://img.shields.io/crates/v/shieldtank)](https://crates.io/crates/shieldtank/)
 [![CI](https://github.com/stinkytoe/shieldtank/workflows/CI/badge.svg)](https://github.com/stinkytoe/shieldtank/actions)
 
+<!--toc:start-->
+- [Shieldtank](#shieldtank)
+  - [Upcoming Features](#upcoming-features)
+<!--toc:end-->
+
 ## Upcoming Features
 
 - Custom Renderer for components
@@ -20,7 +25,8 @@
         - What will the interface look like?
   - Entity
     - Currently uses a [Sprite](https://docs.rs/bevy/latest/bevy/sprite/struct.Sprite.html)
-      - Unlike other components, might be advantageous to continue to use Bevy's Sprite
+      - Unlike other components, might be advantageous to continue to use Bevy's
+      Sprite
     - 9-slice render mode
 
 - Vast improvement of spawning of hierarchies
