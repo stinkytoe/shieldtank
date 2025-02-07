@@ -18,25 +18,26 @@ exclude = [".github", ".gitignore", "assets", "examples"]
 readme = "README.md"
 
 [dependencies]
-bevy_app = { version = "0.15.1", default-features = false }
-bevy_asset = { version = "0.15.1", default-features = false }
-bevy_color = { version = "0.15.2", default-features = false }
-bevy_core = { version = "0.15.1", default-features = false }
-bevy_ecs = { version = "0.15.1", default-features = false }
-bevy_hierarchy = { version = "0.15.1", default-features = false }
-bevy_image = { version = "0.15.1", default-features = false }
-bevy_log = { version = "0.15.1", default-features = false }
-bevy_math = { version = "0.15.1", default-features = false }
-bevy_render = { version = "0.15.1", default-features = false }
-bevy_reflect = { version = "0.15.1", default-features = false }
-bevy_sprite = { version = "0.15.1", default-features = false }
-bevy_tasks = { version = "0.15.1", default-features = false }
-bevy_transform = { version = "0.15.1", default-features = false }
-bevy_utils = { version = "0.15.1", default-features = false }
+bevy_app = { version = "0.15.2", default-features = false }
+bevy_asset = { version = "0.15.2", default-features = false }
+bevy_color = { version = "0.15.3", default-features = false }
+bevy_core = { version = "0.15.2", default-features = false }
+bevy_ecs = { version = "0.15.2", default-features = false }
+bevy_hierarchy = { version = "0.15.2", default-features = false }
+bevy_image = { version = "0.15.2", default-features = false }
+bevy_log = { version = "0.15.2", default-features = false }
+bevy_math = { version = "0.15.2", default-features = false }
+bevy_render = { version = "0.15.2", default-features = false }
+bevy_reflect = { version = "0.15.2", default-features = false }
+bevy_sprite = { version = "0.15.2", default-features = false }
+bevy_tasks = { version = "0.15.2", default-features = false }
+bevy_transform = { version = "0.15.2", default-features = false }
+bevy_utils = { version = "0.15.2", default-features = false }
 image = "0.25"
 regex = "1.11"
 ron = "0.8"
 serde = { version = "1.0", features = ["derive"] }
 thiserror = "2.0"
 
-bevy_ldtk_asset = "0.6.1"
+#bevy_ldtk_asset = "0.6.1"
+bevy_ldtk_asset = { path = "../bevy_ldtk_asset/" }
