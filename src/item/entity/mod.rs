@@ -102,6 +102,7 @@ impl EntityItem<'_, '_> {
             .map(|value| TilesetRectangle::new(value.clone()))
     }
 
+    // FIXME: Explore returning an iterator instead of allocating a vec?
     pub fn get_field_array_tiles(&self, identifier: &str) -> Option<Vec<TilesetRectangle>> {
         self.get_asset()
             .get_field_instance(identifier)?
@@ -112,6 +113,20 @@ impl EntityItem<'_, '_> {
                     .map(|value| TilesetRectangle::new(value.clone()))
                     .collect()
             })
+    }
+
+    pub fn get_field_string(&self, identifier: &str) -> Option<&str> {
+        self.get_asset()
+            .get_field_instance(identifier)?
+            .get_string()
+            .map(|str| str.as_str())
+    }
+
+    pub fn get_field_array_string(&self, identifier: &str) -> Option<Vec<&str>> {
+        self.get_asset()
+            .get_field_instance(identifier)?
+            .get_array_string()
+            .map(|value| value.iter().map(|str| str.as_str()).collect())
     }
 }
 
