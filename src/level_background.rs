@@ -10,6 +10,7 @@ use bevy_ecs::system::ResMut;
 use bevy_image::Image;
 use bevy_ldtk_asset::level::Level as LdtkLevel;
 use bevy_ldtk_asset::level::LevelBackground as LdtkLevelBackground;
+use bevy_log::debug;
 use bevy_log::error;
 use bevy_math::Vec2;
 use bevy_reflect::Reflect;
@@ -106,6 +107,7 @@ fn level_background_system(
                 .and_then(|level_background| level_background.is_changed().then_some(()))
                 .is_some()
         })
+        .inspect(|item| debug!("level background loaded for: {}", item.get_identifier()))
         .map(|item| -> Result<()> {
             let Some(background) = item.get_level_background() else {
                 return Ok(());

@@ -31,6 +31,7 @@ pub(crate) fn tileset_rectangle_system(mut commands: Commands, shieldtank_query:
                 .and_then(|tileset_rectangle| tileset_rectangle.is_changed().then_some(()))
                 .is_some()
         })
+        // .inspect(|item| debug!("Tileset rectangle loaded for: {}", item.get_identifier()))
         .map(|item| -> Result<()> {
             let Some(tile) = item.get_tileset_rectangle() else {
                 return Ok(());

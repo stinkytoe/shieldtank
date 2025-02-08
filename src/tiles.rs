@@ -6,7 +6,7 @@ use bevy_ecs::system::{Commands, ResMut};
 use bevy_image::Image;
 use bevy_ldtk_asset::layer::{Layer as LayerAsset, TilesLayer};
 use bevy_ldtk_asset::tile_instance::TileInstance;
-use bevy_log::error;
+use bevy_log::{debug, error};
 use bevy_reflect::Reflect;
 use bevy_sprite::{Anchor, Sprite};
 
@@ -101,6 +101,7 @@ pub(crate) fn tiles_system(
                 .and_then(|tiles| tiles.is_changed().then_some(()))
                 .is_some()
         })
+        .inspect(|item| debug!("Tiles loaded for: {}", item.get_identifier()))
         .map(|item| -> Result<()> {
             let Some(tiles) = item.get_tiles() else {
                 return Ok(());

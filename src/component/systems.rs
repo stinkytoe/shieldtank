@@ -22,8 +22,8 @@ pub fn find_and_mark_loaded_components(
             shieldtank_query
                 .$iter_func()
                 .filter(|item| !item.is_finalized() && item.asset_is_loaded())
+                .inspect(|item| debug!("Shieldtank {} loaded: {}", $name, item.get_identifier()))
                 .for_each(|item| {
-                    debug!("Shieldtank {} loaded: {}", $name, item.get_identifier());
                     shieldtank_commands.$commands_func(&item).insert(
                         ShieldtankComponentFinalized {
                             just_finalized: true,
@@ -49,8 +49,8 @@ pub fn find_and_unmark_just_loaded_components(
             shieldtank_query
                 .$iter_func()
                 .filter_just_finalized()
+                .inspect(|item| debug!("Shieldtank {} finalized: {}", $name, item.get_identifier()))
                 .for_each(|item| {
-                    debug!("Shieldtank {} finalized: {}", $name, item.get_identifier());
                     shieldtank_commands.$commands_func(&item).insert(
                         ShieldtankComponentFinalized {
                             just_finalized: false,
@@ -77,6 +77,7 @@ pub fn insert_name_component(
             shieldtank_query
                 .$iter_func()
                 .filter_just_finalized()
+                .inspect(|item| debug!("Inserting name for: {}", item.get_identifier()))
                 .for_each(|item| {
                     shieldtank_commands
                         .$commands_func(&item)
@@ -98,6 +99,7 @@ pub fn spawn_children(mut commands: Commands, shieldtank_query: ShieldtankQuery)
             shieldtank_query
                 .$iter_func_parent()
                 .filter_just_finalized()
+                .inspect(|item| debug!("Spawning children for: {}", item.get_identifier()))
                 .for_each(|item| {
                     let asset = item.get_asset();
 
