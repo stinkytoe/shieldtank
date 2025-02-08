@@ -122,6 +122,7 @@ impl EntityItem<'_, '_> {
             .map(|str| str.as_str())
     }
 
+    // FIXME: Explore returning an iterator instead of allocating a vec?
     pub fn get_field_array_string(&self, identifier: &str) -> Option<Vec<&str>> {
         self.get_asset()
             .get_field_instance(identifier)?
