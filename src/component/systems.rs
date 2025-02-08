@@ -93,7 +93,7 @@ pub fn insert_name_component(
 }
 
 pub fn spawn_children(mut commands: Commands, shieldtank_query: ShieldtankQuery) {
-    macro_rules! lala {
+    macro_rules! make_spawn_children {
         ($iter_func_parent:tt, $iter_func_children:tt, $Component:tt) => {
             shieldtank_query
                 .$iter_func_parent()
@@ -121,8 +121,8 @@ pub fn spawn_children(mut commands: Commands, shieldtank_query: ShieldtankQuery)
         };
     }
 
-    lala!(iter_projects, iter_worlds, WorldComponent);
-    lala!(iter_worlds, iter_levels, LevelComponent);
-    lala!(iter_levels, iter_layers, LayerComponent);
-    lala!(iter_layers, iter_entities, EntityComponent);
+    make_spawn_children!(iter_projects, iter_worlds, WorldComponent);
+    make_spawn_children!(iter_worlds, iter_levels, LevelComponent);
+    make_spawn_children!(iter_levels, iter_layers, LayerComponent);
+    make_spawn_children!(iter_layers, iter_entities, EntityComponent);
 }
