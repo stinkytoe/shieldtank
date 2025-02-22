@@ -7,6 +7,7 @@ use bevy_image::Image;
 use bevy_ldtk_asset::layer::{Layer as LayerAsset, TilesLayer};
 use bevy_ldtk_asset::tile_instance::TileInstance;
 use bevy_log::{debug, error};
+use bevy_math::UVec2;
 use bevy_reflect::Reflect;
 use bevy_sprite::{Anchor, Sprite};
 
@@ -53,7 +54,7 @@ impl Tiles {
 
         self.tiles.iter().for_each(|tile| {
             let corner = tile.source.as_uvec2();
-            let size = layer_instance.grid_size.as_uvec2();
+            let size = UVec2::splat(layer_instance.grid_cell_size as u32);
             let mut tile_image =
                 image::imageops::crop_imm(&tileset_image, corner.x, corner.y, size.x, size.y)
                     .to_image();
