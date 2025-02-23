@@ -15,7 +15,7 @@ use bevy_ldtk_asset::iid::Iid;
 use bevy_ldtk_asset::prelude::LdtkAsset;
 use bevy_math::Vec2;
 use bevy_render::view::Visibility;
-use bevy_transform::components::Transform;
+use bevy_transform::components::{GlobalTransform, Transform};
 
 use crate::component::{ShieldtankComponent, ShieldtankComponentFinalized, ShieldtankQueryData};
 use crate::project_config::ProjectConfig;
@@ -76,16 +76,20 @@ impl<A: LdtkAsset, D: QueryData> Item<'_, '_, A, D> {
         &self.shieldtank_query_data.2
     }
 
-    pub fn get_visibility(&self) -> &Ref<Visibility> {
+    pub fn get_global_transform(&self) -> &Ref<GlobalTransform> {
         &self.shieldtank_query_data.3
     }
 
-    pub fn get_parent_component(&self) -> &Option<Ref<Parent>> {
+    pub fn get_visibility(&self) -> &Ref<Visibility> {
         &self.shieldtank_query_data.4
     }
 
-    pub fn get_children_component(&self) -> &Option<Ref<Children>> {
+    pub fn get_parent_component(&self) -> &Option<Ref<Parent>> {
         &self.shieldtank_query_data.5
+    }
+
+    pub fn get_children_component(&self) -> &Option<Ref<Children>> {
+        &self.shieldtank_query_data.6
     }
 
     pub fn get_asset(&self) -> &A {
@@ -109,7 +113,7 @@ impl<A: LdtkAsset, D: QueryData> Item<'_, '_, A, D> {
     }
 
     pub fn get_component_finalized(&self) -> &Option<Ref<ShieldtankComponentFinalized>> {
-        &self.shieldtank_query_data.6
+        &self.shieldtank_query_data.7
     }
 }
 
