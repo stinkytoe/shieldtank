@@ -59,7 +59,9 @@ impl LayerItem<'_, '_> {
 
     pub fn int_grid_at(&self, location: Vec2) -> Option<IntGridValue> {
         let grid_cell_size = self.get_asset().grid_cell_size as f32;
-        let location = (Vec2::new(1.0, -1.0) * location / grid_cell_size).as_i64vec2();
+        let location = (Vec2::new(1.0, -1.0) * location / grid_cell_size)
+            .floor()
+            .as_i64vec2();
 
         self.get_int_grid()
             .as_ref()
