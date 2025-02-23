@@ -3,7 +3,7 @@ pub mod systems;
 
 use bevy_ecs::world::Ref;
 use bevy_ldtk_asset::level::Level as LevelAsset;
-use bevy_math::Vec2;
+use bevy_math::{Rect, Vec2};
 
 use crate::component::level::LevelComponentQueryData;
 use crate::int_grid::IntGridValue;
@@ -68,5 +68,19 @@ impl LevelItem<'_, '_> {
 
             item.int_grid_at(location - layer_location)
         })
+    }
+}
+
+impl LevelItem<'_, '_> {
+    pub fn get_region(&self) -> Rect {
+        let location = self.location();
+        let size = Vec2::new(1.0, -1.0) * self.get_asset().size.as_vec2();
+
+        Rect::from_corners(location, size)
+    }
+
+    pub fn location_in_region(&self, location: Vec2) -> bool {
+        let offset = location - self.location();
+        self.get_region().contains(offset)
     }
 }
