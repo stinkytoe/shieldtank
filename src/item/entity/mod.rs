@@ -85,6 +85,10 @@ impl EntityItem<'_, '_> {
 
         world_location + world_offset
     }
+
+    pub fn global_location(&self) -> Vec2 {
+        self.get_global_transform().translation().truncate()
+    }
 }
 
 impl EntityItem<'_, '_> {

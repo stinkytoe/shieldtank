@@ -6,7 +6,7 @@ use bevy_hierarchy::{Children, Parent};
 use bevy_ldtk_asset::prelude::LdtkAsset;
 use bevy_reflect::Reflect;
 use bevy_render::view::Visibility;
-use bevy_transform::components::Transform;
+use bevy_transform::components::{GlobalTransform, Transform};
 
 use crate::project_config::ProjectConfig;
 
@@ -23,6 +23,7 @@ pub type ShieldtankQueryData<'a, A> = (
     Entity,
     Ref<'a, ShieldtankComponent<A>>,
     Ref<'a, Transform>,
+    Ref<'a, GlobalTransform>,
     Ref<'a, Visibility>,
     Option<Ref<'a, Parent>>,
     Option<Ref<'a, Children>>,
