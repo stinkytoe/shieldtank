@@ -110,7 +110,7 @@ impl IntGrid {
     /// Inclusive for the top left corner (0, 0)
     /// Exclusive for the bottom right corner (self.size)
     pub fn in_bounds(&self, grid: I64Vec2) -> bool {
-        self.size.x > grid.x && self.size.y > grid.y
+        self.size.x > grid.x && self.size.y > grid.y && grid.x >= 0 && grid.y >= 0
     }
 
     /// Gets Some(IntGridValue) if present, or None if either out of bounds or not present.
