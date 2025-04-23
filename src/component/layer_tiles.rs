@@ -1,6 +1,6 @@
 use bevy_app::Plugin;
-use bevy_asset::prelude::AssetChanged;
 use bevy_asset::RenderAssetUsages;
+use bevy_asset::prelude::AssetChanged;
 use bevy_asset::{AsAssetId, Assets, Handle};
 use bevy_ecs::component::Component;
 use bevy_ecs::entity::Entity;

@@ -1,6 +1,6 @@
 use bevy_app::Plugin;
 use bevy_asset::Handle;
-use bevy_asset::{prelude::AssetChanged, AsAssetId, Assets};
+use bevy_asset::{AsAssetId, Assets, prelude::AssetChanged};
 use bevy_ecs::component::Component;
 use bevy_ecs::entity::Entity;
 use bevy_ecs::query::{Changed, Or};

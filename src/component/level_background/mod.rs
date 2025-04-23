@@ -1,6 +1,6 @@
 use bevy_app::Plugin;
-use color::{level_background_color_system, LevelBackgroundColor};
-use image::{level_background_image_system, LevelBackgroundImage};
+use color::{LevelBackgroundColor, level_background_color_system};
+use image::{LevelBackgroundImage, level_background_image_system};
 
 use super::shieldtank_component::ShieldtankComponentSystemSet;
 
