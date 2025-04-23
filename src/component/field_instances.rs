@@ -28,12 +28,10 @@ impl FieldInstances {
             .map(Tile::new)
     }
 
-    pub fn get_array_string(&self, identifier: &str, index: usize) -> Option<&str> {
+    pub fn get_array_string(&self, identifier: &str) -> Option<&Vec<String>> {
         self.field_instances
             .get(identifier)
             .and_then(|strings| strings.get_array_string())
-            .and_then(|strings| strings.get(index))
-            .map(|string| string.as_str())
     }
 }
 pub struct FieldInstancesPlugin;
