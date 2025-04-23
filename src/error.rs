@@ -12,11 +12,12 @@ pub enum Error {
     #[error(transparent)]
     IntoDynamicImageError(#[from] bevy_image::IntoDynamicImageError),
 
+    #[error(transparent)]
+    QueryEntityError(#[from] bevy_ecs::query::QueryEntityError),
+
     #[error("ShieldtankError! {0}")]
     ShieldtankError(String),
 }
-
-pub type Result<T> = std::result::Result<T, Error>;
 
 #[macro_export]
 macro_rules! shieldtank_error {
