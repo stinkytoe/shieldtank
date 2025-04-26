@@ -1,3 +1,5 @@
 pub mod component;
+pub mod entity;
 pub mod grid_value;
-pub mod in_bounds;
+pub mod iter;
+pub mod layer;
