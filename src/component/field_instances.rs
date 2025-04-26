@@ -20,12 +20,11 @@ impl FieldInstances {
 }
 
 impl FieldInstances {
-    pub fn get_array_tile(&self, identifier: &str, index: usize) -> Option<Tile> {
+    pub fn get_array_tile(&self, identifier: &str) -> Option<Vec<Tile>> {
         self.field_instances
             .get(identifier)
             .and_then(|tiles| tiles.get_array_tile())
-            .and_then(|tiles| tiles.get(index))
-            .map(Tile::new)
+            .map(|tiles| tiles.iter().map(Tile::new).collect())
     }
 
     pub fn get_array_string(&self, identifier: &str) -> Option<&Vec<String>> {
@@ -33,7 +32,22 @@ impl FieldInstances {
             .get(identifier)
             .and_then(|strings| strings.get_array_string())
     }
+
+    pub fn get_string(&self, identifier: &str) -> Option<&str> {
+        self.field_instances
+            .get(identifier)
+            .and_then(|string| string.get_string())
+            .map(|string| string.as_str())
+    }
+
+    pub fn get_tile(&self, identifier: &str) -> Option<Tile> {
+        self.field_instances
+            .get(identifier)
+            .and_then(|tile| tile.get_tile())
+            .map(Tile::new)
+    }
 }
+
 pub struct FieldInstancesPlugin;
 impl Plugin for FieldInstancesPlugin {
     fn build(&self, app: &mut bevy_app::App) {
