@@ -1,9 +1,11 @@
+use bevy_ecs::query::With;
 use bevy_ecs::system::{Query, SystemParam};
 use bevy_math::{I64Vec2, Vec2};
 use bevy_transform::components::GlobalTransform;
 
 use crate::component::global_bounds::GlobalBounds;
 use crate::component::grid_values::{GridValue, GridValues};
+use crate::component::layer::LdtkLayer;
 
 #[derive(SystemParam)]
 pub struct GridValueQuery<'w, 's> {
@@ -15,6 +17,7 @@ pub struct GridValueQuery<'w, 's> {
             &'static GlobalBounds,
             &'static GridValues,
         ),
+        With<LdtkLayer>,
     >,
 }
 
