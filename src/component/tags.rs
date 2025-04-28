@@ -3,11 +3,11 @@ use bevy_ecs::component::Component;
 use bevy_reflect::Reflect;
 
 #[derive(Debug, Component, Reflect)]
-pub struct Tags {
+pub struct LdtkTags {
     tags: Vec<String>,
 }
 
-impl Tags {
+impl LdtkTags {
     pub fn new<T: AsRef<str> + std::fmt::Display>(tags: &[T]) -> Self {
         let tags = tags.iter().map(|tag| tag.to_string()).collect();
         Self { tags }
@@ -21,6 +21,6 @@ impl Tags {
 pub struct TagsPlugin;
 impl Plugin for TagsPlugin {
     fn build(&self, app: &mut bevy_app::App) {
-        app.register_type::<Tags>();
+        app.register_type::<LdtkTags>();
     }
 }

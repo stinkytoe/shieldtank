@@ -5,26 +5,26 @@ use bevy_ldtk_asset::field_instance::FieldInstance;
 use bevy_platform::collections::HashMap;
 use bevy_reflect::Reflect;
 
-use super::tile::Tile;
+use super::tile::LdtkTile;
 
 #[derive(Deref, Component, Reflect)]
-pub struct FieldInstances {
+pub struct LdtkFieldInstances {
     #[deref]
     pub field_instances: HashMap<String, FieldInstance>,
 }
 
-impl FieldInstances {
+impl LdtkFieldInstances {
     pub fn new(field_instances: HashMap<String, FieldInstance>) -> Self {
         Self { field_instances }
     }
 }
 
-impl FieldInstances {
-    pub fn get_array_tile(&self, identifier: &str) -> Option<Vec<Tile>> {
+impl LdtkFieldInstances {
+    pub fn get_array_tile(&self, identifier: &str) -> Option<Vec<LdtkTile>> {
         self.field_instances
             .get(identifier)
             .and_then(|tiles| tiles.get_array_tile())
-            .map(|tiles| tiles.iter().map(Tile::new).collect())
+            .map(|tiles| tiles.iter().map(LdtkTile::new).collect())
     }
 
     pub fn get_array_string(&self, identifier: &str) -> Option<&Vec<String>> {
@@ -40,17 +40,17 @@ impl FieldInstances {
             .map(|string| string.as_str())
     }
 
-    pub fn get_tile(&self, identifier: &str) -> Option<Tile> {
+    pub fn get_tile(&self, identifier: &str) -> Option<LdtkTile> {
         self.field_instances
             .get(identifier)
             .and_then(|tile| tile.get_tile())
-            .map(Tile::new)
+            .map(LdtkTile::new)
     }
 }
 
 pub struct FieldInstancesPlugin;
 impl Plugin for FieldInstancesPlugin {
     fn build(&self, app: &mut bevy_app::App) {
-        app.register_type::<FieldInstances>();
+        app.register_type::<LdtkFieldInstances>();
     }
 }

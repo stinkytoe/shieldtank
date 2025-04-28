@@ -86,16 +86,24 @@ impl SpawnChildren for LdtkLevel {
 
 #[allow(clippy::type_complexity)]
 fn level_insert_components_system(
-    query: Query<(Entity, &LdtkLevel), Or<(Changed<LdtkLevel>, AssetChanged<LdtkLevel>)>>,
+    query: Query<
+        (Entity, &LdtkLevel, Option<&Transform>),
+        Or<(Changed<LdtkLevel>, AssetChanged<LdtkLevel>)>,
+    >,
     assets: Res<Assets<Level>>,
     mut commands: Commands,
 ) {
     query
         .iter()
-        .filter_map(|(entity, component)| {
-            Some((entity, component, assets.get(component.as_asset_id())?))
+        .filter_map(|(entity, component, transform)| {
+            Some((
+                entity,
+                component,
+                transform,
+                assets.get(component.as_asset_id())?,
+            ))
         })
-        .for_each(|(entity, component, asset)| {
+        .for_each(|(entity, component, transform, asset)| {
             let mut entity_commands = commands.entity(entity);
 
             match &asset.background {
@@ -117,12 +125,14 @@ fn level_insert_components_system(
                 }
             };
 
-            let location = Vec2::new(1.0, -1.0) * asset.location.as_vec2();
-            let z = asset.world_depth as f32 * component.level_separation;
-            let translation = location.extend(z);
-            let transform = Transform::from_translation(translation);
+            if transform.is_none() {
+                let location = Vec2::new(1.0, -1.0) * asset.location.as_vec2();
+                let z = asset.world_depth as f32 * component.level_separation;
+                let translation = location.extend(z);
+                let transform = Transform::from_translation(translation);
 
-            entity_commands.insert(transform);
+                entity_commands.insert(transform);
+            }
         });
 }
 

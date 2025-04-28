@@ -3,16 +3,16 @@ use bevy_math::Vec2;
 use bevy_transform::components::GlobalTransform;
 
 use crate::component::entity::LdtkEntity;
-use crate::component::global_bounds::GlobalBounds;
-use crate::component::tags::Tags;
+use crate::component::global_bounds::LdtkGlobalBounds;
+use crate::component::tags::LdtkTags;
 
 use super::component::ShieldtankComponentQuery;
 
 #[derive(QueryData)]
 pub struct EntityComponentData {
     global_transform: &'static GlobalTransform,
-    global_bounds: &'static GlobalBounds,
-    tags: Option<&'static Tags>,
+    global_bounds: &'static LdtkGlobalBounds,
+    tags: Option<&'static LdtkTags>,
 }
 
 #[allow(private_interfaces)]

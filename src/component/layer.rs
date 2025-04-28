@@ -14,9 +14,9 @@ use bevy_transform::components::{GlobalTransform, Transform};
 use either::Either;
 
 use super::entity::LdtkEntity;
-use super::global_bounds::GlobalBounds;
-use super::layer_definition::LayerDefinition;
-use super::layer_tiles::LayerTiles;
+use super::global_bounds::LdtkGlobalBounds;
+use super::layer_definition::LdtkLayerDefinition;
+use super::layer_tiles::LdtkLayerTiles;
 use super::shieldtank_component::{ShieldtankComponent, ShieldtankComponentSystemSet};
 use super::spawn_children::{ChildSystemSet, SpawnChildren};
 
@@ -70,55 +70,52 @@ impl SpawnChildren for LdtkLayer {
 
 #[allow(clippy::type_complexity)]
 fn layer_insert_components_system(
-    query: Query<(Entity, &LdtkLayer), Or<(Changed<LdtkLayer>, AssetChanged<LdtkLayer>)>>,
+    query: Query<
+        (Entity, &LdtkLayer, Option<&Transform>),
+        Or<(Changed<LdtkLayer>, AssetChanged<LdtkLayer>)>,
+    >,
     assets: Res<Assets<LayerInstance>>,
     mut commands: Commands,
 ) {
     query
         .iter()
-        .filter_map(|(entity, component)| {
-            Some((entity, component, assets.get(component.as_asset_id())?))
+        .filter_map(|(entity, component, transform)| {
+            Some((
+                entity,
+                component,
+                transform,
+                assets.get(component.as_asset_id())?,
+            ))
         })
-        .for_each(|(entity, component, asset)| {
+        .for_each(|(entity, component, transform, asset)| {
             let mut entity_commands = commands.entity(entity);
 
             if let Some(tiles_layer) = asset.layer_type.get_tiles_layer() {
                 if !tiles_layer.tiles.is_empty() {
-                    let layer_tiles = LayerTiles::new(asset, tiles_layer);
+                    let layer_tiles = LdtkLayerTiles::new(asset, tiles_layer);
 
                     entity_commands.insert(layer_tiles);
                 }
 
-                // let num_int_grids = (asset.grid_size.x * asset.grid_size.y) as usize;
-                //
-                // match tiles_layer.int_grid.len() {
-                //     0 => {}
-                //     n if n == num_int_grids => {
                 let layer_definition = asset.layer_definition.clone();
-                let layer_definition = LayerDefinition::new(layer_definition);
+                let layer_definition = LdtkLayerDefinition::new(layer_definition);
 
                 entity_commands.insert(layer_definition);
-                // }
-                // _ => {
-                //     error!(
-                //         "bad int_grid array in LDtk tile asset! {}",
-                //         asset.get_identifier()
-                //     );
-                // }
-                // }
             }
 
-            let location = Vec2::new(1.0, -1.0) * asset.location.as_vec2();
-            let z = (asset.index + 1) as f32 * component.layer_separation;
-            let translation = location.extend(z);
-            let transform = Transform::from_translation(translation);
+            if transform.is_none() {
+                let location = Vec2::new(1.0, -1.0) * asset.location.as_vec2();
+                let z = (asset.index + 1) as f32 * component.layer_separation;
+                let translation = location.extend(z);
+                let transform = Transform::from_translation(translation);
 
-            entity_commands.insert(transform);
+                entity_commands.insert(transform);
+            }
         });
 }
 
 fn layer_global_bounds_system(
-    query: Query<(Entity, &LdtkLayer, &GlobalTransform), Changed<Transform>>,
+    query: Query<(Entity, &LdtkLayer, &GlobalTransform), Changed<GlobalTransform>>,
     assets: Res<Assets<LayerInstance>>,
     mut commands: Commands,
 ) {
@@ -135,7 +132,7 @@ fn layer_global_bounds_system(
             let global_location = global_transform.translation().truncate();
             let size = asset.grid_size * asset.grid_cell_size;
             let size = Vec2::new(1.0, -1.0) * size.as_vec2();
-            let global_bounds = GlobalBounds::new(global_location, global_location + size);
+            let global_bounds = LdtkGlobalBounds::new(global_location, global_location + size);
 
             commands.entity(entity).insert(global_bounds);
         });

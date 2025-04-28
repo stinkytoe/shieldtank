@@ -12,12 +12,12 @@ use bevy_reflect::Reflect;
 use bevy_render::view::Visibility;
 use bevy_transform::components::{GlobalTransform, Transform};
 
-use super::entity_definition::EntityDefinition;
-use super::field_instances::FieldInstances;
-use super::global_bounds::GlobalBounds;
+use super::entity_definition::LdtkEntityDefinition;
+use super::field_instances::LdtkFieldInstances;
+use super::global_bounds::LdtkGlobalBounds;
 use super::shieldtank_component::{ShieldtankComponent, ShieldtankComponentSystemSet};
-use super::tags::Tags;
-use super::tile::Tile;
+use super::tags::LdtkTags;
+use super::tile::LdtkTile;
 
 #[derive(Debug, Default, Component, Reflect)]
 #[require(GlobalTransform, Visibility)]
@@ -52,11 +52,11 @@ fn entity_insert_components_system(
             let mut entity_commands = commands.entity(entity);
 
             let entity_definition = asset.entity_definition.clone();
-            let entity_definition = EntityDefinition::new(entity_definition);
+            let entity_definition = LdtkEntityDefinition::new(entity_definition);
             entity_commands.insert(entity_definition);
 
             if let Some(tile) = &asset.tile {
-                let tile = Tile::new(tile);
+                let tile = LdtkTile::new(tile);
                 entity_commands.insert(tile);
             }
 
@@ -65,18 +65,18 @@ fn entity_insert_components_system(
             let transform = Transform::from_translation(translation);
             entity_commands.insert(transform);
 
-            let field_instances = FieldInstances::new(asset.field_instances.clone());
+            let field_instances = LdtkFieldInstances::new(asset.field_instances.clone());
             entity_commands.insert(field_instances);
 
             if !asset.tags.is_empty() {
-                let tags = Tags::new(&asset.tags);
+                let tags = LdtkTags::new(&asset.tags);
                 entity_commands.insert(tags);
             }
         });
 }
 
 fn entity_global_bounds_system(
-    query: Query<(Entity, &LdtkEntity, &GlobalTransform), Changed<Transform>>,
+    query: Query<(Entity, &LdtkEntity, &GlobalTransform), Changed<GlobalTransform>>,
     assets: Res<Assets<EntityInstance>>,
     mut commands: Commands,
 ) {
@@ -93,7 +93,7 @@ fn entity_global_bounds_system(
             let global_location = global_transform.translation().truncate();
             let size = asset.size.as_vec2();
             let rect = Rect::from_center_size(global_location, size);
-            let global_bounds = GlobalBounds::from(rect);
+            let global_bounds = LdtkGlobalBounds::from(rect);
 
             commands.entity(entity).insert(global_bounds);
         });

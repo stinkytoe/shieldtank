@@ -20,7 +20,7 @@ use image::{DynamicImage, RgbaImage};
 use super::shieldtank_component::ShieldtankComponentSystemSet;
 
 #[derive(Debug, Reflect)]
-pub struct LayerTile {
+pub struct LdtkLayerTile {
     pub opacity: f32,
     pub flip_x: bool,
     pub flip_y: bool,
@@ -29,7 +29,7 @@ pub struct LayerTile {
     pub size: UVec2,
 }
 
-impl LayerTile {
+impl LdtkLayerTile {
     pub(crate) fn new(tile_instance: &TileInstance, size: UVec2) -> Self {
         let opacity = tile_instance.opacity;
         let flip_x = tile_instance.flip_x;
@@ -49,15 +49,15 @@ impl LayerTile {
 }
 
 #[derive(Debug, Component, Reflect)]
-pub struct LayerTiles {
-    pub tiles: Vec<LayerTile>,
+pub struct LdtkLayerTiles {
+    pub tiles: Vec<LdtkLayerTile>,
     pub image: Handle<Image>,
     pub grid_cell_size: u32,
     pub size: UVec2,
     pub opacity: f32,
 }
 
-impl AsAssetId for LayerTiles {
+impl AsAssetId for LdtkLayerTiles {
     type Asset = Image;
 
     fn as_asset_id(&self) -> bevy_asset::AssetId<Self::Asset> {
@@ -65,13 +65,13 @@ impl AsAssetId for LayerTiles {
     }
 }
 
-impl LayerTiles {
+impl LdtkLayerTiles {
     pub(crate) fn new(layer_asset: &LayerInstance, tiles_layer: &TilesLayer) -> Self {
         let tile_size = UVec2::splat(layer_asset.grid_cell_size as u32);
         let tiles = tiles_layer
             .tiles
             .iter()
-            .map(|tile| LayerTile::new(tile, tile_size))
+            .map(|tile| LdtkLayerTile::new(tile, tile_size))
             .collect();
         let image = tiles_layer.tileset_image.clone();
         let grid_cell_size = layer_asset.grid_cell_size as u32;
@@ -146,7 +146,10 @@ impl LayerTiles {
 
 #[allow(clippy::type_complexity)]
 fn layer_tile_system(
-    query: Query<(Entity, &LayerTiles), Or<(Changed<LayerTiles>, AssetChanged<LayerTiles>)>>,
+    query: Query<
+        (Entity, &LdtkLayerTiles),
+        Or<(Changed<LdtkLayerTiles>, AssetChanged<LdtkLayerTiles>)>,
+    >,
     mut images: ResMut<Assets<Image>>,
     mut commands: Commands,
 ) -> bevy_ecs::error::Result<()> {
@@ -178,8 +181,8 @@ fn layer_tile_system(
 pub struct LayerTilePlugin;
 impl Plugin for LayerTilePlugin {
     fn build(&self, app: &mut bevy_app::App) {
-        app.register_type::<LayerTile>();
-        app.register_type::<LayerTiles>();
+        app.register_type::<LdtkLayerTile>();
+        app.register_type::<LdtkLayerTiles>();
         app.add_systems(ShieldtankComponentSystemSet, layer_tile_system);
     }
 }
