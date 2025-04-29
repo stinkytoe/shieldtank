@@ -8,7 +8,6 @@ use bevy_ldtk_asset::prelude::LdtkAsset;
 use bevy_transform::components::GlobalTransform;
 
 use crate::component::iid::LdtkIid;
-use crate::component::level::LdtkLevel;
 use crate::component::project::LdtkProject;
 use crate::component::shieldtank_component::ShieldtankComponent;
 use crate::component::world::LdtkWorld;
@@ -150,4 +149,3 @@ where
 pub type LdtkProjectQuery<'w, 's, D, F = ()> =
     ShieldtankComponentQuery<'w, 's, LdtkProject, (), D, F>;
 pub type LdtkWorldQuery<'w, 's, D, F = ()> = ShieldtankComponentQuery<'w, 's, LdtkWorld, (), D, F>;
-pub type LdtkLevelQuery<'w, 's, D, F = ()> = ShieldtankComponentQuery<'w, 's, LdtkLevel, (), D, F>;

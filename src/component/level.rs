@@ -5,12 +5,13 @@ use bevy_ecs::component::Component;
 use bevy_ecs::entity::Entity;
 use bevy_ecs::query::{Changed, Or};
 use bevy_ecs::system::{Commands, Query, Res};
-use bevy_ldtk_asset::level::Level;
-use bevy_math::Vec2;
+use bevy_ldtk_asset::level::Level as LevelAsset;
+use bevy_math::{Rect, Vec2};
 use bevy_reflect::Reflect;
 use bevy_render::view::Visibility;
 use bevy_transform::components::{GlobalTransform, Transform};
 
+use super::global_bounds::LdtkGlobalBounds;
 use super::layer::LdtkLayer;
 use super::level_background::color::LevelBackgroundColor;
 use super::level_background::image::LevelBackgroundImage;
@@ -36,7 +37,7 @@ impl LayersToSpawn {
 #[derive(Debug, Component, Reflect)]
 #[require(GlobalTransform, Visibility)]
 pub struct LdtkLevel {
-    pub handle: Handle<Level>,
+    pub handle: Handle<LevelAsset>,
     pub level_separation: f32,
     pub layers_to_spawn: LayersToSpawn,
 }
@@ -52,7 +53,7 @@ impl Default for LdtkLevel {
 }
 
 impl AsAssetId for LdtkLevel {
-    type Asset = Level;
+    type Asset = LevelAsset;
 
     fn as_asset_id(&self) -> bevy_asset::AssetId<Self::Asset> {
         self.handle.id()
@@ -90,7 +91,7 @@ fn level_insert_components_system(
         (Entity, &LdtkLevel, Option<&Transform>),
         Or<(Changed<LdtkLevel>, AssetChanged<LdtkLevel>)>,
     >,
-    assets: Res<Assets<Level>>,
+    assets: Res<Assets<LevelAsset>>,
     mut commands: Commands,
 ) {
     query
@@ -136,6 +137,30 @@ fn level_insert_components_system(
         });
 }
 
+fn level_global_bounds_system(
+    query: Query<(Entity, &LdtkLevel, &GlobalTransform), Changed<GlobalTransform>>,
+    assets: Res<Assets<LevelAsset>>,
+    mut commands: Commands,
+) {
+    query
+        .iter()
+        .filter_map(|(entity, component, global_transform)| {
+            Some((
+                entity,
+                global_transform,
+                assets.get(component.as_asset_id())?,
+            ))
+        })
+        .for_each(|(entity, global_transform, asset)| {
+            let global_location = global_transform.translation().truncate();
+            let size = Vec2::new(1.0, -1.0) * asset.size.as_vec2();
+            let rect = Rect::from_corners(global_location, global_location + size);
+            let global_bounds = LdtkGlobalBounds::from(rect);
+
+            commands.entity(entity).insert(global_bounds);
+        });
+}
+
 pub struct LdtkLevelPlugin;
 impl Plugin for LdtkLevelPlugin {
     fn build(&self, app: &mut bevy_app::App) {
@@ -149,5 +174,6 @@ impl Plugin for LdtkLevelPlugin {
             <LdtkLevel as ShieldtankComponent>::add_basic_components_system,
         );
         app.add_systems(ShieldtankComponentSystemSet, level_insert_components_system);
+        app.add_systems(ShieldtankComponentSystemSet, level_global_bounds_system);
     }
 }

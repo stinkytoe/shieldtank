@@ -3,8 +3,10 @@ use bevy_ldtk_asset::plugin::BevyLdtkAssetPlugin;
 
 use crate::component::entity::LdtkEntityPlugin;
 use crate::component::entity_definition::EntityDefinitionPlugin;
+use crate::component::field_instances::FieldInstancesPlugin;
 use crate::component::global_bounds::GlobalBoundsPlugin;
 use crate::component::grid_values::GridValuesPlugin;
+use crate::component::iid::IidPlugin;
 use crate::component::layer::LdtkLayerPlugin;
 use crate::component::layer_definition::LayerDefinitionPlugin;
 use crate::component::layer_tiles::LayerTilePlugin;
@@ -33,6 +35,8 @@ impl PluginGroup for ShieldtankPlugins {
             .add(EntityDefinitionPlugin)
             .add(LayerDefinitionPlugin)
             .add(TilesetDefinitionPlugin)
+            .add(IidPlugin)
+            .add(FieldInstancesPlugin)
             // Visual Components
             .add(LayerTilePlugin)
             .add(LevelBackgroundPlugin)

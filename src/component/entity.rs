@@ -75,8 +75,18 @@ fn entity_insert_components_system(
         });
 }
 
+#[allow(clippy::type_complexity)]
 fn entity_global_bounds_system(
-    query: Query<(Entity, &LdtkEntity, &GlobalTransform), Changed<GlobalTransform>>,
+    query: Query<
+        (Entity, &LdtkEntity, &GlobalTransform),
+        Or<(
+            Changed<LdtkEntity>,
+            AssetChanged<LdtkEntity>,
+            Changed<LdtkEntityDefinition>,
+            AssetChanged<LdtkEntityDefinition>,
+            Changed<GlobalTransform>,
+        )>,
+    >,
     assets: Res<Assets<EntityInstance>>,
     mut commands: Commands,
 ) {
