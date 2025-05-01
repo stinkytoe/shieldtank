@@ -1,4 +1,5 @@
 pub mod component;
+pub mod debug_gizmos;
 pub mod error;
 pub mod plugin;
 pub mod query;
