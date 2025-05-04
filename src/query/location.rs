@@ -3,6 +3,9 @@ use bevy_ecs::world::{Mut, Ref};
 use bevy_math::Vec2;
 use bevy_transform::components::{GlobalTransform, Transform};
 
+pub type LdtkLocation = LdtkLocationDataReadOnly;
+pub type LdtkLocationMut = LdtkLocationData;
+
 #[derive(QueryData)]
 #[query_data(mutable)]
 #[query_data(derive(Debug))]

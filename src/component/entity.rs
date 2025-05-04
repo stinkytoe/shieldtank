@@ -41,29 +41,43 @@ impl ShieldtankComponent for LdtkEntity {
 
 #[allow(clippy::type_complexity)]
 fn entity_insert_components_system(
-    query: Query<(Entity, &LdtkEntity), Or<(Changed<LdtkEntity>, AssetChanged<LdtkEntity>)>>,
+    query: Query<
+        (Entity, &LdtkEntity, Option<&Transform>, Option<&LdtkTile>),
+        Or<(Changed<LdtkEntity>, AssetChanged<LdtkEntity>)>,
+    >,
     assets: Res<Assets<EntityInstance>>,
     mut commands: Commands,
 ) {
     query
         .iter()
-        .filter_map(|(entity, component)| Some((entity, assets.get(component.as_asset_id())?)))
-        .for_each(|(entity, asset)| {
+        .filter_map(|(entity, component, transform, tile)| {
+            Some((
+                entity,
+                transform,
+                tile,
+                assets.get(component.as_asset_id())?,
+            ))
+        })
+        .for_each(|(entity, transform, tile, asset)| {
             let mut entity_commands = commands.entity(entity);
 
             let entity_definition = asset.entity_definition.clone();
             let entity_definition = LdtkEntityDefinition::new(entity_definition);
             entity_commands.insert(entity_definition);
 
-            if let Some(tile) = &asset.tile {
-                let tile = LdtkTile::new(tile);
-                entity_commands.insert(tile);
+            if transform.is_none() {
+                let location = Vec2::new(1.0, -1.0) * asset.location.as_vec2();
+                let translation = location.extend(0.0);
+                let transform = Transform::from_translation(translation);
+                entity_commands.insert(transform);
             }
 
-            let location = Vec2::new(1.0, -1.0) * asset.location.as_vec2();
-            let translation = location.extend(0.0);
-            let transform = Transform::from_translation(translation);
-            entity_commands.insert(transform);
+            if tile.is_none() {
+                if let Some(tile) = &asset.tile {
+                    let tile = LdtkTile::new(tile);
+                    entity_commands.insert(tile);
+                }
+            }
 
             let field_instances = LdtkFieldInstances::new(asset.field_instances.clone());
             entity_commands.insert(field_instances);
