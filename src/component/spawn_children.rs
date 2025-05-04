@@ -56,9 +56,6 @@ where
                     let child_id = commands.spawn(child_component).id();
                     commands.entity(entity).add_child(child_id);
                     debug!("Spawning new child: {child_handle:?}");
-                } else {
-                    debug!("child already spawned! {child_handle:?}");
-                    debug!("....for: {component:#?}");
                 }
             });
         });
