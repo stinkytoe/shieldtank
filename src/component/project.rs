@@ -8,7 +8,7 @@ use bevy_render::view::Visibility;
 use bevy_transform::components::{GlobalTransform, Transform};
 
 use super::shieldtank_component::{ShieldtankComponent, ShieldtankComponentSystemSet};
-use super::spawn_children::{ChildSystemSet, SpawnChildren};
+use super::spawn_children::SpawnChildren;
 use super::world::LdtkWorld;
 
 #[derive(Debug, Default, Reflect)]
@@ -70,10 +70,6 @@ pub struct LdtkProjectPlugin;
 impl Plugin for LdtkProjectPlugin {
     fn build(&self, app: &mut bevy_app::App) {
         app.register_type::<LdtkProject>();
-        app.add_systems(
-            ChildSystemSet,
-            <LdtkProject as SpawnChildren>::child_spawn_system,
-        );
         app.add_systems(
             ShieldtankComponentSystemSet,
             <LdtkProject as ShieldtankComponent>::add_basic_components_system,

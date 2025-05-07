@@ -1,15 +1,20 @@
-use bevy_app::PostUpdate;
+use bevy_app::{Plugin, PostUpdate};
 use bevy_asset::prelude::AssetChanged;
 use bevy_asset::{AsAssetId, Assets, Handle};
 use bevy_ecs::entity::Entity;
 use bevy_ecs::hierarchy::Children;
 use bevy_ecs::query::{Changed, Or};
+use bevy_ecs::schedule::IntoScheduleConfigs;
 use bevy_ecs::system::Commands;
 use bevy_ecs::system::{Query, Res};
 use bevy_ldtk_asset::prelude::LdtkAsset;
 use bevy_log::debug;
 
+use super::layer::LdtkLayer;
+use super::level::LdtkLevel;
+use super::project::LdtkProject;
 use super::shieldtank_component::ShieldtankComponent;
+use super::world::LdtkWorld;
 
 #[allow(non_upper_case_globals)]
 pub(crate) const ChildSystemSet: PostUpdate = PostUpdate;
@@ -59,5 +64,21 @@ where
                 }
             });
         });
+    }
+}
+
+pub struct SpawnChildrenPlugin;
+impl Plugin for SpawnChildrenPlugin {
+    fn build(&self, app: &mut bevy_app::App) {
+        app.add_systems(
+            ChildSystemSet,
+            (
+                <LdtkProject as SpawnChildren>::child_spawn_system,
+                <LdtkWorld as SpawnChildren>::child_spawn_system,
+                <LdtkLevel as SpawnChildren>::child_spawn_system,
+                <LdtkLayer as SpawnChildren>::child_spawn_system,
+            )
+                .chain(),
+        );
     }
 }

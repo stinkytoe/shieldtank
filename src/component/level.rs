@@ -16,7 +16,7 @@ use super::layer::LdtkLayer;
 use super::level_background::color::LevelBackgroundColor;
 use super::level_background::image::LevelBackgroundImage;
 use super::shieldtank_component::{ShieldtankComponent, ShieldtankComponentSystemSet};
-use super::spawn_children::{ChildSystemSet, SpawnChildren};
+use super::spawn_children::SpawnChildren;
 
 #[derive(Debug, Default, Reflect)]
 pub enum LayersToSpawn {
@@ -165,10 +165,6 @@ pub struct LdtkLevelPlugin;
 impl Plugin for LdtkLevelPlugin {
     fn build(&self, app: &mut bevy_app::App) {
         app.register_type::<LdtkLevel>();
-        app.add_systems(
-            ChildSystemSet,
-            <LdtkLevel as SpawnChildren>::child_spawn_system,
-        );
         app.add_systems(
             ShieldtankComponentSystemSet,
             <LdtkLevel as ShieldtankComponent>::add_basic_components_system,

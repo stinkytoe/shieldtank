@@ -18,7 +18,7 @@ use super::global_bounds::LdtkGlobalBounds;
 use super::layer_definition::LdtkLayerDefinition;
 use super::layer_tiles::LdtkLayerTiles;
 use super::shieldtank_component::{ShieldtankComponent, ShieldtankComponentSystemSet};
-use super::spawn_children::{ChildSystemSet, SpawnChildren};
+use super::spawn_children::SpawnChildren;
 
 #[derive(Debug, Component, Reflect)]
 #[require(GlobalTransform, Visibility)]
@@ -144,10 +144,6 @@ impl Plugin for LdtkLayerPlugin {
         app.register_type::<LdtkLayer>();
         app.add_systems(ShieldtankComponentSystemSet, layer_insert_components_system);
         app.add_systems(ShieldtankComponentSystemSet, layer_global_bounds_system);
-        app.add_systems(
-            ChildSystemSet,
-            <LdtkLayer as SpawnChildren>::child_spawn_system,
-        );
         app.add_systems(
             ShieldtankComponentSystemSet,
             <LdtkLayer as ShieldtankComponent>::add_basic_components_system,

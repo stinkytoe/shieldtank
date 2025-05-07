@@ -13,6 +13,7 @@ use crate::component::layer_tiles::LayerTilePlugin;
 use crate::component::level::LdtkLevelPlugin;
 use crate::component::level_background::LevelBackgroundPlugin;
 use crate::component::project::LdtkProjectPlugin;
+use crate::component::spawn_children::SpawnChildrenPlugin;
 use crate::component::tags::TagsPlugin;
 use crate::component::tile::TilePlugin;
 use crate::component::tileset_definition::TilesetDefinitionPlugin;
@@ -32,6 +33,7 @@ impl PluginGroup for ShieldtankPlugins {
             .add(LdtkLevelPlugin)
             .add(LdtkLayerPlugin)
             .add(LdtkEntityPlugin)
+            .add(SpawnChildrenPlugin)
             // LDtk definitions
             .add(EntityDefinitionPlugin)
             .add(LayerDefinitionPlugin)

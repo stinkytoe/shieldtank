@@ -9,7 +9,7 @@ use bevy_transform::components::{GlobalTransform, Transform};
 use super::{
     level::LdtkLevel,
     shieldtank_component::{ShieldtankComponent, ShieldtankComponentSystemSet},
-    spawn_children::{ChildSystemSet, SpawnChildren},
+    spawn_children::SpawnChildren,
 };
 
 #[derive(Debug, Default, Reflect)]
@@ -71,10 +71,6 @@ pub struct LdtkWorldPlugin;
 impl Plugin for LdtkWorldPlugin {
     fn build(&self, app: &mut bevy_app::App) {
         app.register_type::<LdtkWorld>();
-        app.add_systems(
-            ChildSystemSet,
-            <LdtkWorld as SpawnChildren>::child_spawn_system,
-        );
         app.add_systems(
             ShieldtankComponentSystemSet,
             <LdtkWorld as ShieldtankComponent>::add_basic_components_system,
