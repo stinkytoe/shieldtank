@@ -72,8 +72,6 @@ fn sprite_mode_cover(tile: &LdtkTile, image: Handle<Image>, asset: &EntityInstan
 
     Sprite {
         image,
-        // texture_atlas: todo!(),
-        // color: todo!(),
         flip_x,
         flip_y,
         custom_size,
@@ -95,8 +93,6 @@ fn sprite_mode_fit_inside(tile: &LdtkTile, image: Handle<Image>, asset: &EntityI
 
     Sprite {
         image,
-        // texture_atlas: todo!(),
-        // color: todo!(),
         flip_x,
         flip_y,
         custom_size,
@@ -121,8 +117,6 @@ fn sprite_mode_repeat(tile: &LdtkTile, image: Handle<Image>, asset: &EntityInsta
 
     Sprite {
         image,
-        // texture_atlas: todo!(),
-        // color: todo!(),
         flip_x,
         flip_y,
         custom_size,
@@ -143,8 +137,6 @@ fn sprite_mode_stretch(tile: &LdtkTile, image: Handle<Image>, asset: &EntityInst
 
     Sprite {
         image,
-        // texture_atlas: todo!(),
-        // color: todo!(),
         flip_x,
         flip_y,
         custom_size,
