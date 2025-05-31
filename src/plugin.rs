@@ -32,7 +32,7 @@ impl PluginGroup for ShieldtankPlugins {
             .add(LdtkWorldPlugin)
             .add(LdtkLevelPlugin)
             .add(LdtkLayerPlugin)
-            .add(LdtkEntityPlugin)
+            .add(LdtkEntityPlugin::default())
             .add(SpawnChildrenPlugin)
             // LDtk definitions
             .add(EntityDefinitionPlugin)

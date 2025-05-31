@@ -1,8 +1,8 @@
-use bevy_asset::AsAssetId;
+use bevy_asset::{AsAssetId, Assets};
 use bevy_ecs::entity::Entity;
 use bevy_ecs::name::Name;
 use bevy_ecs::query::{QueryData, QueryFilter};
-use bevy_ecs::system::{Query, SystemParam};
+use bevy_ecs::system::{Query, Res, SystemParam};
 use bevy_ldtk_asset::iid::Iid;
 use bevy_ldtk_asset::prelude::LdtkAsset;
 use bevy_transform::components::GlobalTransform;
@@ -21,7 +21,7 @@ where
     <S as AsAssetId>::Asset: LdtkAsset,
 {
     entity: Entity,
-    component: &'static S,
+    pub(crate) component: &'static S,
     iid: &'static LdtkIid,
     name: &'static Name,
     global_transform: &'static GlobalTransform,
@@ -39,6 +39,7 @@ where
     F: QueryFilter + 'static,
 {
     pub(crate) query: Query<'w, 's, (ShieldtankComponentData<S>, E, D), F>,
+    pub(crate) assets: Res<'w, Assets<<S as AsAssetId>::Asset>>,
 }
 
 #[allow(clippy::type_complexity)]

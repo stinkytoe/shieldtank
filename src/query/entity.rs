@@ -1,3 +1,5 @@
+use bevy_asset::AsAssetId as _;
+use bevy_ecs::entity::Entity;
 use bevy_ecs::query::{QueryData, QueryFilter};
 use bevy_math::Vec2;
 use bevy_transform::components::GlobalTransform;
@@ -5,6 +7,7 @@ use bevy_transform::components::GlobalTransform;
 use crate::component::entity::LdtkEntity;
 use crate::component::global_bounds::LdtkGlobalBounds;
 use crate::component::tags::LdtkTags;
+use crate::component::tile::LdtkTile;
 
 use super::component::ShieldtankComponentQuery;
 
@@ -24,6 +27,16 @@ where
     D: QueryData<ReadOnly = D>,
     F: QueryFilter,
 {
+    pub fn get_tile(&self, entity: Entity) -> Option<LdtkTile> {
+        self.query
+            .get(entity)
+            .ok()
+            .map(|(component_data, ..)| component_data.component.as_asset_id())
+            .and_then(|asset_id| self.assets.get(asset_id))
+            .and_then(|asset| asset.tile.as_ref())
+            .map(LdtkTile::new)
+    }
+
     pub fn location_in_bounds(
         &self,
         location: Vec2,
