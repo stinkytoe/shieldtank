@@ -1,8 +1,10 @@
 pub mod component;
-pub mod debug_gizmos;
 pub mod error;
 pub mod plugin;
 pub mod query;
+
+#[cfg(feature = "debug_gizmos")]
+pub mod debug_gizmos;
 
 pub use bevy_ldtk_asset;
 

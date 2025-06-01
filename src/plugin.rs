@@ -18,13 +18,13 @@ use crate::component::tags::TagsPlugin;
 use crate::component::tile::TilePlugin;
 use crate::component::tileset_definition::TilesetDefinitionPlugin;
 use crate::component::world::LdtkWorldPlugin;
-use crate::debug_gizmos::DebugGizmosPlugin;
+use crate::debug_gizmos::{DebugGizmosPlugin, DebugGizmosSettings};
 
 pub struct ShieldtankPlugins;
 
 impl PluginGroup for ShieldtankPlugins {
     fn build(self) -> PluginGroupBuilder {
-        PluginGroupBuilder::start::<Self>()
+        let mut builder = PluginGroupBuilder::start::<Self>()
             // Inherit bevy_ldtk_asset
             .add(BevyLdtkAssetPlugin)
             // Core Components
@@ -46,8 +46,15 @@ impl PluginGroup for ShieldtankPlugins {
             .add(GlobalBoundsPlugin)
             .add(GridValuesPlugin)
             .add(TagsPlugin)
-            .add(TilePlugin)
-            // Debug Gizmos
-            .add(DebugGizmosPlugin)
+            .add(TilePlugin);
+        // Debug Gizmos
+        // .add(DebugGizmosPlugin)
+
+        #[cfg(feature = "debug_gizmos")]
+        {
+            builder = builder.add(DebugGizmosPlugin::default());
+        }
+
+        builder
     }
 }

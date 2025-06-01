@@ -25,6 +25,7 @@ bevy_derive = { version = "0.16.0", default-features = false }
 bevy_ecs = { version = "0.16.0", default-features = false }
 bevy_gizmos = { version = "0.16.0", default-features = false }
 bevy_image = { version = "0.16.0", default-features = false }
+bevy_input = { version = "0.16.0", default-features = false, optional = true }
 bevy_log = { version = "0.16.0", default-features = false }
 bevy_math = { version = "0.16.0", default-features = false }
 bevy_platform = { version = "0.16.0", default-features = false }
@@ -46,3 +47,7 @@ thiserror = "2.0"
 
 bevy_ldtk_asset = "0.7.1"
 #bevy_ldtk_asset = { path = "../bevy_ldtk_asset/" }
+
+[features]
+default = ["debug_gizmos"]
+debug_gizmos = ["dep:bevy_input"]
