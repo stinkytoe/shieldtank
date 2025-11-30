@@ -4,7 +4,6 @@ use bevy_ldtk_asset::plugin::BevyLdtkAssetPlugin;
 use crate::component::entity::LdtkEntityPlugin;
 use crate::component::entity_definition::EntityDefinitionPlugin;
 use crate::component::field_instances::FieldInstancesPlugin;
-use crate::component::global_bounds::GlobalBoundsPlugin;
 use crate::component::grid_values::GridValuesPlugin;
 use crate::component::iid::IidPlugin;
 use crate::component::layer::LdtkLayerPlugin;
@@ -13,12 +12,12 @@ use crate::component::layer_tiles::LayerTilePlugin;
 use crate::component::level::LdtkLevelPlugin;
 use crate::component::level_background::LevelBackgroundPlugin;
 use crate::component::project::LdtkProjectPlugin;
+use crate::component::relations::RelationsPlugin;
 use crate::component::spawn_children::SpawnChildrenPlugin;
 use crate::component::tags::TagsPlugin;
 use crate::component::tile::TilePlugin;
 use crate::component::tileset_definition::TilesetDefinitionPlugin;
 use crate::component::world::LdtkWorldPlugin;
-use crate::debug_gizmos::{DebugGizmosPlugin, DebugGizmosSettings};
 
 pub struct ShieldtankPlugins;
 
@@ -43,15 +42,19 @@ impl PluginGroup for ShieldtankPlugins {
             // Visual Components
             .add(LayerTilePlugin)
             .add(LevelBackgroundPlugin)
-            .add(GlobalBoundsPlugin)
+            // .add(GlobalBoundsPlugin)
             .add(GridValuesPlugin)
             .add(TagsPlugin)
-            .add(TilePlugin);
+            .add(TilePlugin)
+            .add(RelationsPlugin);
+
         // Debug Gizmos
         // .add(DebugGizmosPlugin)
 
         #[cfg(feature = "debug_gizmos")]
         {
+            use crate::debug_gizmos::DebugGizmosPlugin;
+
             builder = builder.add(DebugGizmosPlugin::default());
         }
 

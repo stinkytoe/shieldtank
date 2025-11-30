@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 use bevy_ecs::entity::Entity;
 use bevy_ecs::query::{QueryData, With};
 use bevy_ecs::system::{Query, SystemParam};
@@ -6,7 +8,7 @@ use bevy_transform::components::GlobalTransform;
 
 use crate::component::global_bounds::LdtkGlobalBounds;
 use crate::component::grid_values::{LdtkGridValue, LdtkGridValues};
-use crate::component::layer::LdtkLayer;
+use crate::component::layer::ShieldtankLayer;
 
 #[derive(QueryData)]
 pub struct GridValueQueryData {
@@ -17,17 +19,7 @@ pub struct GridValueQueryData {
 
 #[derive(SystemParam)]
 pub struct GridValueQuery<'w, 's> {
-    query: Query<
-        'w,
-        's,
-        GridValueQueryData,
-        // (
-        //     &'static GlobalTransform,
-        //     &'static GlobalBounds,
-        //     &'static GridValues,
-        // ),
-        With<LdtkLayer>,
-    >,
+    query: Query<'w, 's, GridValueQueryData, With<ShieldtankLayer>>,
 }
 
 impl GridValueQuery<'_, '_> {
@@ -45,7 +37,7 @@ impl GridValueQuery<'_, '_> {
                 .translation()
                 .z
                 .partial_cmp(&global_transform_a.translation().z)
-                .unwrap()
+                .unwrap_or(Ordering::Less)
         });
 
         layers

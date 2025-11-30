@@ -15,7 +15,7 @@ use bevy_reflect::Reflect;
 
 use crate::shieldtank_error;
 
-use super::layer::LdtkLayer;
+use super::layer::ShieldtankLayer;
 use super::layer_definition::LdtkLayerDefinition;
 use super::shieldtank_component::ShieldtankComponentSystemSet;
 use super::tile::LdtkTile;
@@ -102,10 +102,10 @@ impl LdtkGridValues {
 #[allow(clippy::type_complexity)]
 pub(crate) fn grid_values_system(
     query: Query<
-        (Entity, &LdtkLayer, &LdtkLayerDefinition),
+        (Entity, &ShieldtankLayer, &LdtkLayerDefinition),
         Or<(
-            Changed<LdtkLayer>,
-            AssetChanged<LdtkLayer>,
+            Changed<ShieldtankLayer>,
+            AssetChanged<ShieldtankLayer>,
             Changed<LdtkLayerDefinition>,
             AssetChanged<LdtkLayerDefinition>,
         )>,

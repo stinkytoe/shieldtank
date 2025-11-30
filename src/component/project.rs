@@ -1,15 +1,15 @@
 use bevy_app::Plugin;
 use bevy_asset::{AsAssetId, Handle};
+use bevy_camera::visibility::Visibility;
 use bevy_ecs::component::Component;
 use bevy_ldtk_asset::project::Project;
 use bevy_ldtk_asset::world::World;
 use bevy_reflect::Reflect;
-use bevy_render::view::Visibility;
 use bevy_transform::components::{GlobalTransform, Transform};
 
 use super::shieldtank_component::{ShieldtankComponent, ShieldtankComponentSystemSet};
 use super::spawn_children::SpawnChildren;
-use super::world::LdtkWorld;
+use super::world::ShieldtankWorld;
 
 #[derive(Debug, Default, Reflect)]
 pub enum WorldsToSpawn {
@@ -52,7 +52,7 @@ impl ShieldtankComponent for LdtkProject {
 }
 
 impl SpawnChildren for LdtkProject {
-    type Child = LdtkWorld;
+    type Child = ShieldtankWorld;
 
     fn get_children(
         &self,
@@ -61,7 +61,7 @@ impl SpawnChildren for LdtkProject {
         asset
             .worlds
             .values()
-            .filter(|handle| self.worlds_to_spawn.handle_matches(handle.clone_weak()))
+            .filter(|&handle| self.worlds_to_spawn.handle_matches(handle.clone()))
             .cloned()
     }
 }

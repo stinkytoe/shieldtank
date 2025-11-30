@@ -40,14 +40,14 @@ where
     pub fn location_in_bounds(
         &self,
         location: Vec2,
-    ) -> impl Iterator<Item = <D as QueryData>::Item<'_>> {
+    ) -> impl Iterator<Item = <D as QueryData>::Item<'_, '_>> {
         self.query
             .iter()
             .filter(move |(_, data, _)| data.global_bounds.contains(location))
             .map(|(_, _, data)| data)
     }
 
-    pub fn has_tag(&self, tag: &str) -> impl Iterator<Item = <D as QueryData>::Item<'_>> {
+    pub fn has_tag(&self, tag: &str) -> impl Iterator<Item = <D as QueryData>::Item<'_, '_>> {
         self.query
             .iter()
             .filter(|(_, data, _)| {

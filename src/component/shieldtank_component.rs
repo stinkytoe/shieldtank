@@ -42,7 +42,7 @@ where
             .for_each(|(entity, component, asset)| {
                 let name = component.name(asset);
                 let iid = component.iid(asset);
-                commands.entity(entity).insert(name).insert(iid);
+                commands.entity(entity).insert((name, iid));
             });
     }
 }

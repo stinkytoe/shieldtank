@@ -1,20 +1,23 @@
 use bevy_app::Plugin;
 use bevy_asset::prelude::AssetChanged;
 use bevy_asset::{AsAssetId, Assets, Handle};
+use bevy_camera::visibility::Visibility;
 use bevy_ecs::component::Component;
 use bevy_ecs::entity::Entity;
-use bevy_ecs::query::{Changed, Or};
+use bevy_ecs::hierarchy::Children;
+use bevy_ecs::query::{Changed, Or, With};
 use bevy_ecs::system::{Commands, Query, Res};
 use bevy_ldtk_asset::layer::EntitiesLayer;
 use bevy_ldtk_asset::layer::LayerInstance;
 use bevy_math::Vec2;
 use bevy_reflect::Reflect;
-use bevy_render::view::Visibility;
 use bevy_transform::components::{GlobalTransform, Transform};
 use either::Either;
 
-use super::entity::LdtkEntity;
-use super::global_bounds::LdtkGlobalBounds;
+use crate::component::global_bounds::LdtkGlobalBounds;
+use crate::component::relations::ParentShieldtankLayer;
+
+use super::entity::ShieldtankEntity;
 use super::layer_definition::LdtkLayerDefinition;
 use super::layer_tiles::LdtkLayerTiles;
 use super::shieldtank_component::{ShieldtankComponent, ShieldtankComponentSystemSet};
@@ -22,21 +25,21 @@ use super::spawn_children::SpawnChildren;
 
 #[derive(Debug, Component, Reflect)]
 #[require(GlobalTransform, Visibility)]
-pub struct LdtkLayer {
+pub struct ShieldtankLayer {
     pub handle: Handle<LayerInstance>,
     pub layer_separation: f32,
 }
 
-impl Default for LdtkLayer {
+impl Default for ShieldtankLayer {
     fn default() -> Self {
         Self {
             handle: Default::default(),
-            layer_separation: 0.1,
+            layer_separation: 1.0,
         }
     }
 }
 
-impl AsAssetId for LdtkLayer {
+impl AsAssetId for ShieldtankLayer {
     type Asset = LayerInstance;
 
     fn as_asset_id(&self) -> bevy_asset::AssetId<Self::Asset> {
@@ -44,7 +47,7 @@ impl AsAssetId for LdtkLayer {
     }
 }
 
-impl ShieldtankComponent for LdtkLayer {
+impl ShieldtankComponent for ShieldtankLayer {
     fn new(handle: Handle<<Self as bevy_asset::AsAssetId>::Asset>) -> Self {
         Self {
             handle,
@@ -53,8 +56,8 @@ impl ShieldtankComponent for LdtkLayer {
     }
 }
 
-impl SpawnChildren for LdtkLayer {
-    type Child = LdtkEntity;
+impl SpawnChildren for ShieldtankLayer {
+    type Child = ShieldtankEntity;
 
     fn get_children(
         &self,
@@ -71,8 +74,8 @@ impl SpawnChildren for LdtkLayer {
 #[allow(clippy::type_complexity)]
 fn layer_insert_components_system(
     query: Query<
-        (Entity, &LdtkLayer, Option<&Transform>),
-        Or<(Changed<LdtkLayer>, AssetChanged<LdtkLayer>)>,
+        (Entity, &ShieldtankLayer, Option<&Transform>),
+        Or<(Changed<ShieldtankLayer>, AssetChanged<ShieldtankLayer>)>,
     >,
     assets: Res<Assets<LayerInstance>>,
     mut commands: Commands,
@@ -80,12 +83,8 @@ fn layer_insert_components_system(
     query
         .iter()
         .filter_map(|(entity, component, transform)| {
-            Some((
-                entity,
-                component,
-                transform,
-                assets.get(component.as_asset_id())?,
-            ))
+            let asset = assets.get(component.as_asset_id())?;
+            Some((entity, component, transform, asset))
         })
         .for_each(|(entity, component, transform, asset)| {
             let mut entity_commands = commands.entity(entity);
@@ -114,8 +113,27 @@ fn layer_insert_components_system(
         });
 }
 
+#[allow(clippy::type_complexity)]
+fn update_layer_entity_relation(
+    layer_query: Query<
+        (Entity, &Children),
+        Or<(Changed<ShieldtankLayer>, AssetChanged<ShieldtankLayer>)>,
+    >,
+    children_entities_query: Query<Entity, With<ShieldtankEntity>>,
+    mut commands: Commands,
+) {
+    layer_query.iter().for_each(|(layer, children)| {
+        children
+            .iter()
+            .filter(|&&entity| children_entities_query.contains(entity))
+            .for_each(|&entity| {
+                commands.entity(entity).insert(ParentShieldtankLayer(layer));
+            });
+    });
+}
+
 fn layer_global_bounds_system(
-    query: Query<(Entity, &LdtkLayer, &GlobalTransform), Changed<GlobalTransform>>,
+    query: Query<(Entity, &ShieldtankLayer, &GlobalTransform), Changed<GlobalTransform>>,
     assets: Res<Assets<LayerInstance>>,
     mut commands: Commands,
 ) {
@@ -141,12 +159,13 @@ fn layer_global_bounds_system(
 pub struct LdtkLayerPlugin;
 impl Plugin for LdtkLayerPlugin {
     fn build(&self, app: &mut bevy_app::App) {
-        app.register_type::<LdtkLayer>();
+        app.register_type::<ShieldtankLayer>();
         app.add_systems(ShieldtankComponentSystemSet, layer_insert_components_system);
+        app.add_systems(ShieldtankComponentSystemSet, update_layer_entity_relation);
         app.add_systems(ShieldtankComponentSystemSet, layer_global_bounds_system);
         app.add_systems(
             ShieldtankComponentSystemSet,
-            <LdtkLayer as ShieldtankComponent>::add_basic_components_system,
+            <ShieldtankLayer as ShieldtankComponent>::add_basic_components_system,
         );
     }
 }

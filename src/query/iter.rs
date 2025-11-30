@@ -18,7 +18,7 @@ where
     pub(crate) iter: QueryIter<'w, 's, (ShieldtankComponentData<S>, E, D), F>,
 }
 
-impl<'w, S, E, D, F> Iterator for ShieldtankComponentIter<'w, '_, S, E, D, F>
+impl<'w, 's, S, E, D, F> Iterator for ShieldtankComponentIter<'w, 's, S, E, D, F>
 where
     S: ShieldtankComponent + AsAssetId,
     <S as AsAssetId>::Asset: LdtkAsset,
@@ -26,7 +26,7 @@ where
     D: QueryData<ReadOnly = D> + 'static,
     F: QueryFilter + 'static,
 {
-    type Item = D::Item<'w>;
+    type Item = D::Item<'w, 's>;
 
     fn next(&mut self) -> Option<Self::Item> {
         self.iter.next().map(|(_, _, data)| data)

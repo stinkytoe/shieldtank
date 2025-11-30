@@ -14,7 +14,7 @@ pub struct LdtkLocationData {
     transform: Mut<'static, Transform>,
 }
 
-impl LdtkLocationDataItem<'_> {
+impl LdtkLocationDataItem<'_, '_> {
     pub fn get(&self) -> Vec2 {
         self.global_transform.translation().truncate()
     }
@@ -30,7 +30,7 @@ impl LdtkLocationDataItem<'_> {
     }
 }
 
-impl LdtkLocationDataReadOnlyItem<'_> {
+impl LdtkLocationDataReadOnlyItem<'_, '_> {
     pub fn get(&self) -> Vec2 {
         self.global_transform.translation().truncate()
     }

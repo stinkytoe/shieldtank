@@ -3,8 +3,8 @@ use bevy_asset::{AsAssetId, Assets, Handle, RenderAssetUsages};
 use bevy_color::{Color, ColorToPacked as _};
 use bevy_ecs::component::Component;
 use bevy_ecs::entity::Entity;
+use bevy_ecs::lifecycle::RemovedComponents;
 use bevy_ecs::query::{Changed, Or};
-use bevy_ecs::removal_detection::RemovedComponents;
 use bevy_ecs::system::{Commands, Query, ResMut};
 use bevy_image::Image;
 use bevy_ldtk_asset::level::LevelBackground as LdtkLevelBackground;
@@ -133,16 +133,15 @@ pub fn level_background_image_system(
 
             let image = component.generate_sprite_image(image)?;
             let image = images.add(image);
-            let anchor = Anchor::TopLeft;
+            let anchor = Anchor::TOP_LEFT;
             let sprite = Sprite {
                 image,
-                anchor,
                 ..Default::default()
             };
 
             debug!("Processing LevelBackgroundImage for {entity:?}");
 
-            commands.entity(entity).insert(sprite);
+            commands.entity(entity).insert((sprite, anchor));
 
             Ok(())
         })?;

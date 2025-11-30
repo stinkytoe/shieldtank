@@ -3,16 +3,16 @@ use bevy_color::Color;
 use bevy_ecs::component::Component;
 use bevy_ecs::entity::Entity;
 use bevy_ecs::hierarchy::Children;
+use bevy_ecs::lifecycle::RemovedComponents;
 use bevy_ecs::name::Name;
 use bevy_ecs::query::{Changed, With};
-use bevy_ecs::removal_detection::RemovedComponents;
 use bevy_ecs::system::{Commands, Query, ResMut};
 use bevy_log::debug;
 use bevy_math::Vec2;
 use bevy_math::primitives::Rectangle;
+use bevy_mesh::{Mesh, Mesh2d};
 use bevy_reflect::Reflect;
-use bevy_render::mesh::{Mesh, Mesh2d};
-use bevy_sprite::{ColorMaterial, MeshMaterial2d};
+use bevy_sprite_render::{ColorMaterial, MeshMaterial2d};
 use bevy_transform::components::Transform;
 
 #[derive(Debug, Component, Reflect)]

@@ -1,6 +1,7 @@
 use bevy_app::Plugin;
 use bevy_asset::prelude::AssetChanged;
 use bevy_asset::{AsAssetId, Assets, Handle};
+use bevy_camera::visibility::Visibility;
 use bevy_ecs::component::Component;
 use bevy_ecs::entity::Entity;
 use bevy_ecs::query::{Changed, Or};
@@ -8,51 +9,33 @@ use bevy_ecs::system::{Commands, Query, Res};
 use bevy_ldtk_asset::level::Level as LevelAsset;
 use bevy_math::{Rect, Vec2};
 use bevy_reflect::Reflect;
-use bevy_render::view::Visibility;
 use bevy_transform::components::{GlobalTransform, Transform};
 
-use super::global_bounds::LdtkGlobalBounds;
-use super::layer::LdtkLayer;
+use crate::component::global_bounds::LdtkGlobalBounds;
+
+use super::layer::ShieldtankLayer;
 use super::level_background::color::LevelBackgroundColor;
 use super::level_background::image::LevelBackgroundImage;
 use super::shieldtank_component::{ShieldtankComponent, ShieldtankComponentSystemSet};
 use super::spawn_children::SpawnChildren;
 
-#[derive(Debug, Default, Reflect)]
-pub enum LayersToSpawn {
-    #[default]
-    All,
-    None,
-}
-
-impl LayersToSpawn {
-    fn handle_matches(&self) -> bool {
-        match self {
-            LayersToSpawn::All => true,
-            LayersToSpawn::None => false,
-        }
-    }
-}
-
 #[derive(Debug, Component, Reflect)]
 #[require(GlobalTransform, Visibility)]
-pub struct LdtkLevel {
+pub struct ShieldtankLevel {
     pub handle: Handle<LevelAsset>,
     pub level_separation: f32,
-    pub layers_to_spawn: LayersToSpawn,
 }
 
-impl Default for LdtkLevel {
+impl Default for ShieldtankLevel {
     fn default() -> Self {
         Self {
             handle: Default::default(),
             level_separation: 10.0,
-            layers_to_spawn: LayersToSpawn::default(),
         }
     }
 }
 
-impl AsAssetId for LdtkLevel {
+impl AsAssetId for ShieldtankLevel {
     type Asset = LevelAsset;
 
     fn as_asset_id(&self) -> bevy_asset::AssetId<Self::Asset> {
@@ -60,36 +43,31 @@ impl AsAssetId for LdtkLevel {
     }
 }
 
-impl ShieldtankComponent for LdtkLevel {
+impl ShieldtankComponent for ShieldtankLevel {
     fn new(handle: Handle<<Self as AsAssetId>::Asset>) -> Self {
         Self {
             handle,
-            layers_to_spawn: LayersToSpawn::default(),
             ..Default::default()
         }
     }
 }
 
-impl SpawnChildren for LdtkLevel {
-    type Child = LdtkLayer;
+impl SpawnChildren for ShieldtankLevel {
+    type Child = ShieldtankLayer;
 
     fn get_children(
         &self,
         asset: &<Self as AsAssetId>::Asset,
     ) -> impl Iterator<Item = Handle<<Self::Child as AsAssetId>::Asset>> {
-        asset
-            .layers
-            .values()
-            .filter(|_| self.layers_to_spawn.handle_matches())
-            .cloned()
+        asset.layers.values().cloned()
     }
 }
 
 #[allow(clippy::type_complexity)]
 fn level_insert_components_system(
     query: Query<
-        (Entity, &LdtkLevel, Option<&Transform>),
-        Or<(Changed<LdtkLevel>, AssetChanged<LdtkLevel>)>,
+        (Entity, &ShieldtankLevel, Option<&Transform>),
+        Or<(Changed<ShieldtankLevel>, AssetChanged<ShieldtankLevel>)>,
     >,
     assets: Res<Assets<LevelAsset>>,
     mut commands: Commands,
@@ -138,7 +116,7 @@ fn level_insert_components_system(
 }
 
 fn level_global_bounds_system(
-    query: Query<(Entity, &LdtkLevel, &GlobalTransform), Changed<GlobalTransform>>,
+    query: Query<(Entity, &ShieldtankLevel, &GlobalTransform), Changed<GlobalTransform>>,
     assets: Res<Assets<LevelAsset>>,
     mut commands: Commands,
 ) {
@@ -164,10 +142,10 @@ fn level_global_bounds_system(
 pub struct LdtkLevelPlugin;
 impl Plugin for LdtkLevelPlugin {
     fn build(&self, app: &mut bevy_app::App) {
-        app.register_type::<LdtkLevel>();
+        app.register_type::<ShieldtankLevel>();
         app.add_systems(
             ShieldtankComponentSystemSet,
-            <LdtkLevel as ShieldtankComponent>::add_basic_components_system,
+            <ShieldtankLevel as ShieldtankComponent>::add_basic_components_system,
         );
         app.add_systems(ShieldtankComponentSystemSet, level_insert_components_system);
         app.add_systems(ShieldtankComponentSystemSet, level_global_bounds_system);

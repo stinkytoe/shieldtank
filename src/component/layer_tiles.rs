@@ -73,7 +73,7 @@ impl LdtkLayerTiles {
             .iter()
             .map(|tile| LdtkLayerTile::new(tile, tile_size))
             .collect();
-        let image = tiles_layer.tileset_image.clone();
+        let image = tiles_layer.tileset_image.clone().unwrap_or_default();
         let grid_cell_size = layer_asset.grid_cell_size as u32;
         let size = (layer_asset.grid_cell_size * layer_asset.grid_size).as_uvec2();
         let opacity = layer_asset.opacity as f32;
@@ -163,16 +163,15 @@ fn layer_tile_system(
 
             let image = component.generate_sprite_image(image)?;
             let image = images.add(image);
-            let anchor = Anchor::TopLeft;
+            let anchor = Anchor::TOP_LEFT;
             let sprite = Sprite {
                 image,
-                anchor,
                 ..Default::default()
             };
 
             debug!("Processing LayerTiles for {entity:?}");
 
-            commands.entity(entity).insert(sprite);
+            commands.entity(entity).insert((sprite, anchor));
 
             Ok(())
         })

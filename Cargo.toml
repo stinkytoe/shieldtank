@@ -18,36 +18,33 @@ exclude = [".github", ".gitignore", "assets", "examples"]
 readme = "README.md"
 
 [dependencies]
-bevy_app = { version = "0.16.0", default-features = false }
-bevy_asset = { version = "0.16.0", default-features = false }
-bevy_color = { version = "0.16.0", default-features = false }
-bevy_derive = { version = "0.16.0", default-features = false }
-bevy_ecs = { version = "0.16.0", default-features = false }
-bevy_gizmos = { version = "0.16.0", default-features = false }
-bevy_image = { version = "0.16.0", default-features = false }
-bevy_input = { version = "0.16.0", default-features = false, optional = true }
-bevy_log = { version = "0.16.0", default-features = false }
-bevy_math = { version = "0.16.0", default-features = false }
-bevy_platform = { version = "0.16.0", default-features = false }
-bevy_reflect = { version = "0.16.0", default-features = false }
-bevy_render = { version = "0.16.0", default-features = false }
-bevy_sprite = { version = "0.16.0", default-features = false }
-bevy_tasks = { version = "0.16.0", default-features = false }
-bevy_transform = { version = "0.16.0", default-features = false }
-bevy_utils = { version = "0.16.0", default-features = false }
+bevy_app = { version = "0.17", default-features = false }
+bevy_asset = { version = "0.17", default-features = false }
+bevy_camera = { version = "0.17", default-features = false }
+bevy_color = { version = "0.17", default-features = false }
+bevy_derive = { version = "0.17", default-features = false }
+bevy_ecs = { version = "0.17", default-features = false }
+bevy_gizmos = { version = "0.17", default-features = false, optional = true }
+bevy_image = { version = "0.17", default-features = false }
+bevy_input = { version = "0.17", default-features = false, optional = true }
+bevy_log = { version = "0.17", default-features = false }
+bevy_math = { version = "0.17", default-features = false }
+bevy_mesh = { version = "0.17", default-features = false }
+bevy_platform = { version = "0.17", default-features = false }
+bevy_reflect = { version = "0.17", default-features = false }
+bevy_sprite = { version = "0.17", default-features = false }
+bevy_sprite_render = { version = "0.17", default-features = false }
+bevy_transform = { version = "0.17", default-features = false }
+bevy_utils = { version = "0.17", default-features = false }
 
 #pinned to match bevy_image
-image = "0.25.2"
+image = { version = "0.25.2", default-features = false }
 
 either = "1.15"
-regex = "1.11"
-ron = "0.10"
-serde = { version = "1.0", features = ["derive"] }
 thiserror = "2.0"
 
-bevy_ldtk_asset = "0.7.1"
-#bevy_ldtk_asset = { path = "../bevy_ldtk_asset/" }
+bevy_ldtk_asset = { path = "../bevy_ldtk_asset/" }
 
 [features]
 default = ["debug_gizmos"]
-debug_gizmos = ["dep:bevy_input"]
+debug_gizmos = ["dep:bevy_input", "dep:bevy_gizmos"]

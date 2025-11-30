@@ -4,9 +4,6 @@ pub enum Error {
     WaitForAssetError(#[from] bevy_asset::WaitForAssetError),
 
     #[error(transparent)]
-    RonSpannedError(#[from] ron::error::SpannedError),
-
-    #[error(transparent)]
     IoError(#[from] std::io::Error),
 
     #[error(transparent)]

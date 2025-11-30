@@ -10,11 +10,11 @@ use bevy_ecs::system::{Query, Res};
 use bevy_ldtk_asset::prelude::LdtkAsset;
 use bevy_log::debug;
 
-use super::layer::LdtkLayer;
-use super::level::LdtkLevel;
+use super::layer::ShieldtankLayer;
+use super::level::ShieldtankLevel;
 use super::project::LdtkProject;
 use super::shieldtank_component::ShieldtankComponent;
-use super::world::LdtkWorld;
+use super::world::ShieldtankWorld;
 
 #[allow(non_upper_case_globals)]
 pub(crate) const ChildSystemSet: PostUpdate = PostUpdate;
@@ -74,9 +74,9 @@ impl Plugin for SpawnChildrenPlugin {
             ChildSystemSet,
             (
                 <LdtkProject as SpawnChildren>::child_spawn_system,
-                <LdtkWorld as SpawnChildren>::child_spawn_system,
-                <LdtkLevel as SpawnChildren>::child_spawn_system,
-                <LdtkLayer as SpawnChildren>::child_spawn_system,
+                <ShieldtankWorld as SpawnChildren>::child_spawn_system,
+                <ShieldtankLevel as SpawnChildren>::child_spawn_system,
+                <ShieldtankLayer as SpawnChildren>::child_spawn_system,
             )
                 .chain(),
         );

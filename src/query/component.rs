@@ -18,7 +18,7 @@ use super::iter::ShieldtankComponentIter;
 pub(crate) struct ShieldtankComponentData<S>
 where
     S: ShieldtankComponent + AsAssetId,
-    <S as AsAssetId>::Asset: LdtkAsset,
+    <S as bevy_asset::AsAssetId>::Asset: bevy_ldtk_asset::ldtk_asset_trait::LdtkAsset, // S::Asset: LdtkAsset, // <S as AsAssetId>::Asset: LdtkAsset,
 {
     entity: Entity,
     pub(crate) component: &'static S,
@@ -52,7 +52,7 @@ where
     D: QueryData<ReadOnly = D> + 'static,
     F: QueryFilter + 'static,
 {
-    pub fn get(&self, entity: Entity) -> Option<<D as QueryData>::Item<'_>> {
+    pub fn get(&self, entity: Entity) -> Option<<D as QueryData>::Item<'_, '_>> {
         self.query
             .as_readonly()
             .into_iter()
@@ -60,7 +60,7 @@ where
             .map(|(_, _, data)| data)
     }
 
-    pub fn get_iid(&self, iid: Iid) -> Option<<D as QueryData>::Item<'_>> {
+    pub fn get_iid(&self, iid: Iid) -> Option<<D as QueryData>::Item<'_, '_>> {
         self.query
             .as_readonly()
             .into_iter()
@@ -71,7 +71,7 @@ where
     pub fn with_name<'a>(
         &'a self,
         name: &'a str,
-    ) -> impl Iterator<Item = <D as QueryData>::Item<'a>> {
+    ) -> impl Iterator<Item = <D as QueryData>::Item<'a, 'a>> {
         self.query
             .as_readonly()
             .into_iter()
@@ -79,7 +79,7 @@ where
             .map(|(_, _, data)| data)
     }
 
-    pub fn iter(&self) -> impl Iterator<Item = <D as QueryData>::Item<'_>> {
+    pub fn iter(&self) -> impl Iterator<Item = <D as QueryData>::Item<'_, '_>> {
         self.query
             .as_readonly()
             .into_iter()
@@ -97,7 +97,7 @@ where
     D: QueryData + 'static,
     F: QueryFilter + 'static,
 {
-    pub fn get_mut(&mut self, entity: Entity) -> Option<<D as QueryData>::Item<'_>> {
+    pub fn get_mut(&mut self, entity: Entity) -> Option<<D as QueryData>::Item<'_, '_>> {
         self.query
             .reborrow()
             .into_iter()
@@ -105,7 +105,7 @@ where
             .map(|(_, _, data)| data)
     }
 
-    pub fn get_iid_mut(&mut self, iid: Iid) -> Option<<D as QueryData>::Item<'_>> {
+    pub fn get_iid_mut(&mut self, iid: Iid) -> Option<<D as QueryData>::Item<'_, '_>> {
         self.query
             .reborrow()
             .into_iter()
@@ -116,7 +116,7 @@ where
     pub fn with_name_mut<'a>(
         &'a mut self,
         name: &'a str,
-    ) -> impl Iterator<Item = <D as QueryData>::Item<'a>> {
+    ) -> impl Iterator<Item = <D as QueryData>::Item<'a, 'a>> {
         self.query
             .reborrow()
             .into_iter()
@@ -124,7 +124,7 @@ where
             .map(|(_, _, data)| data)
     }
 
-    pub fn iter_mut(&mut self) -> impl Iterator<Item = <D as QueryData>::Item<'_>> {
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = <D as QueryData>::Item<'_, '_>> {
         self.query.reborrow().into_iter().map(|(_, _, data)| data)
     }
 }
@@ -137,7 +137,7 @@ where
     D: QueryData<ReadOnly = D> + 'static,
     F: QueryFilter + 'static,
 {
-    type Item = D::Item<'w>;
+    type Item = D::Item<'w, 's>;
 
     type IntoIter = ShieldtankComponentIter<'w, 's, S, E, D, F>;
 

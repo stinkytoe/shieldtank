@@ -19,7 +19,7 @@ use bevy_sprite::{
     BorderRect, ScalingMode, SliceScaleMode, Sprite, SpriteImageMode, TextureSlicer,
 };
 
-use super::entity::LdtkEntity;
+use super::entity::ShieldtankEntity;
 use super::entity_definition::LdtkEntityDefinition;
 use super::shieldtank_component::ShieldtankComponentSystemSet;
 use super::tileset_definition::LdtkTilesetDefinition;
@@ -66,7 +66,7 @@ fn sprite_mode_cover(tile: &LdtkTile, image: Handle<Image>, asset: &EntityInstan
     let flip_y = tile.flip_y;
     let custom_size = Some(asset.size.as_vec2());
     let rect = Some(Rect::from_corners(tile.corner, tile.corner + tile.size));
-    let anchor = asset.anchor;
+    // let anchor = asset.anchor;
     let scaling_mode = ScalingMode::FillCenter;
     let image_mode = SpriteImageMode::Scale(scaling_mode);
 
@@ -76,7 +76,7 @@ fn sprite_mode_cover(tile: &LdtkTile, image: Handle<Image>, asset: &EntityInstan
         flip_y,
         custom_size,
         rect,
-        anchor,
+        // anchor,
         image_mode,
         ..Default::default()
     }
@@ -87,7 +87,7 @@ fn sprite_mode_fit_inside(tile: &LdtkTile, image: Handle<Image>, asset: &EntityI
     let flip_y = tile.flip_y;
     let custom_size = Some(asset.size.as_vec2());
     let rect = Some(Rect::from_corners(tile.corner, tile.corner + tile.size));
-    let anchor = asset.anchor;
+    // let anchor = asset.anchor;
     let scaling_mode = ScalingMode::FitCenter;
     let image_mode = SpriteImageMode::Scale(scaling_mode);
 
@@ -97,7 +97,7 @@ fn sprite_mode_fit_inside(tile: &LdtkTile, image: Handle<Image>, asset: &EntityI
         flip_y,
         custom_size,
         rect,
-        anchor,
+        // anchor,
         image_mode,
         ..Default::default()
     }
@@ -108,7 +108,7 @@ fn sprite_mode_repeat(tile: &LdtkTile, image: Handle<Image>, asset: &EntityInsta
     let flip_y = tile.flip_y;
     let custom_size = Some(asset.size.as_vec2());
     let rect = Some(Rect::from_corners(tile.corner, tile.corner + tile.size));
-    let anchor = asset.anchor;
+    // let anchor = asset.anchor;
     let image_mode = SpriteImageMode::Tiled {
         tile_x: true,
         tile_y: true,
@@ -121,7 +121,7 @@ fn sprite_mode_repeat(tile: &LdtkTile, image: Handle<Image>, asset: &EntityInsta
         flip_y,
         custom_size,
         rect,
-        anchor,
+        // anchor,
         image_mode,
         ..Default::default()
     }
@@ -132,7 +132,7 @@ fn sprite_mode_stretch(tile: &LdtkTile, image: Handle<Image>, asset: &EntityInst
     let flip_y = tile.flip_y;
     let custom_size = Some(asset.size.as_vec2());
     let rect = Some(Rect::from_corners(tile.corner, tile.corner + tile.size));
-    let anchor = asset.anchor;
+    // let anchor = asset.anchor;
     let image_mode = SpriteImageMode::Auto;
 
     Sprite {
@@ -141,7 +141,7 @@ fn sprite_mode_stretch(tile: &LdtkTile, image: Handle<Image>, asset: &EntityInst
         flip_y,
         custom_size,
         rect,
-        anchor,
+        // anchor,
         image_mode,
         ..Default::default()
     }
@@ -150,12 +150,12 @@ fn sprite_mode_stretch(tile: &LdtkTile, image: Handle<Image>, asset: &EntityInst
 fn sprite_mode_full_size_uncropped(
     tile: &LdtkTile,
     image: Handle<Image>,
-    asset: &EntityInstance,
+    // asset: &EntityInstance,
 ) -> Sprite {
     let flip_x = tile.flip_x;
     let flip_y = tile.flip_y;
     let rect = Some(Rect::from_corners(tile.corner, tile.corner + tile.size));
-    let anchor = asset.anchor;
+    // let anchor = asset.anchor;
     let image_mode = bevy_sprite::SpriteImageMode::Auto;
 
     Sprite {
@@ -163,7 +163,7 @@ fn sprite_mode_full_size_uncropped(
         flip_x,
         flip_y,
         rect,
-        anchor,
+        // anchor,
         image_mode,
         ..Default::default()
     }
@@ -180,7 +180,7 @@ fn sprite_mode_nine_slice(
     let flip_y = tile.flip_y;
     let custom_size = Some(asset.size.as_vec2());
     let rect = Some(Rect::from_corners(tile.corner, tile.corner + tile.size));
-    let anchor = asset.anchor;
+    // let anchor = asset.anchor;
     let border = BorderRect {
         left: nine_slice.left as f32,
         right: nine_slice.right as f32,
@@ -204,7 +204,7 @@ fn sprite_mode_nine_slice(
         flip_y,
         custom_size,
         rect,
-        anchor,
+        // anchor,
         image_mode,
         ..Default::default()
     }
@@ -215,14 +215,14 @@ fn insert_sprite_system(
     query: Query<
         (
             Entity,
-            &LdtkEntity,
+            &ShieldtankEntity,
             &LdtkEntityDefinition,
             &LdtkTilesetDefinition,
             &LdtkTile,
         ),
         Or<(
-            Changed<LdtkEntity>,
-            AssetChanged<LdtkEntity>,
+            Changed<ShieldtankEntity>,
+            AssetChanged<ShieldtankEntity>,
             Changed<LdtkTilesetDefinition>,
             AssetChanged<LdtkTilesetDefinition>,
             Changed<LdtkTile>,
@@ -271,7 +271,7 @@ fn insert_sprite_system(
                         return;
                     }
                     bevy_ldtk_asset::prelude::TileRenderMode::FullSizeUncropped => {
-                        sprite_mode_full_size_uncropped(tile, image, asset)
+                        sprite_mode_full_size_uncropped(tile, image)
                     }
                     bevy_ldtk_asset::prelude::TileRenderMode::NineSlice(nine_slice) => {
                         sprite_mode_nine_slice(tile, image, asset, nine_slice)
@@ -279,7 +279,7 @@ fn insert_sprite_system(
                 };
 
                 trace!("Inserting Sprite");
-                commands.entity(entity).insert(sprite);
+                commands.entity(entity).insert((sprite, asset.anchor));
             },
         );
 }

@@ -5,20 +5,19 @@ use bevy_color::palettes::css::{LIGHT_SEA_GREEN, RED, YELLOW};
 use bevy_ecs::entity::Entity;
 use bevy_ecs::query::With;
 use bevy_ecs::resource::Resource;
-use bevy_ecs::system::{Res, ResMut};
+use bevy_ecs::system::{Query, Res, ResMut};
 use bevy_gizmos::gizmos::Gizmos;
 use bevy_input::ButtonInput;
 use bevy_input::keyboard::KeyCode;
 use bevy_ldtk_asset::entity::EntityInstance;
 use bevy_reflect::Reflect;
 
-use crate::component::entity::LdtkEntity;
+use crate::component::entity::ShieldtankEntity;
 use crate::component::global_bounds::LdtkGlobalBounds;
 use crate::component::grid_values::LdtkGridValues;
-use crate::query::entity::LdtkEntityQuery;
+use crate::component::layer::ShieldtankLayer;
+use crate::component::level::ShieldtankLevel;
 use crate::query::grid_value::GridValueQuery;
-use crate::query::layer::LdtkLayerQuery;
-use crate::query::level::LdtkLevelQuery;
 
 #[derive(Clone, Debug, Resource, Reflect)]
 pub struct DebugGizmosSettings {
@@ -62,11 +61,13 @@ impl Default for DebugGizmosSettings {
 #[allow(clippy::too_many_arguments)]
 fn debug_gizmos_system(
     debug_gizmos: Res<DebugGizmosSettings>,
-    level_query: LdtkLevelQuery<&LdtkGlobalBounds>,
-    layer_query: LdtkLayerQuery<&LdtkGlobalBounds>,
-    layer_with_grid_values_query: LdtkLayerQuery<Entity, With<LdtkGridValues>>,
+    // level_query: LdtkLevelQuery<&LdtkGlobalBounds>,
+    // layer_query: LdtkLayerQuery<&LdtkGlobalBounds>,
+    level_query: Query<&LdtkGlobalBounds, With<ShieldtankLevel>>,
+    layer_query: Query<&LdtkGlobalBounds, With<ShieldtankLayer>>,
+    layer_with_grid_values_query: Query<Entity, With<LdtkGridValues>>,
     grid_values_query: GridValueQuery,
-    entity_query: LdtkEntityQuery<(&LdtkEntity, &LdtkGlobalBounds)>,
+    entity_query: Query<(&ShieldtankEntity, &LdtkGlobalBounds)>,
     entity_assets: Res<Assets<EntityInstance>>,
     mut gizmos: Gizmos,
 ) {
