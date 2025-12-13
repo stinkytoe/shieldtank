@@ -20,12 +20,12 @@ use bevy_sprite::{
 };
 
 use super::entity::ShieldtankEntity;
-use super::entity_definition::LdtkEntityDefinition;
+use super::entity_definition::ShieldtankEntityDefinition;
 use super::shieldtank_component::ShieldtankComponentSystemSet;
 use super::tileset_definition::LdtkTilesetDefinition;
 
 #[derive(Clone, Debug, Component, Reflect)]
-pub struct LdtkTile {
+pub struct ShieldtankTile {
     pub corner: Vec2,
     pub size: Vec2,
     // Not provided by LDtk, inserted by us for convenience
@@ -34,7 +34,7 @@ pub struct LdtkTile {
     pub tileset_definition: Handle<TilesetDefinitionAsset>,
 }
 
-impl LdtkTile {
+impl ShieldtankTile {
     pub fn new(tileset_rectangle: &LdtkTilesetRectangle) -> Self {
         let corner = tileset_rectangle.corner.as_vec2();
         let size = tileset_rectangle.size.as_vec2();
@@ -61,7 +61,11 @@ impl LdtkTile {
     }
 }
 
-fn sprite_mode_cover(tile: &LdtkTile, image: Handle<Image>, asset: &EntityInstance) -> Sprite {
+fn sprite_mode_cover(
+    tile: &ShieldtankTile,
+    image: Handle<Image>,
+    asset: &EntityInstance,
+) -> Sprite {
     let flip_x = tile.flip_x;
     let flip_y = tile.flip_y;
     let custom_size = Some(asset.size.as_vec2());
@@ -82,7 +86,11 @@ fn sprite_mode_cover(tile: &LdtkTile, image: Handle<Image>, asset: &EntityInstan
     }
 }
 
-fn sprite_mode_fit_inside(tile: &LdtkTile, image: Handle<Image>, asset: &EntityInstance) -> Sprite {
+fn sprite_mode_fit_inside(
+    tile: &ShieldtankTile,
+    image: Handle<Image>,
+    asset: &EntityInstance,
+) -> Sprite {
     let flip_x = tile.flip_x;
     let flip_y = tile.flip_y;
     let custom_size = Some(asset.size.as_vec2());
@@ -103,7 +111,11 @@ fn sprite_mode_fit_inside(tile: &LdtkTile, image: Handle<Image>, asset: &EntityI
     }
 }
 
-fn sprite_mode_repeat(tile: &LdtkTile, image: Handle<Image>, asset: &EntityInstance) -> Sprite {
+fn sprite_mode_repeat(
+    tile: &ShieldtankTile,
+    image: Handle<Image>,
+    asset: &EntityInstance,
+) -> Sprite {
     let flip_x = tile.flip_x;
     let flip_y = tile.flip_y;
     let custom_size = Some(asset.size.as_vec2());
@@ -127,7 +139,11 @@ fn sprite_mode_repeat(tile: &LdtkTile, image: Handle<Image>, asset: &EntityInsta
     }
 }
 
-fn sprite_mode_stretch(tile: &LdtkTile, image: Handle<Image>, asset: &EntityInstance) -> Sprite {
+fn sprite_mode_stretch(
+    tile: &ShieldtankTile,
+    image: Handle<Image>,
+    asset: &EntityInstance,
+) -> Sprite {
     let flip_x = tile.flip_x;
     let flip_y = tile.flip_y;
     let custom_size = Some(asset.size.as_vec2());
@@ -148,7 +164,7 @@ fn sprite_mode_stretch(tile: &LdtkTile, image: Handle<Image>, asset: &EntityInst
 }
 
 fn sprite_mode_full_size_uncropped(
-    tile: &LdtkTile,
+    tile: &ShieldtankTile,
     image: Handle<Image>,
     // asset: &EntityInstance,
 ) -> Sprite {
@@ -171,7 +187,7 @@ fn sprite_mode_full_size_uncropped(
 
 // FIXME: This doesn't render correctly when the width or height is too small
 fn sprite_mode_nine_slice(
-    tile: &LdtkTile,
+    tile: &ShieldtankTile,
     image: Handle<Image>,
     asset: &EntityInstance,
     nine_slice: &NineSlice,
@@ -216,16 +232,16 @@ fn insert_sprite_system(
         (
             Entity,
             &ShieldtankEntity,
-            &LdtkEntityDefinition,
+            &ShieldtankEntityDefinition,
             &LdtkTilesetDefinition,
-            &LdtkTile,
+            &ShieldtankTile,
         ),
         Or<(
             Changed<ShieldtankEntity>,
             AssetChanged<ShieldtankEntity>,
             Changed<LdtkTilesetDefinition>,
             AssetChanged<LdtkTilesetDefinition>,
-            Changed<LdtkTile>,
+            Changed<ShieldtankTile>,
         )>,
     >,
     entity_assets: Res<Assets<EntityInstance>>,
@@ -285,7 +301,7 @@ fn insert_sprite_system(
 }
 
 fn insert_tileset_definition(
-    query: Query<(Entity, &LdtkTile), Changed<LdtkTile>>,
+    query: Query<(Entity, &ShieldtankTile), Changed<ShieldtankTile>>,
     mut commands: Commands,
 ) {
     query.iter().for_each(|(entity, tile)| {
@@ -299,7 +315,7 @@ fn insert_tileset_definition(
 pub struct TilePlugin;
 impl Plugin for TilePlugin {
     fn build(&self, app: &mut bevy_app::App) {
-        app.register_type::<LdtkTile>();
+        app.register_type::<ShieldtankTile>();
         app.add_systems(
             ShieldtankComponentSystemSet,
             (

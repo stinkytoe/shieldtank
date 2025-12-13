@@ -5,17 +5,17 @@ use bevy_ldtk_asset::entity_definition::EntityDefinition as EntityDefinitionAsse
 use bevy_reflect::Reflect;
 
 #[derive(Debug, Component, Reflect)]
-pub struct LdtkEntityDefinition {
+pub struct ShieldtankEntityDefinition {
     handle: Handle<EntityDefinitionAsset>,
 }
 
-impl LdtkEntityDefinition {
+impl ShieldtankEntityDefinition {
     pub fn new(handle: Handle<EntityDefinitionAsset>) -> Self {
         Self { handle }
     }
 }
 
-impl AsAssetId for LdtkEntityDefinition {
+impl AsAssetId for ShieldtankEntityDefinition {
     type Asset = EntityDefinitionAsset;
 
     fn as_asset_id(&self) -> bevy_asset::AssetId<Self::Asset> {
@@ -26,6 +26,6 @@ impl AsAssetId for LdtkEntityDefinition {
 pub struct EntityDefinitionPlugin;
 impl Plugin for EntityDefinitionPlugin {
     fn build(&self, app: &mut bevy_app::App) {
-        app.register_type::<LdtkEntityDefinition>();
+        app.register_type::<ShieldtankEntityDefinition>();
     }
 }

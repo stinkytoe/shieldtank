@@ -5,12 +5,12 @@ use bevy_math::{Rect, Vec2};
 use bevy_reflect::Reflect;
 
 #[derive(Clone, Debug, Deref, Component, Reflect)]
-pub struct LdtkGlobalBounds {
+pub struct ShieldtankGlobalBounds {
     #[deref]
     bounds: Rect,
 }
 
-impl LdtkGlobalBounds {
+impl ShieldtankGlobalBounds {
     pub(crate) fn new(p0: Vec2, p1: Vec2) -> Self {
         let bounds = Rect::from_corners(p0, p1);
 
@@ -26,7 +26,7 @@ impl LdtkGlobalBounds {
     }
 }
 
-impl From<Rect> for LdtkGlobalBounds {
+impl From<Rect> for ShieldtankGlobalBounds {
     fn from(bounds: Rect) -> Self {
         Self { bounds }
     }
@@ -35,6 +35,6 @@ impl From<Rect> for LdtkGlobalBounds {
 pub struct GlobalBoundsPlugin;
 impl Plugin for GlobalBoundsPlugin {
     fn build(&self, app: &mut bevy_app::App) {
-        app.register_type::<LdtkGlobalBounds>();
+        app.register_type::<ShieldtankGlobalBounds>();
     }
 }

@@ -41,8 +41,8 @@ impl SpawnChildren for ShieldtankWorld {
     }
 }
 
-pub struct LdtkWorldPlugin;
-impl Plugin for LdtkWorldPlugin {
+pub struct ShieldtankWorldPlugin;
+impl Plugin for ShieldtankWorldPlugin {
     fn build(&self, app: &mut bevy_app::App) {
         app.register_type::<ShieldtankWorld>();
         app.add_systems(

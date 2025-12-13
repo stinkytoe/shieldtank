@@ -1,6 +1,7 @@
 pub mod component;
 pub mod error;
 pub mod plugin;
+pub mod prelude;
 pub mod query;
 
 #[cfg(feature = "debug_gizmos")]

@@ -3,18 +3,18 @@ use bevy_ecs::world::{Mut, Ref};
 use bevy_math::Vec2;
 use bevy_transform::components::{GlobalTransform, Transform};
 
-pub type LdtkLocation = LdtkLocationDataReadOnly;
-pub type LdtkLocationMut = LdtkLocationData;
+pub type ShieldtankLocation = ShieldtankLocationDataReadOnly;
+pub type ShieldtankLocationMut = ShieldtankLocationData;
 
 #[derive(QueryData)]
 #[query_data(mutable)]
 #[query_data(derive(Debug))]
-pub struct LdtkLocationData {
+pub struct ShieldtankLocationData {
     global_transform: Ref<'static, GlobalTransform>,
     transform: Mut<'static, Transform>,
 }
 
-impl LdtkLocationDataItem<'_, '_> {
+impl ShieldtankLocationDataItem<'_, '_> {
     pub fn get(&self) -> Vec2 {
         self.global_transform.translation().truncate()
     }
@@ -30,7 +30,7 @@ impl LdtkLocationDataItem<'_, '_> {
     }
 }
 
-impl LdtkLocationDataReadOnlyItem<'_, '_> {
+impl ShieldtankLocationDataReadOnlyItem<'_, '_> {
     pub fn get(&self) -> Vec2 {
         self.global_transform.translation().truncate()
     }

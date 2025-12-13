@@ -16,18 +16,21 @@ use bevy_sprite_render::{ColorMaterial, MeshMaterial2d};
 use bevy_transform::components::Transform;
 
 #[derive(Debug, Component, Reflect)]
-pub struct LevelBackgroundColor {
+pub struct ShieldtankLevelBackgroundColor {
     pub color: Color,
     pub size: Vec2,
 }
 
 #[derive(Component)]
-pub(crate) struct LdtkLevelBackgroundColorMesh;
+pub(crate) struct ShieldtankLevelBackgroundColorMesh;
 
 pub(crate) fn level_background_color_system(
-    query: Query<(Entity, &LevelBackgroundColor, Option<&Children>), Changed<LevelBackgroundColor>>,
-    background_children_query: Query<Entity, With<LdtkLevelBackgroundColorMesh>>,
-    mut removed: RemovedComponents<LevelBackgroundColor>,
+    query: Query<
+        (Entity, &ShieldtankLevelBackgroundColor, Option<&Children>),
+        Changed<ShieldtankLevelBackgroundColor>,
+    >,
+    background_children_query: Query<Entity, With<ShieldtankLevelBackgroundColorMesh>>,
+    mut removed: RemovedComponents<ShieldtankLevelBackgroundColor>,
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
@@ -51,7 +54,7 @@ pub(crate) fn level_background_color_system(
         let mesh_2d = Mesh2d(meshes.add(Rectangle::new(width, height)));
         let material = MeshMaterial2d(materials.add(component.color));
         let transform = Transform::from_xyz(width / 2.0, height / 2.0, 0.0);
-        let background_color_mesh = LdtkLevelBackgroundColorMesh;
+        let background_color_mesh = ShieldtankLevelBackgroundColorMesh;
         let child = commands
             .spawn((name, mesh_2d, material, transform, background_color_mesh))
             .id();

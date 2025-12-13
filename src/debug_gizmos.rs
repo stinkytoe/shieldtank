@@ -13,8 +13,8 @@ use bevy_ldtk_asset::entity::EntityInstance;
 use bevy_reflect::Reflect;
 
 use crate::component::entity::ShieldtankEntity;
-use crate::component::global_bounds::LdtkGlobalBounds;
-use crate::component::grid_values::LdtkGridValues;
+use crate::component::global_bounds::ShieldtankGlobalBounds;
+use crate::component::grid_values::ShieldtankGridValues;
 use crate::component::layer::ShieldtankLayer;
 use crate::component::level::ShieldtankLevel;
 use crate::query::grid_value::GridValueQuery;
@@ -63,11 +63,11 @@ fn debug_gizmos_system(
     debug_gizmos: Res<DebugGizmosSettings>,
     // level_query: LdtkLevelQuery<&LdtkGlobalBounds>,
     // layer_query: LdtkLayerQuery<&LdtkGlobalBounds>,
-    level_query: Query<&LdtkGlobalBounds, With<ShieldtankLevel>>,
-    layer_query: Query<&LdtkGlobalBounds, With<ShieldtankLayer>>,
-    layer_with_grid_values_query: Query<Entity, With<LdtkGridValues>>,
+    level_query: Query<&ShieldtankGlobalBounds, With<ShieldtankLevel>>,
+    layer_query: Query<&ShieldtankGlobalBounds, With<ShieldtankLayer>>,
+    layer_with_grid_values_query: Query<Entity, With<ShieldtankGridValues>>,
     grid_values_query: GridValueQuery,
-    entity_query: Query<(&ShieldtankEntity, &LdtkGlobalBounds)>,
+    entity_query: Query<(&ShieldtankEntity, &ShieldtankGlobalBounds)>,
     entity_assets: Res<Assets<EntityInstance>>,
     mut gizmos: Gizmos,
 ) {

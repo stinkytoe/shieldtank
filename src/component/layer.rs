@@ -4,8 +4,7 @@ use bevy_asset::{AsAssetId, Assets, Handle};
 use bevy_camera::visibility::Visibility;
 use bevy_ecs::component::Component;
 use bevy_ecs::entity::Entity;
-use bevy_ecs::hierarchy::Children;
-use bevy_ecs::query::{Changed, Or, With};
+use bevy_ecs::query::{Changed, Or};
 use bevy_ecs::system::{Commands, Query, Res};
 use bevy_ldtk_asset::layer::EntitiesLayer;
 use bevy_ldtk_asset::layer::LayerInstance;
@@ -14,8 +13,7 @@ use bevy_reflect::Reflect;
 use bevy_transform::components::{GlobalTransform, Transform};
 use either::Either;
 
-use crate::component::global_bounds::LdtkGlobalBounds;
-use crate::component::relations::ParentShieldtankLayer;
+use crate::component::global_bounds::ShieldtankGlobalBounds;
 
 use super::entity::ShieldtankEntity;
 use super::layer_definition::LdtkLayerDefinition;
@@ -113,25 +111,6 @@ fn layer_insert_components_system(
         });
 }
 
-#[allow(clippy::type_complexity)]
-fn update_layer_entity_relation(
-    layer_query: Query<
-        (Entity, &Children),
-        Or<(Changed<ShieldtankLayer>, AssetChanged<ShieldtankLayer>)>,
-    >,
-    children_entities_query: Query<Entity, With<ShieldtankEntity>>,
-    mut commands: Commands,
-) {
-    layer_query.iter().for_each(|(layer, children)| {
-        children
-            .iter()
-            .filter(|&&entity| children_entities_query.contains(entity))
-            .for_each(|&entity| {
-                commands.entity(entity).insert(ParentShieldtankLayer(layer));
-            });
-    });
-}
-
 fn layer_global_bounds_system(
     query: Query<(Entity, &ShieldtankLayer, &GlobalTransform), Changed<GlobalTransform>>,
     assets: Res<Assets<LayerInstance>>,
@@ -150,18 +129,18 @@ fn layer_global_bounds_system(
             let global_location = global_transform.translation().truncate();
             let size = asset.grid_size * asset.grid_cell_size;
             let size = Vec2::new(1.0, -1.0) * size.as_vec2();
-            let global_bounds = LdtkGlobalBounds::new(global_location, global_location + size);
+            let global_bounds =
+                ShieldtankGlobalBounds::new(global_location, global_location + size);
 
             commands.entity(entity).insert(global_bounds);
         });
 }
 
-pub struct LdtkLayerPlugin;
-impl Plugin for LdtkLayerPlugin {
+pub struct ShieldtankLayerPlugin;
+impl Plugin for ShieldtankLayerPlugin {
     fn build(&self, app: &mut bevy_app::App) {
         app.register_type::<ShieldtankLayer>();
         app.add_systems(ShieldtankComponentSystemSet, layer_insert_components_system);
-        app.add_systems(ShieldtankComponentSystemSet, update_layer_entity_relation);
         app.add_systems(ShieldtankComponentSystemSet, layer_global_bounds_system);
         app.add_systems(
             ShieldtankComponentSystemSet,

@@ -18,13 +18,13 @@ use crate::shieldtank_error;
 use super::layer::ShieldtankLayer;
 use super::layer_definition::LdtkLayerDefinition;
 use super::shieldtank_component::ShieldtankComponentSystemSet;
-use super::tile::LdtkTile;
+use super::tile::ShieldtankTile;
 
 #[derive(Clone, Debug, Reflect)]
 pub struct LdtkGridValue {
     pub color: Color,
     pub identifier: Option<String>,
-    pub tile: Option<LdtkTile>,
+    pub tile: Option<ShieldtankTile>,
     pub value: i64,
 }
 
@@ -32,7 +32,7 @@ impl LdtkGridValue {
     pub(crate) fn new(value: &LdtkIntGridValue) -> Self {
         let color = value.color;
         let identifier = value.identifier.clone();
-        let tile = value.tile.as_ref().map(LdtkTile::new);
+        let tile = value.tile.as_ref().map(ShieldtankTile::new);
         let value = value.value;
 
         Self {
@@ -45,13 +45,13 @@ impl LdtkGridValue {
 }
 
 #[derive(Debug, Component, Reflect)]
-pub struct LdtkGridValues {
+pub struct ShieldtankGridValues {
     size: I64Vec2,
     grid_cell_size: f32,
     values: HashMap<I64Vec2, LdtkGridValue>,
 }
 
-impl LdtkGridValues {
+impl ShieldtankGridValues {
     pub fn new(
         size: I64Vec2,
         int_grid: &[i64],
@@ -136,7 +136,7 @@ pub(crate) fn grid_values_system(
                 let size = layer.grid_size;
                 let int_grid = tiles_layer.int_grid.as_slice();
 
-                let grid_values = LdtkGridValues::new(size, int_grid, ldtk_layer_definition)?;
+                let grid_values = ShieldtankGridValues::new(size, int_grid, ldtk_layer_definition)?;
 
                 commands.entity(entity).insert(grid_values);
 
@@ -148,7 +148,7 @@ pub(crate) fn grid_values_system(
 pub struct GridValuesPlugin;
 impl Plugin for GridValuesPlugin {
     fn build(&self, app: &mut bevy_app::App) {
-        app.register_type::<LdtkGridValues>();
+        app.register_type::<ShieldtankGridValues>();
         app.add_systems(ShieldtankComponentSystemSet, grid_values_system);
     }
 }

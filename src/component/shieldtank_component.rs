@@ -8,7 +8,7 @@ use bevy_ecs::query::{Changed, Or};
 use bevy_ecs::system::{Commands, Query, Res};
 use bevy_ldtk_asset::prelude::LdtkAsset;
 
-use super::iid::LdtkIid;
+use super::iid::ShieldtankIid;
 
 #[allow(non_upper_case_globals)]
 pub(crate) const ShieldtankComponentSystemSet: PostUpdate = PostUpdate;
@@ -24,8 +24,8 @@ where
         Name::new(asset.get_identifier().to_string())
     }
 
-    fn iid(&self, asset: &<Self as AsAssetId>::Asset) -> LdtkIid {
-        LdtkIid::new(asset.get_iid())
+    fn iid(&self, asset: &<Self as AsAssetId>::Asset) -> ShieldtankIid {
+        ShieldtankIid::new(asset.get_iid())
     }
 
     #[allow(clippy::type_complexity)]

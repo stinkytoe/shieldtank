@@ -4,9 +4,7 @@ use bevy_asset::{AsAssetId, Assets, Handle};
 use bevy_camera::visibility::Visibility;
 use bevy_ecs::component::Component;
 use bevy_ecs::entity::Entity;
-use bevy_ecs::name::Name;
-use bevy_ecs::query::{Added, Changed, Or, With};
-use bevy_ecs::resource::Resource;
+use bevy_ecs::query::{Changed, Or};
 use bevy_ecs::system::Query;
 use bevy_ecs::system::{Commands, Res};
 use bevy_ldtk_asset::entity::EntityInstance;
@@ -14,14 +12,13 @@ use bevy_math::{Rect, Vec2};
 use bevy_reflect::Reflect;
 use bevy_transform::components::{GlobalTransform, Transform};
 
-use crate::component::global_bounds::LdtkGlobalBounds;
+use crate::component::global_bounds::ShieldtankGlobalBounds;
 
-use super::entity_definition::LdtkEntityDefinition;
-use super::field_instances::LdtkFieldInstances;
-use super::iid::LdtkIid;
+use super::entity_definition::ShieldtankEntityDefinition;
+use super::field_instances::ShieldtankFieldInstances;
 use super::shieldtank_component::{ShieldtankComponent, ShieldtankComponentSystemSet};
 use super::tags::LdtkTags;
-use super::tile::LdtkTile;
+use super::tile::ShieldtankTile;
 
 #[derive(Debug, Default, Component, Reflect)]
 #[require(GlobalTransform, Visibility)]
@@ -43,11 +40,6 @@ impl ShieldtankComponent for ShieldtankEntity {
     }
 }
 
-#[derive(Debug, Component, Reflect)]
-pub struct LdtkEntityLoadMarker;
-
-pub type LdtkEntityLoaded = Added<LdtkEntityLoadMarker>;
-
 #[allow(clippy::type_complexity)]
 fn entity_insert_components_system(
     query: Query<
@@ -55,12 +47,11 @@ fn entity_insert_components_system(
             Entity,
             &ShieldtankEntity,
             Option<&Transform>,
-            Option<&LdtkTile>,
+            Option<&ShieldtankTile>,
         ),
         Or<(Changed<ShieldtankEntity>, AssetChanged<ShieldtankEntity>)>,
     >,
     assets: Res<Assets<EntityInstance>>,
-    settings: Res<LdtkEntitySettings>,
     mut commands: Commands,
 ) {
     query
@@ -77,7 +68,7 @@ fn entity_insert_components_system(
             let mut entity_commands = commands.entity(entity);
 
             let entity_definition = asset.entity_definition.clone();
-            let entity_definition = LdtkEntityDefinition::new(entity_definition);
+            let entity_definition = ShieldtankEntityDefinition::new(entity_definition);
             entity_commands.insert(entity_definition);
 
             if transform.is_none() {
@@ -88,14 +79,13 @@ fn entity_insert_components_system(
             }
 
             if tile.is_none()
-                && settings.insert_tiles_on_spawn
                 && let Some(tile) = &asset.tile
             {
-                let tile = LdtkTile::new(tile);
+                let tile = ShieldtankTile::new(tile);
                 entity_commands.insert(tile);
             }
 
-            let field_instances = LdtkFieldInstances::new(asset.field_instances.clone());
+            let field_instances = ShieldtankFieldInstances::new(asset.field_instances.clone());
             entity_commands.insert(field_instances);
 
             if !asset.tags.is_empty() {
@@ -106,35 +96,14 @@ fn entity_insert_components_system(
 }
 
 #[allow(clippy::type_complexity)]
-fn entity_emit_trigger_system(
-    query: Query<
-        Entity,
-        (
-            With<ShieldtankEntity>,
-            Or<(
-                Added<LdtkIid>,
-                Added<Name>,
-                Added<Transform>,
-                Added<GlobalTransform>,
-            )>,
-        ),
-    >,
-    mut commands: Commands,
-) {
-    query.iter().for_each(|entity| {
-        commands.entity(entity).insert(LdtkEntityLoadMarker);
-    });
-}
-
-#[allow(clippy::type_complexity)]
 fn entity_global_bounds_system(
     query: Query<
         (Entity, &ShieldtankEntity, &GlobalTransform),
         Or<(
             Changed<ShieldtankEntity>,
             AssetChanged<ShieldtankEntity>,
-            Changed<LdtkEntityDefinition>,
-            AssetChanged<LdtkEntityDefinition>,
+            Changed<ShieldtankEntityDefinition>,
+            AssetChanged<ShieldtankEntityDefinition>,
             Changed<GlobalTransform>,
         )>,
     >,
@@ -154,47 +123,25 @@ fn entity_global_bounds_system(
             let global_location = global_transform.translation().truncate();
             let size = asset.size.as_vec2();
             let rect = Rect::from_center_size(global_location, size);
-            let global_bounds = LdtkGlobalBounds::from(rect);
+            let global_bounds = ShieldtankGlobalBounds::from(rect);
 
             commands.entity(entity).insert(global_bounds);
         });
 }
 
-#[derive(Clone, Debug, Reflect, Resource)]
-pub struct LdtkEntitySettings {
-    pub insert_tiles_on_spawn: bool,
-}
-
-impl Default for LdtkEntitySettings {
-    fn default() -> Self {
-        Self {
-            insert_tiles_on_spawn: true,
-        }
-    }
-}
-
 #[derive(Clone, Debug, Default)]
-pub struct LdtkEntityPlugin {
-    pub settings: LdtkEntitySettings,
-}
+pub struct ShieldtankEntityPlugin;
 
-impl Plugin for LdtkEntityPlugin {
+impl Plugin for ShieldtankEntityPlugin {
     fn build(&self, app: &mut bevy_app::App) {
         app.register_type::<ShieldtankEntity>();
-        app.register_type::<LdtkEntityLoadMarker>();
-        app.register_type::<LdtkEntitySettings>();
-        app.insert_resource(self.settings.clone());
         app.add_systems(
             ShieldtankComponentSystemSet,
             (
                 entity_insert_components_system,
-                entity_emit_trigger_system,
                 entity_global_bounds_system,
+                <ShieldtankEntity as ShieldtankComponent>::add_basic_components_system,
             ),
-        );
-        app.add_systems(
-            ShieldtankComponentSystemSet,
-            <ShieldtankEntity as ShieldtankComponent>::add_basic_components_system,
         );
     }
 }

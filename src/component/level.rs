@@ -11,10 +11,10 @@ use bevy_math::{Rect, Vec2};
 use bevy_reflect::Reflect;
 use bevy_transform::components::{GlobalTransform, Transform};
 
-use crate::component::global_bounds::LdtkGlobalBounds;
+use crate::component::global_bounds::ShieldtankGlobalBounds;
 
 use super::layer::ShieldtankLayer;
-use super::level_background::color::LevelBackgroundColor;
+use super::level_background::color::ShieldtankLevelBackgroundColor;
 use super::level_background::image::LevelBackgroundImage;
 use super::shieldtank_component::{ShieldtankComponent, ShieldtankComponentSystemSet};
 use super::spawn_children::SpawnChildren;
@@ -95,7 +95,7 @@ fn level_insert_components_system(
                     entity_commands.insert(background);
                 }
                 None => {
-                    let background = LevelBackgroundColor {
+                    let background = ShieldtankLevelBackgroundColor {
                         color: asset.bg_color,
                         size: asset.size.as_vec2(),
                     };
@@ -133,14 +133,14 @@ fn level_global_bounds_system(
             let global_location = global_transform.translation().truncate();
             let size = Vec2::new(1.0, -1.0) * asset.size.as_vec2();
             let rect = Rect::from_corners(global_location, global_location + size);
-            let global_bounds = LdtkGlobalBounds::from(rect);
+            let global_bounds = ShieldtankGlobalBounds::from(rect);
 
             commands.entity(entity).insert(global_bounds);
         });
 }
 
-pub struct LdtkLevelPlugin;
-impl Plugin for LdtkLevelPlugin {
+pub struct ShieldtankLevelPlugin;
+impl Plugin for ShieldtankLevelPlugin {
     fn build(&self, app: &mut bevy_app::App) {
         app.register_type::<ShieldtankLevel>();
         app.add_systems(
