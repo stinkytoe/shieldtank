@@ -43,7 +43,7 @@ image = { version = "0.25.2", default-features = false }
 either = "1.15"
 thiserror = "2.0"
 
-bevy_ldtk_asset = { path = "../bevy_ldtk_asset/" }
+bevy_ldtk_asset = "0.9"
 
 [features]
 default = ["debug_gizmos"]
