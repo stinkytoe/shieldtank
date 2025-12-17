@@ -17,7 +17,7 @@ use crate::component::global_bounds::ShieldtankGlobalBounds;
 use super::entity_definition::ShieldtankEntityDefinition;
 use super::field_instances::ShieldtankFieldInstances;
 use super::shieldtank_component::{ShieldtankComponent, ShieldtankComponentSystemSet};
-use super::tags::LdtkTags;
+use super::tags::ShieldtankTags;
 use super::tile::ShieldtankTile;
 
 #[derive(Debug, Default, Component, Reflect)]
@@ -89,7 +89,7 @@ fn entity_insert_components_system(
             entity_commands.insert(field_instances);
 
             if !asset.tags.is_empty() {
-                let tags = LdtkTags::new(&asset.tags);
+                let tags = ShieldtankTags::new(&asset.tags);
                 entity_commands.insert(tags);
             }
         });

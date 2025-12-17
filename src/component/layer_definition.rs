@@ -5,17 +5,17 @@ use bevy_ldtk_asset::layer_definition::LayerDefinition as LayerDefinitionAsset;
 use bevy_reflect::Reflect;
 
 #[derive(Debug, Default, Component, Reflect)]
-pub struct LdtkLayerDefinition {
+pub struct ShieldtankLayerDefinition {
     pub handle: Handle<LayerDefinitionAsset>,
 }
 
-impl LdtkLayerDefinition {
+impl ShieldtankLayerDefinition {
     pub(crate) fn new(handle: Handle<LayerDefinitionAsset>) -> Self {
         Self { handle }
     }
 }
 
-impl AsAssetId for LdtkLayerDefinition {
+impl AsAssetId for ShieldtankLayerDefinition {
     type Asset = LayerDefinitionAsset;
 
     fn as_asset_id(&self) -> bevy_asset::AssetId<Self::Asset> {
@@ -26,6 +26,6 @@ impl AsAssetId for LdtkLayerDefinition {
 pub struct LayerDefinitionPlugin;
 impl Plugin for LayerDefinitionPlugin {
     fn build(&self, app: &mut bevy_app::App) {
-        app.register_type::<LdtkLayerDefinition>();
+        app.register_type::<ShieldtankLayerDefinition>();
     }
 }

@@ -5,17 +5,17 @@ use bevy_ldtk_asset::tileset_definition::TilesetDefinition as TilesetDefinitionA
 use bevy_reflect::Reflect;
 
 #[derive(Debug, Component, Reflect)]
-pub struct LdtkTilesetDefinition {
+pub struct ShieldtankTilesetDefinition {
     handle: Handle<TilesetDefinitionAsset>,
 }
 
-impl LdtkTilesetDefinition {
+impl ShieldtankTilesetDefinition {
     pub fn new(handle: Handle<TilesetDefinitionAsset>) -> Self {
         Self { handle }
     }
 }
 
-impl AsAssetId for LdtkTilesetDefinition {
+impl AsAssetId for ShieldtankTilesetDefinition {
     type Asset = TilesetDefinitionAsset;
 
     fn as_asset_id(&self) -> bevy_asset::AssetId<Self::Asset> {
@@ -26,6 +26,6 @@ impl AsAssetId for LdtkTilesetDefinition {
 pub struct TilesetDefinitionPlugin;
 impl Plugin for TilesetDefinitionPlugin {
     fn build(&self, app: &mut bevy_app::App) {
-        app.register_type::<LdtkTilesetDefinition>();
+        app.register_type::<ShieldtankTilesetDefinition>();
     }
 }

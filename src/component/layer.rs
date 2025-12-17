@@ -16,7 +16,7 @@ use either::Either;
 use crate::component::global_bounds::ShieldtankGlobalBounds;
 
 use super::entity::ShieldtankEntity;
-use super::layer_definition::LdtkLayerDefinition;
+use super::layer_definition::ShieldtankLayerDefinition;
 use super::layer_tiles::LdtkLayerTiles;
 use super::shieldtank_component::{ShieldtankComponent, ShieldtankComponentSystemSet};
 use super::spawn_children::SpawnChildren;
@@ -95,7 +95,7 @@ fn layer_insert_components_system(
                 }
 
                 let layer_definition = asset.layer_definition.clone();
-                let layer_definition = LdtkLayerDefinition::new(layer_definition);
+                let layer_definition = ShieldtankLayerDefinition::new(layer_definition);
 
                 entity_commands.insert(layer_definition);
             }

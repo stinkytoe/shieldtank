@@ -7,7 +7,7 @@ use bevy_math::{I64Vec2, Rect, Vec2};
 use bevy_transform::components::GlobalTransform;
 
 use crate::component::global_bounds::ShieldtankGlobalBounds;
-use crate::component::grid_values::{LdtkGridValue, ShieldtankGridValues};
+use crate::component::grid_values::{ShieldtankGridValue, ShieldtankGridValues};
 use crate::component::layer::ShieldtankLayer;
 
 #[derive(QueryData)]
@@ -23,7 +23,7 @@ pub struct GridValueQuery<'w, 's> {
 }
 
 impl GridValueQuery<'_, '_> {
-    pub fn grid_value_at(&self, location: Vec2) -> Option<&LdtkGridValue> {
+    pub fn grid_value_at(&self, location: Vec2) -> Option<&ShieldtankGridValue> {
         let mut layers = self
             .query
             .iter()
@@ -56,7 +56,10 @@ impl GridValueQuery<'_, '_> {
         Some(identifier.as_str())
     }
 
-    pub fn enumerate_layer(&self, layer: Entity) -> impl Iterator<Item = (Rect, &LdtkGridValue)> {
+    pub fn enumerate_layer(
+        &self,
+        layer: Entity,
+    ) -> impl Iterator<Item = (Rect, &ShieldtankGridValue)> {
         let Ok(data) = self.query.get(layer) else {
             todo!()
         };

@@ -13,16 +13,15 @@ use bevy_ldtk_asset::entity_definition::NineSlice;
 use bevy_ldtk_asset::tileset_definition::TilesetDefinition as TilesetDefinitionAsset;
 use bevy_ldtk_asset::tileset_rectangle::TilesetRectangle as LdtkTilesetRectangle;
 use bevy_log::{trace, warn};
-use bevy_math::{Rect, Vec2};
+use bevy_math::{I64Vec2, Rect, Vec2};
 use bevy_reflect::Reflect;
-use bevy_sprite::{
-    BorderRect, ScalingMode, SliceScaleMode, Sprite, SpriteImageMode, TextureSlicer,
-};
+use bevy_sprite::SpriteScalingMode as ScalingMode;
+use bevy_sprite::{BorderRect, SliceScaleMode, Sprite, SpriteImageMode, TextureSlicer};
 
 use super::entity::ShieldtankEntity;
 use super::entity_definition::ShieldtankEntityDefinition;
 use super::shieldtank_component::ShieldtankComponentSystemSet;
-use super::tileset_definition::LdtkTilesetDefinition;
+use super::tileset_definition::ShieldtankTilesetDefinition;
 
 #[derive(Clone, Debug, Component, Reflect)]
 pub struct ShieldtankTile {
@@ -196,12 +195,9 @@ fn sprite_mode_nine_slice(
     let flip_y = tile.flip_y;
     let custom_size = Some(asset.size.as_vec2());
     let rect = Some(Rect::from_corners(tile.corner, tile.corner + tile.size));
-    // let anchor = asset.anchor;
     let border = BorderRect {
-        left: nine_slice.left as f32,
-        right: nine_slice.right as f32,
-        top: nine_slice.up as f32,
-        bottom: nine_slice.down as f32,
+        min_inset: I64Vec2::new(nine_slice.left, nine_slice.up).as_vec2(),
+        max_inset: I64Vec2::new(nine_slice.right, nine_slice.down).as_vec2(),
     };
     let center_scale_mode = SliceScaleMode::Tile { stretch_value: 1.0 };
     let sides_scale_mode = SliceScaleMode::Tile { stretch_value: 1.0 };
@@ -233,14 +229,14 @@ fn insert_sprite_system(
             Entity,
             &ShieldtankEntity,
             &ShieldtankEntityDefinition,
-            &LdtkTilesetDefinition,
+            &ShieldtankTilesetDefinition,
             &ShieldtankTile,
         ),
         Or<(
             Changed<ShieldtankEntity>,
             AssetChanged<ShieldtankEntity>,
-            Changed<LdtkTilesetDefinition>,
-            AssetChanged<LdtkTilesetDefinition>,
+            Changed<ShieldtankTilesetDefinition>,
+            AssetChanged<ShieldtankTilesetDefinition>,
             Changed<ShieldtankTile>,
         )>,
     >,
@@ -306,7 +302,7 @@ fn insert_tileset_definition(
 ) {
     query.iter().for_each(|(entity, tile)| {
         let tileset_definition = tile.tileset_definition.clone();
-        let tileset_definition = LdtkTilesetDefinition::new(tileset_definition);
+        let tileset_definition = ShieldtankTilesetDefinition::new(tileset_definition);
 
         commands.entity(entity).insert(tileset_definition);
     });

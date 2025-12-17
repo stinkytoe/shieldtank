@@ -20,7 +20,7 @@ use image::{DynamicImage, RgbaImage};
 use super::shieldtank_component::ShieldtankComponentSystemSet;
 
 #[derive(Debug, Reflect)]
-pub struct LdtkLayerTile {
+pub struct ShieldtankLayerTile {
     pub opacity: f32,
     pub flip_x: bool,
     pub flip_y: bool,
@@ -29,7 +29,7 @@ pub struct LdtkLayerTile {
     pub size: UVec2,
 }
 
-impl LdtkLayerTile {
+impl ShieldtankLayerTile {
     pub(crate) fn new(tile_instance: &TileInstance, size: UVec2) -> Self {
         let opacity = tile_instance.opacity;
         let flip_x = tile_instance.flip_x;
@@ -50,7 +50,7 @@ impl LdtkLayerTile {
 
 #[derive(Debug, Component, Reflect)]
 pub struct LdtkLayerTiles {
-    pub tiles: Vec<LdtkLayerTile>,
+    pub tiles: Vec<ShieldtankLayerTile>,
     pub image: Handle<Image>,
     pub grid_cell_size: u32,
     pub size: UVec2,
@@ -71,7 +71,7 @@ impl LdtkLayerTiles {
         let tiles = tiles_layer
             .tiles
             .iter()
-            .map(|tile| LdtkLayerTile::new(tile, tile_size))
+            .map(|tile| ShieldtankLayerTile::new(tile, tile_size))
             .collect();
         let image = tiles_layer.tileset_image.clone().unwrap_or_default();
         let grid_cell_size = layer_asset.grid_cell_size as u32;
@@ -180,7 +180,7 @@ fn layer_tile_system(
 pub struct LayerTilePlugin;
 impl Plugin for LayerTilePlugin {
     fn build(&self, app: &mut bevy_app::App) {
-        app.register_type::<LdtkLayerTile>();
+        app.register_type::<ShieldtankLayerTile>();
         app.register_type::<LdtkLayerTiles>();
         app.add_systems(ShieldtankComponentSystemSet, layer_tile_system);
     }

@@ -16,19 +16,19 @@ use bevy_reflect::Reflect;
 use crate::shieldtank_error;
 
 use super::layer::ShieldtankLayer;
-use super::layer_definition::LdtkLayerDefinition;
+use super::layer_definition::ShieldtankLayerDefinition;
 use super::shieldtank_component::ShieldtankComponentSystemSet;
 use super::tile::ShieldtankTile;
 
 #[derive(Clone, Debug, Reflect)]
-pub struct LdtkGridValue {
+pub struct ShieldtankGridValue {
     pub color: Color,
     pub identifier: Option<String>,
     pub tile: Option<ShieldtankTile>,
     pub value: i64,
 }
 
-impl LdtkGridValue {
+impl ShieldtankGridValue {
     pub(crate) fn new(value: &LdtkIntGridValue) -> Self {
         let color = value.color;
         let identifier = value.identifier.clone();
@@ -48,7 +48,7 @@ impl LdtkGridValue {
 pub struct ShieldtankGridValues {
     size: I64Vec2,
     grid_cell_size: f32,
-    values: HashMap<I64Vec2, LdtkGridValue>,
+    values: HashMap<I64Vec2, ShieldtankGridValue>,
 }
 
 impl ShieldtankGridValues {
@@ -73,7 +73,7 @@ impl ShieldtankGridValues {
                     .get(i)
                     .ok_or(shieldtank_error!("bad int grid value: {i}"))?;
 
-                Ok((key, LdtkGridValue::new(value)))
+                Ok((key, ShieldtankGridValue::new(value)))
             })
             .collect::<bevy_ecs::error::Result<HashMap<_, _>>>()?;
 
@@ -86,7 +86,7 @@ impl ShieldtankGridValues {
         })
     }
 
-    pub fn get(&self, grid: I64Vec2) -> Option<&LdtkGridValue> {
+    pub fn get(&self, grid: I64Vec2) -> Option<&ShieldtankGridValue> {
         self.values.get(&grid)
     }
 
@@ -94,7 +94,7 @@ impl ShieldtankGridValues {
         self.grid_cell_size
     }
 
-    pub fn enumerate(&self) -> impl Iterator<Item = (I64Vec2, &LdtkGridValue)> {
+    pub fn enumerate(&self) -> impl Iterator<Item = (I64Vec2, &ShieldtankGridValue)> {
         self.values.iter().map(|(index, value)| (*index, value))
     }
 }
@@ -102,12 +102,12 @@ impl ShieldtankGridValues {
 #[allow(clippy::type_complexity)]
 pub(crate) fn grid_values_system(
     query: Query<
-        (Entity, &ShieldtankLayer, &LdtkLayerDefinition),
+        (Entity, &ShieldtankLayer, &ShieldtankLayerDefinition),
         Or<(
             Changed<ShieldtankLayer>,
             AssetChanged<ShieldtankLayer>,
-            Changed<LdtkLayerDefinition>,
-            AssetChanged<LdtkLayerDefinition>,
+            Changed<ShieldtankLayerDefinition>,
+            AssetChanged<ShieldtankLayerDefinition>,
         )>,
     >,
     component_assets: Res<Assets<LayerInstance>>,
