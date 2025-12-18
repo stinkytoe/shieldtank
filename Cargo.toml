@@ -44,7 +44,8 @@ either = "1.15"
 thiserror = "2.0"
 
 #bevy_ldtk_asset = "0.9"
-bevy_ldtk_asset = { path = "../bevy_ldtk_asset/" }
+#bevy_ldtk_asset = { path = "../bevy_ldtk_asset/" }
+bevy_ldtk_asset = { git = "https://github.com/stinkytoe/bevy_ldtk_asset.git", branch = "bevy_0.18" }
 
 [features]
 default = ["debug_gizmos"]
