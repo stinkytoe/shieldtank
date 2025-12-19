@@ -22,12 +22,15 @@ where
     }
 }
 
-impl<'w, 's, D, F> QueryByIid<'w, 's, D, F>
+impl<D, F> QueryByIid<'_, '_, D, F>
 where
     D: QueryData + 'static,
     F: QueryFilter + 'static,
 {
-    pub fn get_mut(&'w mut self, iid: Iid) -> Option<D::Item<'w, 's>> {
+    pub fn get_mut<'w, 's>(&'w mut self, iid: Iid) -> Option<D::Item<'w, 's>>
+    where
+        'w: 's,
+    {
         self.inner_query
             .iter_mut()
             .find(|(inner_iid, _)| **inner_iid == iid)
