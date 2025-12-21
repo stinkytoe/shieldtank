@@ -9,7 +9,6 @@ pub mod layer_definition;
 pub mod layer_tiles;
 pub mod level;
 pub mod level_background;
-pub mod prelude;
 pub mod project;
 pub mod shieldtank_component;
 pub mod spawn_children;
