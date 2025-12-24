@@ -7,7 +7,7 @@ use bevy_reflect::Reflect;
 
 use super::tile::ShieldtankTile;
 
-#[derive(Deref, Component, Reflect)]
+#[derive(Debug, Deref, Component, Reflect)]
 pub struct ShieldtankFieldInstances {
     #[deref]
     pub field_instances: HashMap<String, FieldInstance>,
