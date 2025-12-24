@@ -1,5 +1,5 @@
 #[derive(Debug, thiserror::Error)]
-pub enum Error {
+pub enum ShieldtankError {
     #[error(transparent)]
     WaitForAssetError(#[from] bevy_asset::WaitForAssetError),
 
@@ -19,6 +19,6 @@ pub enum Error {
 #[macro_export]
 macro_rules! shieldtank_error {
     ($($args:tt)*) => {
-        $crate::error::Error::ShieldtankError(format!($($args)*))
+        $crate::error::ShieldtankError::ShieldtankError(format!($($args)*))
     };
 }

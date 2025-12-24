@@ -10,5 +10,5 @@ pub mod debug_gizmos;
 pub use bevy_ldtk_asset;
 
 pub mod result {
-    pub type Result<T> = std::result::Result<T, crate::error::Error>;
+    pub type ShieldtankResult<T> = std::result::Result<T, crate::error::ShieldtankError>;
 }

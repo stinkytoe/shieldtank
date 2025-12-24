@@ -14,7 +14,7 @@ use bevy_reflect::Reflect;
 use bevy_sprite::{Anchor, Sprite};
 use image::imageops::{crop_imm, overlay, resize};
 
-use crate::result::Result;
+use crate::result::ShieldtankResult;
 
 #[derive(Debug, Component, Reflect)]
 pub struct LevelBackgroundImage {
@@ -51,7 +51,7 @@ impl LevelBackgroundImage {
         }
     }
 
-    pub(crate) fn generate_sprite_image(&self, background_image: Image) -> Result<Image> {
+    pub(crate) fn generate_sprite_image(&self, background_image: Image) -> ShieldtankResult<Image> {
         let mut new_background_image = image::RgbaImage::new(self.size.x, self.size.y);
 
         new_background_image
