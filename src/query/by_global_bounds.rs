@@ -1,8 +1,11 @@
 use bevy_ecs::query::{QueryData, QueryFilter};
 use bevy_ecs::system::{Query, SystemParam};
 use bevy_math::Vec2;
+use itertools::Itertools;
 
 use crate::component::global_bounds::ShieldtankGlobalBounds;
+use crate::error::ShieldtankError;
+use crate::result::ShieldtankResult;
 
 #[derive(SystemParam)]
 pub struct QueryByGlobalBounds<'w, 's, D: QueryData + 'static, F: QueryFilter + 'static = ()> {
@@ -22,11 +25,19 @@ macro_rules! by_location_closure {
 impl<'w, 's, D, F> QueryByGlobalBounds<'w, 's, D, F>
 where
     D: QueryData<ReadOnly = D> + 'static,
+    D::Item<'w, 's>: std::fmt::Debug,
     F: QueryFilter + 'static,
 {
     #[inline]
     pub fn by_location(&'w self, location: Vec2) -> impl Iterator<Item = D::Item<'w, 's>> {
         by_location_closure!(self, iter, location)
+    }
+
+    #[inline]
+    pub fn single_by_location(&'w self, location: Vec2) -> ShieldtankResult<D::Item<'w, 's>> {
+        self.by_location(location)
+            .exactly_one()
+            .map_err(|_| ShieldtankError::SingleError(location))
     }
 
     #[inline]
@@ -51,5 +62,18 @@ where
         'w: 's,
     {
         by_location_closure!(self, iter_mut, location)
+    }
+
+    #[inline]
+    pub fn single_by_location_mut<'w, 's>(
+        &'w mut self,
+        location: Vec2,
+    ) -> ShieldtankResult<D::Item<'w, 's>>
+    where
+        'w: 's,
+    {
+        self.by_location_mut(location)
+            .exactly_one()
+            .map_err(|_| ShieldtankError::SingleError(location))
     }
 }

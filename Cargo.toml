@@ -41,6 +41,7 @@ bevy_utils = { version = "0.18.0-rc.1", default-features = false }
 image = { version = "0.25.2", default-features = false }
 
 either = "1.15"
+itertools = "0.14"
 thiserror = "2.0"
 
 #bevy_ldtk_asset = "0.9"

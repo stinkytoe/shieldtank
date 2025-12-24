@@ -1,3 +1,5 @@
+use bevy_math::Vec2;
+
 #[derive(Debug, thiserror::Error)]
 pub enum ShieldtankError {
     #[error(transparent)]
@@ -11,6 +13,9 @@ pub enum ShieldtankError {
 
     #[error(transparent)]
     QueryEntityError(#[from] bevy_ecs::query::QueryEntityError),
+
+    #[error("")]
+    SingleError(Vec2),
 
     #[error("ShieldtankError! {0}")]
     ShieldtankError(String),
