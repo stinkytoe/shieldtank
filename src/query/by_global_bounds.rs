@@ -37,7 +37,7 @@ where
     pub fn single_by_location(&'w self, location: Vec2) -> ShieldtankResult<D::Item<'w, 's>> {
         self.by_location(location)
             .exactly_one()
-            .map_err(|_| ShieldtankError::SingleError(location))
+            .map_err(|e| ShieldtankError::from_exactly_one(e, location))
     }
 
     #[inline]
@@ -74,6 +74,6 @@ where
     {
         self.by_location_mut(location)
             .exactly_one()
-            .map_err(|_| ShieldtankError::SingleError(location))
+            .map_err(|e| ShieldtankError::from_exactly_one(e, location))
     }
 }
