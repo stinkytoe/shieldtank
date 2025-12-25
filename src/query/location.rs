@@ -1,10 +1,11 @@
-use bevy_ecs::query::QueryData;
+use bevy_ecs::query::{Changed, QueryData};
 use bevy_ecs::world::{Mut, Ref};
 use bevy_math::Vec2;
 use bevy_transform::components::{GlobalTransform, Transform};
 
 pub type ShieldtankLocation = ShieldtankLocationDataReadOnly;
 pub type ShieldtankLocationMut = ShieldtankLocationData;
+pub type ShieldtankLocationChanged = Changed<GlobalTransform>;
 
 #[derive(QueryData)]
 #[query_data(mutable)]
