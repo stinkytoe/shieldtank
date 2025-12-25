@@ -11,7 +11,9 @@ pub use crate::component::tile::ShieldtankTile;
 pub use crate::query::by_global_bounds::QueryByGlobalBounds;
 pub use crate::query::by_iid::QueryByIid;
 pub use crate::query::grid_value::GridValueQuery;
-pub use crate::query::location::{ShieldtankLocation, ShieldtankLocationMut};
+pub use crate::query::location::{
+    ShieldtankLocation, ShieldtankLocationChanged, ShieldtankLocationMut,
+};
 
 pub use crate::plugin::ShieldtankPlugins;
 
