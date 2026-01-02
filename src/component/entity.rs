@@ -122,7 +122,9 @@ fn entity_global_bounds_system(
         .for_each(|(entity, asset, global_transform)| {
             let global_location = global_transform.translation().truncate();
             let size = asset.size.as_vec2();
-            let rect = Rect::from_center_size(global_location, size);
+            let anchor = asset.anchor;
+            let offset = anchor.as_vec() * size;
+            let rect = Rect::from_center_size(global_location - offset, size);
             let global_bounds = ShieldtankGlobalBounds::from(rect);
 
             commands.entity(entity).insert(global_bounds);
