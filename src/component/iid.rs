@@ -3,7 +3,7 @@ use bevy_derive::Deref;
 use bevy_ecs::component::Component;
 use bevy_ecs::entity::Entity;
 use bevy_ecs::lifecycle::RemovedComponents;
-use bevy_ecs::query::Changed;
+use bevy_ecs::query::{Added, Changed};
 use bevy_ecs::resource::Resource;
 use bevy_ecs::system::{Query, ResMut};
 use bevy_ldtk_asset::iid::Iid;
@@ -39,15 +39,19 @@ pub(crate) struct IidRegistry {
     pub(crate) registry: HashMap<Iid, Entity>,
 }
 
-fn register_iid(
-    added_query: Query<(Entity, &ShieldtankIid), Changed<ShieldtankIid>>,
-    mut removed: RemovedComponents<ShieldtankIid>,
+fn iid_added(
+    added_query: Query<(Entity, &ShieldtankIid), Added<ShieldtankIid>>,
     mut iid_registry: ResMut<IidRegistry>,
 ) {
     added_query.iter().for_each(|(entity, &iid)| {
         iid_registry.registry.insert(*iid, entity);
     });
+}
 
+fn iid_removed(
+    mut removed: RemovedComponents<ShieldtankIid>,
+    mut iid_registry: ResMut<IidRegistry>,
+) {
     removed.read().for_each(|removed_entity| {
         iid_registry
             .registry
@@ -61,6 +65,6 @@ impl Plugin for IidPlugin {
         app.register_type::<ShieldtankIid>()
             .insert_resource(IidRegistry::default())
             .register_type::<IidRegistry>()
-            .add_systems(ShieldtankComponentSystemSet, register_iid);
+            .add_systems(ShieldtankComponentSystemSet, (iid_added, iid_removed));
     }
 }
