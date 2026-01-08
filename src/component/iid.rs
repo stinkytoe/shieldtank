@@ -3,7 +3,7 @@ use bevy_derive::Deref;
 use bevy_ecs::component::Component;
 use bevy_ecs::entity::Entity;
 use bevy_ecs::lifecycle::RemovedComponents;
-use bevy_ecs::query::{Added, Changed};
+use bevy_ecs::query::Added;
 use bevy_ecs::resource::Resource;
 use bevy_ecs::system::{Query, ResMut};
 use bevy_ldtk_asset::iid::Iid;
