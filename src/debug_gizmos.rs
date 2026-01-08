@@ -61,8 +61,6 @@ impl Default for DebugGizmosSettings {
 #[allow(clippy::too_many_arguments)]
 fn debug_gizmos_system(
     debug_gizmos: Res<DebugGizmosSettings>,
-    // level_query: LdtkLevelQuery<&LdtkGlobalBounds>,
-    // layer_query: LdtkLayerQuery<&LdtkGlobalBounds>,
     level_query: Query<&ShieldtankGlobalBounds, With<ShieldtankLevel>>,
     layer_query: Query<&ShieldtankGlobalBounds, With<ShieldtankLayer>>,
     layer_with_grid_values_query: Query<Entity, With<ShieldtankGridValues>>,
