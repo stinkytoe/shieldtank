@@ -18,24 +18,42 @@ exclude = [".github", ".gitignore", "assets", "examples"]
 readme = "README.md"
 
 [dependencies]
-bevy_app = { version = "0.18.0-rc.2", default-features = false }
-bevy_asset = { version = "0.18.0-rc.2", default-features = false }
-bevy_camera = { version = "0.18.0-rc.2", default-features = false }
-bevy_color = { version = "0.18.0-rc.2", default-features = false }
-bevy_derive = { version = "0.18.0-rc.2", default-features = false }
-bevy_ecs = { version = "0.18.0-rc.2", default-features = false }
-bevy_gizmos = { version = "0.18.0-rc.2", default-features = false, optional = true }
-bevy_image = { version = "0.18.0-rc.2", default-features = false }
-bevy_input = { version = "0.18.0-rc.2", default-features = false, optional = true }
-bevy_log = { version = "0.18.0-rc.2", default-features = false }
-bevy_math = { version = "0.18.0-rc.2", default-features = false }
-bevy_mesh = { version = "0.18.0-rc.2", default-features = false }
-bevy_platform = { version = "0.18.0-rc.2", default-features = false }
-bevy_reflect = { version = "0.18.0-rc.2", default-features = false }
-bevy_sprite = { version = "0.18.0-rc.2", default-features = false }
-bevy_sprite_render = { version = "0.18.0-rc.2", default-features = false }
-bevy_transform = { version = "0.18.0-rc.2", default-features = false }
-bevy_utils = { version = "0.18.0-rc.2", default-features = false }
+bevy_app = { path = "../bevy/crates/bevy_app/", default-features = false }
+bevy_asset = { path = "../bevy/crates/bevy_asset/", default-features = false }
+bevy_camera = { path = "../bevy/crates/bevy_camera/", default-features = false }
+bevy_color = { path = "../bevy/crates/bevy_color/", default-features = false }
+bevy_derive = { path = "../bevy/crates/bevy_derive/", default-features = false }
+bevy_ecs = { path = "../bevy/crates/bevy_ecs/", default-features = false }
+bevy_gizmos = { path = "../bevy/crates/bevy_gizmos/", default-features = false, optional = true }
+bevy_image = { path = "../bevy/crates/bevy_image/", default-features = false }
+bevy_input = { path = "../bevy/crates/bevy_input/", default-features = false, optional = true }
+bevy_log = { path = "../bevy/crates/bevy_log/", default-features = false }
+bevy_math = { path = "../bevy/crates/bevy_math/", default-features = false }
+bevy_mesh = { path = "../bevy/crates/bevy_mesh/", default-features = false }
+bevy_platform = { path = "../bevy/crates/bevy_platform/", default-features = false }
+bevy_reflect = { path = "../bevy/crates/bevy_reflect/", default-features = false }
+bevy_sprite = { path = "../bevy/crates/bevy_sprite/", default-features = false }
+bevy_sprite_render = { path = "../bevy/crates/bevy_sprite_render/", default-features = false }
+bevy_transform = { path = "../bevy/crates/bevy_transform/", default-features = false }
+bevy_utils = { path = "../bevy/crates/bevy_utils/", default-features = false }
+# bevy_app = { version = "0.18.0-rc.2", default-features = false }
+# bevy_asset = { version = "0.18.0-rc.2", default-features = false }
+# bevy_camera = { version = "0.18.0-rc.2", default-features = false }
+# bevy_color = { version = "0.18.0-rc.2", default-features = false }
+# bevy_derive = { version = "0.18.0-rc.2", default-features = false }
+# bevy_ecs = { version = "0.18.0-rc.2", default-features = false }
+# bevy_gizmos = { version = "0.18.0-rc.2", default-features = false, optional = true }
+# bevy_image = { version = "0.18.0-rc.2", default-features = false }
+# bevy_input = { version = "0.18.0-rc.2", default-features = false, optional = true }
+# bevy_log = { version = "0.18.0-rc.2", default-features = false }
+# bevy_math = { version = "0.18.0-rc.2", default-features = false }
+# bevy_mesh = { version = "0.18.0-rc.2", default-features = false }
+# bevy_platform = { version = "0.18.0-rc.2", default-features = false }
+# bevy_reflect = { version = "0.18.0-rc.2", default-features = false }
+# bevy_sprite = { version = "0.18.0-rc.2", default-features = false }
+# bevy_sprite_render = { version = "0.18.0-rc.2", default-features = false }
+# bevy_transform = { version = "0.18.0-rc.2", default-features = false }
+# bevy_utils = { version = "0.18.0-rc.2", default-features = false }
 
 #pinned to match bevy_image
 image = { version = "0.25.2", default-features = false }
@@ -45,8 +63,8 @@ itertools = "0.14"
 thiserror = "2.0"
 
 #bevy_ldtk_asset = "0.9"
-#bevy_ldtk_asset = { path = "../bevy_ldtk_asset/" }
-bevy_ldtk_asset = { git = "https://github.com/stinkytoe/bevy_ldtk_asset.git", branch = "bevy_0.18" }
+bevy_ldtk_asset = { path = "../bevy_ldtk_asset/" }
+#bevy_ldtk_asset = { git = "https://github.com/stinkytoe/bevy_ldtk_asset.git", branch = "bevy_0.18" }
 
 [features]
 default = ["debug_gizmos"]
