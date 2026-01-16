@@ -101,7 +101,7 @@ unsafe impl<'w, 's, const IID: u128, D: QueryData + 'static, F: QueryFilter + 's
 
     unsafe fn validate_param(
         state: &mut Self::State,
-        system_meta: &SystemMeta,
+        _system_meta: &SystemMeta,
         world: UnsafeWorldCell,
     ) -> Result<(), SystemParamValidationError> {
         let iid = Iid::from_u128(IID);
@@ -114,7 +114,8 @@ unsafe impl<'w, 's, const IID: u128, D: QueryData + 'static, F: QueryFilter + 's
         )?;
 
         let query = unsafe {
-            state.query_unchecked_with_ticks(world, system_meta.get_last_run(), world.change_tick())
+            //state.query_unchecked_with_ticks(world, system_meta.get_last_run(), world.change_tick())
+            state.query_unchecked_with_ticks(world, world.last_change_tick(), world.change_tick())
         };
 
         let entity = *registry
