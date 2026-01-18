@@ -3,9 +3,9 @@ use bevy_ecs::world::{Mut, Ref};
 use bevy_math::Vec2;
 use bevy_transform::components::{GlobalTransform, Transform};
 
-pub type ShieldtankLocation = ShieldtankLocationDataReadOnly;
-pub type ShieldtankLocationMut = ShieldtankLocationData;
-pub type ShieldtankLocationChanged = Changed<GlobalTransform>;
+pub type ShieldtankWorldLocation = ShieldtankLocationDataReadOnly;
+pub type ShieldtankWorldLocationMut = ShieldtankLocationData;
+pub type ShieldtankWorldLocationChanged = Changed<GlobalTransform>;
 
 #[derive(QueryData)]
 #[query_data(mutable)]

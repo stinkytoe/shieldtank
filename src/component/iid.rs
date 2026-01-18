@@ -28,6 +28,12 @@ impl PartialEq<Iid> for ShieldtankIid {
     }
 }
 
+impl PartialEq<u128> for ShieldtankIid {
+    fn eq(&self, other: &u128) -> bool {
+        self.0.as_u128() == *other
+    }
+}
+
 impl From<Iid> for ShieldtankIid {
     fn from(value: Iid) -> Self {
         Self(value)

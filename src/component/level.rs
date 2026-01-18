@@ -11,7 +11,7 @@ use bevy_math::{Rect, Vec2};
 use bevy_reflect::Reflect;
 use bevy_transform::components::{GlobalTransform, Transform};
 
-use crate::component::global_bounds::ShieldtankGlobalBounds;
+use crate::component::world_bounds::ShieldtankWorldBounds;
 
 use super::layer::ShieldtankLayer;
 use super::level_background::color::ShieldtankLevelBackgroundColor;
@@ -133,7 +133,7 @@ fn level_global_bounds_system(
             let global_location = global_transform.translation().truncate();
             let size = Vec2::new(1.0, -1.0) * asset.size.as_vec2();
             let rect = Rect::from_corners(global_location, global_location + size);
-            let global_bounds = ShieldtankGlobalBounds::from(rect);
+            let global_bounds = ShieldtankWorldBounds::from(rect);
 
             commands.entity(entity).insert(global_bounds);
         });

@@ -13,7 +13,7 @@ use bevy_reflect::Reflect;
 use bevy_transform::components::{GlobalTransform, Transform};
 use either::Either;
 
-use crate::component::global_bounds::ShieldtankGlobalBounds;
+use crate::component::world_bounds::ShieldtankWorldBounds;
 
 use super::entity::ShieldtankEntity;
 use super::layer_definition::ShieldtankLayerDefinition;
@@ -129,8 +129,7 @@ fn layer_global_bounds_system(
             let global_location = global_transform.translation().truncate();
             let size = asset.grid_size * asset.grid_cell_size;
             let size = Vec2::new(1.0, -1.0) * size.as_vec2();
-            let global_bounds =
-                ShieldtankGlobalBounds::new(global_location, global_location + size);
+            let global_bounds = ShieldtankWorldBounds::new(global_location, global_location + size);
 
             commands.entity(entity).insert(global_bounds);
         });

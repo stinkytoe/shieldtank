@@ -3,13 +3,13 @@ use bevy_ecs::system::{Query, SystemParam};
 use bevy_math::Vec2;
 use itertools::Itertools;
 
-use crate::component::global_bounds::ShieldtankGlobalBounds;
+use crate::component::world_bounds::ShieldtankWorldBounds;
 use crate::error::ShieldtankError;
 use crate::result::ShieldtankResult;
 
 #[derive(SystemParam)]
 pub struct QueryByGlobalBounds<'w, 's, D: QueryData + 'static, F: QueryFilter + 'static = ()> {
-    pub(crate) inner_query: Query<'w, 's, (&'static ShieldtankGlobalBounds, D), F>,
+    pub(crate) inner_query: Query<'w, 's, (&'static ShieldtankWorldBounds, D), F>,
 }
 
 macro_rules! by_location_closure {

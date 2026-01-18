@@ -6,14 +6,14 @@ use bevy_ecs::system::{Query, SystemParam};
 use bevy_math::{I64Vec2, Rect, Vec2};
 use bevy_transform::components::GlobalTransform;
 
-use crate::component::global_bounds::ShieldtankGlobalBounds;
 use crate::component::grid_values::{ShieldtankGridValue, ShieldtankGridValues};
 use crate::component::layer::ShieldtankLayer;
+use crate::component::world_bounds::ShieldtankWorldBounds;
 
 #[derive(QueryData)]
 pub struct GridValueQueryData {
     global_transform: &'static GlobalTransform,
-    global_bounds: &'static ShieldtankGlobalBounds,
+    global_bounds: &'static ShieldtankWorldBounds,
     grid_values: &'static ShieldtankGridValues,
 }
 

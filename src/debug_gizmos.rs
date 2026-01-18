@@ -13,10 +13,10 @@ use bevy_ldtk_asset::entity::EntityInstance;
 use bevy_reflect::Reflect;
 
 use crate::component::entity::ShieldtankEntity;
-use crate::component::global_bounds::ShieldtankGlobalBounds;
 use crate::component::grid_values::ShieldtankGridValues;
 use crate::component::layer::ShieldtankLayer;
 use crate::component::level::ShieldtankLevel;
+use crate::component::world_bounds::ShieldtankWorldBounds;
 use crate::query::grid_value::GridValueQuery;
 
 #[derive(Clone, Debug, Resource, Reflect)]
@@ -61,11 +61,11 @@ impl Default for DebugGizmosSettings {
 #[allow(clippy::too_many_arguments)]
 fn debug_gizmos_system(
     debug_gizmos: Res<DebugGizmosSettings>,
-    level_query: Query<&ShieldtankGlobalBounds, With<ShieldtankLevel>>,
-    layer_query: Query<&ShieldtankGlobalBounds, With<ShieldtankLayer>>,
+    level_query: Query<&ShieldtankWorldBounds, With<ShieldtankLevel>>,
+    layer_query: Query<&ShieldtankWorldBounds, With<ShieldtankLayer>>,
     layer_with_grid_values_query: Query<Entity, With<ShieldtankGridValues>>,
     grid_values_query: GridValueQuery,
-    entity_query: Query<(&ShieldtankEntity, &ShieldtankGlobalBounds)>,
+    entity_query: Query<(&ShieldtankEntity, &ShieldtankWorldBounds)>,
     entity_assets: Res<Assets<EntityInstance>>,
     mut gizmos: Gizmos,
 ) {

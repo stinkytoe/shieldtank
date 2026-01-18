@@ -12,7 +12,7 @@ use bevy_math::{Rect, Vec2};
 use bevy_reflect::Reflect;
 use bevy_transform::components::{GlobalTransform, Transform};
 
-use crate::component::global_bounds::ShieldtankGlobalBounds;
+use crate::component::world_bounds::ShieldtankWorldBounds;
 
 use super::entity_definition::ShieldtankEntityDefinition;
 use super::field_instances::ShieldtankFieldInstances;
@@ -125,7 +125,7 @@ fn entity_global_bounds_system(
             let anchor = asset.anchor;
             let offset = anchor.as_vec() * size;
             let rect = Rect::from_center_size(global_location - offset, size);
-            let global_bounds = ShieldtankGlobalBounds::from(rect);
+            let global_bounds = ShieldtankWorldBounds::from(rect);
 
             commands.entity(entity).insert(global_bounds);
         });

@@ -4,7 +4,6 @@ use bevy_ldtk_asset::plugin::BevyLdtkAssetPlugin;
 use crate::component::entity::ShieldtankEntityPlugin;
 use crate::component::entity_definition::EntityDefinitionPlugin;
 use crate::component::field_instances::FieldInstancesPlugin;
-use crate::component::global_bounds::GlobalBoundsPlugin;
 use crate::component::grid_values::GridValuesPlugin;
 use crate::component::iid::IidPlugin;
 use crate::component::layer::ShieldtankLayerPlugin;
@@ -18,6 +17,7 @@ use crate::component::tags::TagsPlugin;
 use crate::component::tile::TilePlugin;
 use crate::component::tileset_definition::TilesetDefinitionPlugin;
 use crate::component::world::ShieldtankWorldPlugin;
+use crate::component::world_bounds::GlobalBoundsPlugin;
 
 pub struct ShieldtankPlugins;
 
