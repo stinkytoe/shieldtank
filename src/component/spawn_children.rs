@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use bevy_app::{Plugin, PostUpdate};
 use bevy_asset::prelude::AssetChanged;
 use bevy_asset::{AsAssetId, Assets, Handle};
@@ -32,7 +34,7 @@ where
     fn get_children(
         &self,
         asset: &<Self as AsAssetId>::Asset,
-        filter: Self::Filter,
+        filter: Cow<Self::Filter>,
     ) -> impl Iterator<Item = Handle<<Self::Child as AsAssetId>::Asset>>;
 
     #[allow(clippy::type_complexity)]
@@ -63,7 +65,11 @@ where
                     return;
                 };
 
-                let filter = filter.cloned().unwrap_or_default();
+                let filter: Cow<Self::Filter> = filter
+                    .map(Cow::Borrowed)
+                    .unwrap_or_else(|| Cow::Owned(Self::Filter::default()));
+
+                // let filter = filter.cloned().unwrap_or_default();
 
                 component
                     .get_children(asset, filter)

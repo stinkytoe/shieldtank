@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use bevy_app::Plugin;
 use bevy_asset::prelude::AssetChanged;
 use bevy_asset::{AsAssetId, Assets, Handle};
@@ -66,7 +68,7 @@ impl SpawnChildren for ShieldtankLevel {
     fn get_children(
         &self,
         asset: &LevelAsset,
-        _filter: ShieldtankLevelFilter,
+        _filter: Cow<ShieldtankLevelFilter>,
     ) -> impl Iterator<Item = Handle<LayerInstance>> {
         asset.layers.values().cloned()
     }

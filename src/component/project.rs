@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use bevy_app::Plugin;
 use bevy_asset::{AsAssetId, Handle};
 use bevy_camera::visibility::Visibility;
@@ -45,7 +47,7 @@ impl SpawnChildren for LdtkProject {
     fn get_children(
         &self,
         asset: &Project,
-        _filter: ShieldtankProjectFilter,
+        _filter: Cow<ShieldtankProjectFilter>,
     ) -> impl Iterator<Item = Handle<WorldAsset>> {
         asset.worlds.values().cloned()
     }
