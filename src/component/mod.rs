@@ -1,6 +1,7 @@
 pub mod entity;
 pub mod entity_definition;
 pub mod field_instances;
+pub mod filter;
 pub mod grid_values;
 pub mod iid;
 pub mod layer;
@@ -16,4 +17,3 @@ pub mod tile;
 pub mod tileset_definition;
 pub mod world;
 pub mod world_bounds;
-

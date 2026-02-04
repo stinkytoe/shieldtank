@@ -46,6 +46,8 @@ thiserror = "2.0"
 
 bevy_ldtk_asset = "0.10"
 
+shieldtank_derive = { path = "./shieldtank_derive" }
+
 [features]
 default = ["debug_gizmos"]
 debug_gizmos = ["dep:bevy_input", "dep:bevy_gizmos"]

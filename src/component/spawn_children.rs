@@ -10,6 +10,7 @@ use bevy_ecs::system::{Query, Res};
 use bevy_ldtk_asset::prelude::LdtkAsset;
 use bevy_log::debug;
 
+use super::filter::ShieldtankComponentFilter;
 use super::layer::ShieldtankLayer;
 use super::level::ShieldtankLevel;
 use super::project::LdtkProject;
@@ -25,45 +26,56 @@ where
     <<Self as SpawnChildren>::Child as AsAssetId>::Asset: LdtkAsset,
 {
     type Child: ShieldtankComponent;
+    type Filter: ShieldtankComponentFilter + Default;
 
     /// Should only return children which pass its own filter, if any
     fn get_children(
         &self,
         asset: &<Self as AsAssetId>::Asset,
+        filter: Self::Filter,
     ) -> impl Iterator<Item = Handle<<Self::Child as AsAssetId>::Asset>>;
 
     #[allow(clippy::type_complexity)]
     fn child_spawn_system(
         assets: Res<Assets<<Self as AsAssetId>::Asset>>,
-        query: Query<(Entity, &Self, Option<&Children>), Or<(Changed<Self>, AssetChanged<Self>)>>,
+        query: Query<
+            (Entity, &Self, Option<&Children>, Option<&Self::Filter>),
+            Or<(Changed<Self>, AssetChanged<Self>)>,
+        >,
         children_query: Query<&Self::Child>,
         mut commands: Commands,
     ) {
-        query.iter().for_each(|(entity, component, children)| {
-            let spawned_children = match children {
-                Some(children) => children
-                    .into_iter()
-                    .copied()
-                    .filter_map(|entity| children_query.get(entity).ok())
-                    .map(|child| child.as_asset_id())
-                    .collect(),
-                None => vec![],
-            };
+        query
+            .iter()
+            .for_each(|(entity, component, children, filter)| {
+                let spawned_children = match children {
+                    Some(children) => children
+                        .into_iter()
+                        .copied()
+                        .filter_map(|entity| children_query.get(entity).ok())
+                        .map(|child| child.as_asset_id())
+                        .collect(),
+                    None => vec![],
+                };
 
-            let Some(asset) = assets.get(component.as_asset_id()) else {
-                debug!("asset not ready?");
-                return;
-            };
+                let Some(asset) = assets.get(component.as_asset_id()) else {
+                    debug!("asset not ready?");
+                    return;
+                };
 
-            component.get_children(asset).for_each(|child_handle| {
-                if !spawned_children.contains(&child_handle.id()) {
-                    let child_component = Self::Child::new(child_handle.clone());
-                    let child_id = commands.spawn(child_component).id();
-                    commands.entity(entity).add_child(child_id);
-                    debug!("Spawning new child: {child_handle:?}");
-                }
+                let filter = filter.cloned().unwrap_or_default();
+
+                component
+                    .get_children(asset, filter)
+                    .for_each(|child_handle| {
+                        if !spawned_children.contains(&child_handle.id()) {
+                            let child_component = Self::Child::new(child_handle.clone());
+                            let child_id = commands.spawn(child_component).id();
+                            commands.entity(entity).add_child(child_id);
+                            debug!("Spawning new child: {child_handle:?}");
+                        }
+                    });
             });
-        });
     }
 }
 

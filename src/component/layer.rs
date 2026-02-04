@@ -6,6 +6,7 @@ use bevy_ecs::component::Component;
 use bevy_ecs::entity::Entity;
 use bevy_ecs::query::{Changed, Or};
 use bevy_ecs::system::{Commands, Query, Res};
+use bevy_ldtk_asset::entity::EntityInstance;
 use bevy_ldtk_asset::layer::EntitiesLayer;
 use bevy_ldtk_asset::layer::LayerInstance;
 use bevy_math::Vec2;
@@ -13,6 +14,7 @@ use bevy_reflect::Reflect;
 use bevy_transform::components::{GlobalTransform, Transform};
 use either::Either;
 
+use crate::component::filter::ShieldtankComponentFilter;
 use crate::component::world_bounds::ShieldtankWorldBounds;
 
 use super::entity::ShieldtankEntity;
@@ -54,13 +56,20 @@ impl ShieldtankComponent for ShieldtankLayer {
     }
 }
 
+#[derive(Clone, Debug, Default, Component, Reflect)]
+pub struct ShieldtankLayerFilter;
+
+impl ShieldtankComponentFilter for ShieldtankLayerFilter {}
+
 impl SpawnChildren for ShieldtankLayer {
     type Child = ShieldtankEntity;
+    type Filter = ShieldtankLayerFilter;
 
     fn get_children(
         &self,
-        asset: &<Self as AsAssetId>::Asset,
-    ) -> impl Iterator<Item = Handle<<Self::Child as AsAssetId>::Asset>> {
+        asset: &LayerInstance,
+        _filter: ShieldtankLayerFilter,
+    ) -> impl Iterator<Item = Handle<EntityInstance>> {
         if let Some(EntitiesLayer { entities, .. }) = asset.layer_type.get_entities_layer() {
             Either::Left(entities.values().cloned())
         } else {

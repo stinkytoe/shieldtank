@@ -6,11 +6,13 @@ use bevy_ecs::component::Component;
 use bevy_ecs::entity::Entity;
 use bevy_ecs::query::{Changed, Or};
 use bevy_ecs::system::{Commands, Query, Res};
+use bevy_ldtk_asset::layer::LayerInstance;
 use bevy_ldtk_asset::level::Level as LevelAsset;
 use bevy_math::{Rect, Vec2};
 use bevy_reflect::Reflect;
 use bevy_transform::components::{GlobalTransform, Transform};
 
+use crate::component::filter::ShieldtankComponentFilter;
 use crate::component::world_bounds::ShieldtankWorldBounds;
 
 use super::layer::ShieldtankLayer;
@@ -52,13 +54,20 @@ impl ShieldtankComponent for ShieldtankLevel {
     }
 }
 
+#[derive(Clone, Debug, Default, Component, Reflect)]
+pub struct ShieldtankLevelFilter;
+
+impl ShieldtankComponentFilter for ShieldtankLevelFilter {}
+
 impl SpawnChildren for ShieldtankLevel {
     type Child = ShieldtankLayer;
+    type Filter = ShieldtankLevelFilter;
 
     fn get_children(
         &self,
-        asset: &<Self as AsAssetId>::Asset,
-    ) -> impl Iterator<Item = Handle<<Self::Child as AsAssetId>::Asset>> {
+        asset: &LevelAsset,
+        _filter: ShieldtankLevelFilter,
+    ) -> impl Iterator<Item = Handle<LayerInstance>> {
         asset.layers.values().cloned()
     }
 }

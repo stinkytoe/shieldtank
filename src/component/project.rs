@@ -3,35 +3,20 @@ use bevy_asset::{AsAssetId, Handle};
 use bevy_camera::visibility::Visibility;
 use bevy_ecs::component::Component;
 use bevy_ldtk_asset::project::Project;
-use bevy_ldtk_asset::world::World;
+use bevy_ldtk_asset::world::World as WorldAsset;
 use bevy_reflect::Reflect;
 use bevy_transform::components::{GlobalTransform, Transform};
+
+use crate::component::filter::ShieldtankComponentFilter;
 
 use super::shieldtank_component::{ShieldtankComponent, ShieldtankComponentSystemSet};
 use super::spawn_children::SpawnChildren;
 use super::world::ShieldtankWorld;
 
-#[derive(Debug, Default, Reflect)]
-pub enum WorldsToSpawn {
-    #[default]
-    All,
-    None,
-}
-
-impl WorldsToSpawn {
-    pub(crate) fn handle_matches(&self, _handle: Handle<World>) -> bool {
-        match self {
-            WorldsToSpawn::All => true,
-            WorldsToSpawn::None => false,
-        }
-    }
-}
-
 #[derive(Debug, Default, Component, Reflect)]
 #[require(GlobalTransform, Transform, Visibility)]
 pub struct LdtkProject {
     pub handle: Handle<Project>,
-    pub worlds_to_spawn: WorldsToSpawn,
 }
 
 impl AsAssetId for LdtkProject {
@@ -44,25 +29,25 @@ impl AsAssetId for LdtkProject {
 
 impl ShieldtankComponent for LdtkProject {
     fn new(handle: Handle<<Self as AsAssetId>::Asset>) -> Self {
-        Self {
-            handle,
-            ..Default::default()
-        }
+        Self { handle }
     }
 }
 
+#[derive(Clone, Debug, Default, Component, Reflect)]
+pub struct ShieldtankProjectFilter;
+
+impl ShieldtankComponentFilter for ShieldtankProjectFilter {}
+
 impl SpawnChildren for LdtkProject {
     type Child = ShieldtankWorld;
+    type Filter = ShieldtankProjectFilter;
 
     fn get_children(
         &self,
         asset: &Project,
-    ) -> impl Iterator<Item = Handle<<Self::Child as AsAssetId>::Asset>> {
-        asset
-            .worlds
-            .values()
-            .filter(|&handle| self.worlds_to_spawn.handle_matches(handle.clone()))
-            .cloned()
+        _filter: ShieldtankProjectFilter,
+    ) -> impl Iterator<Item = Handle<WorldAsset>> {
+        asset.worlds.values().cloned()
     }
 }
 
