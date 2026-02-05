@@ -42,6 +42,7 @@ image = { version = "0.25.2", default-features = false }
 
 either = "1.15"
 itertools = "0.14"
+regex = "1.12"
 thiserror = "2.0"
 
 bevy_ldtk_asset = "0.10"

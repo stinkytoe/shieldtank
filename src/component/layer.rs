@@ -1,5 +1,3 @@
-use std::borrow::Cow;
-
 use bevy_app::Plugin;
 use bevy_asset::prelude::AssetChanged;
 use bevy_asset::{AsAssetId, Assets, Handle};
@@ -16,14 +14,12 @@ use bevy_reflect::Reflect;
 use bevy_transform::components::{GlobalTransform, Transform};
 use either::Either;
 
-use crate::component::filter::ShieldtankComponentFilter;
-use crate::component::world_bounds::ShieldtankWorldBounds;
-
 use super::entity::ShieldtankEntity;
 use super::layer_definition::ShieldtankLayerDefinition;
 use super::layer_tiles::LdtkLayerTiles;
 use super::shieldtank_component::{ShieldtankComponent, ShieldtankComponentSystemSet};
 use super::spawn_children::SpawnChildren;
+use super::world_bounds::ShieldtankWorldBounds;
 
 #[derive(Debug, Component, Reflect)]
 #[require(GlobalTransform, Visibility)]
@@ -61,17 +57,12 @@ impl ShieldtankComponent for ShieldtankLayer {
 #[derive(Clone, Debug, Default, Component, Reflect)]
 pub struct ShieldtankLayerFilter;
 
-impl ShieldtankComponentFilter for ShieldtankLayerFilter {}
+// impl ShieldtankComponentFilter for ShieldtankLayerFilter {}
 
 impl SpawnChildren for ShieldtankLayer {
     type Child = ShieldtankEntity;
-    type Filter = ShieldtankLayerFilter;
 
-    fn get_children(
-        &self,
-        asset: &LayerInstance,
-        _filter: Cow<ShieldtankLayerFilter>,
-    ) -> impl Iterator<Item = Handle<EntityInstance>> {
+    fn get_children(&self, asset: &LayerInstance) -> impl Iterator<Item = Handle<EntityInstance>> {
         if let Some(EntitiesLayer { entities, .. }) = asset.layer_type.get_entities_layer() {
             Either::Left(entities.values().cloned())
         } else {

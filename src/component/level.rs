@@ -1,5 +1,3 @@
-use std::borrow::Cow;
-
 use bevy_app::Plugin;
 use bevy_asset::prelude::AssetChanged;
 use bevy_asset::{AsAssetId, Assets, Handle};
@@ -14,14 +12,12 @@ use bevy_math::{Rect, Vec2};
 use bevy_reflect::Reflect;
 use bevy_transform::components::{GlobalTransform, Transform};
 
-use crate::component::filter::ShieldtankComponentFilter;
-use crate::component::world_bounds::ShieldtankWorldBounds;
-
 use super::layer::ShieldtankLayer;
 use super::level_background::color::ShieldtankLevelBackgroundColor;
 use super::level_background::image::LevelBackgroundImage;
 use super::shieldtank_component::{ShieldtankComponent, ShieldtankComponentSystemSet};
 use super::spawn_children::SpawnChildren;
+use super::world_bounds::ShieldtankWorldBounds;
 
 #[derive(Debug, Component, Reflect)]
 #[require(GlobalTransform, Visibility)]
@@ -59,17 +55,10 @@ impl ShieldtankComponent for ShieldtankLevel {
 #[derive(Clone, Debug, Default, Component, Reflect)]
 pub struct ShieldtankLevelFilter;
 
-impl ShieldtankComponentFilter for ShieldtankLevelFilter {}
-
 impl SpawnChildren for ShieldtankLevel {
     type Child = ShieldtankLayer;
-    type Filter = ShieldtankLevelFilter;
 
-    fn get_children(
-        &self,
-        asset: &LevelAsset,
-        _filter: Cow<ShieldtankLevelFilter>,
-    ) -> impl Iterator<Item = Handle<LayerInstance>> {
+    fn get_children(&self, asset: &LevelAsset) -> impl Iterator<Item = Handle<LayerInstance>> {
         asset.layers.values().cloned()
     }
 }

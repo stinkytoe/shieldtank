@@ -1,5 +1,3 @@
-use std::borrow::Cow;
-
 use bevy_app::Plugin;
 use bevy_asset::{AsAssetId, Handle};
 use bevy_camera::visibility::Visibility;
@@ -9,10 +7,9 @@ use bevy_ldtk_asset::world::World as WorldAsset;
 use bevy_reflect::Reflect;
 use bevy_transform::components::{GlobalTransform, Transform};
 
-use crate::component::filter::ShieldtankComponentFilter;
-use crate::component::level::ShieldtankLevel;
-use crate::component::shieldtank_component::{ShieldtankComponent, ShieldtankComponentSystemSet};
-use crate::component::spawn_children::SpawnChildren;
+use super::level::ShieldtankLevel;
+use super::shieldtank_component::{ShieldtankComponent, ShieldtankComponentSystemSet};
+use super::spawn_children::SpawnChildren;
 
 #[derive(Debug, Default, Component, Reflect)]
 #[require(GlobalTransform, Transform, Visibility)]
@@ -37,17 +34,10 @@ impl ShieldtankComponent for ShieldtankWorld {
 #[derive(Clone, Debug, Default, Component, Reflect)]
 pub struct ShieldtankWorldFilter;
 
-impl ShieldtankComponentFilter for ShieldtankWorldFilter {}
-
 impl SpawnChildren for ShieldtankWorld {
     type Child = ShieldtankLevel;
-    type Filter = ShieldtankWorldFilter;
 
-    fn get_children(
-        &self,
-        asset: &WorldAsset,
-        _filter: Cow<ShieldtankWorldFilter>,
-    ) -> impl Iterator<Item = Handle<LevelAsset>> {
+    fn get_children(&self, asset: &WorldAsset) -> impl Iterator<Item = Handle<LevelAsset>> {
         asset.levels.values().cloned()
     }
 }

@@ -1,5 +1,3 @@
-use std::borrow::Cow;
-
 use bevy_app::Plugin;
 use bevy_asset::{AsAssetId, Handle};
 use bevy_camera::visibility::Visibility;
@@ -8,8 +6,6 @@ use bevy_ldtk_asset::project::Project;
 use bevy_ldtk_asset::world::World as WorldAsset;
 use bevy_reflect::Reflect;
 use bevy_transform::components::{GlobalTransform, Transform};
-
-use crate::component::filter::ShieldtankComponentFilter;
 
 use super::shieldtank_component::{ShieldtankComponent, ShieldtankComponentSystemSet};
 use super::spawn_children::SpawnChildren;
@@ -38,17 +34,10 @@ impl ShieldtankComponent for LdtkProject {
 #[derive(Clone, Debug, Default, Component, Reflect)]
 pub struct ShieldtankProjectFilter;
 
-impl ShieldtankComponentFilter for ShieldtankProjectFilter {}
-
 impl SpawnChildren for LdtkProject {
     type Child = ShieldtankWorld;
-    type Filter = ShieldtankProjectFilter;
 
-    fn get_children(
-        &self,
-        asset: &Project,
-        _filter: Cow<ShieldtankProjectFilter>,
-    ) -> impl Iterator<Item = Handle<WorldAsset>> {
+    fn get_children(&self, asset: &Project) -> impl Iterator<Item = Handle<WorldAsset>> {
         asset.worlds.values().cloned()
     }
 }

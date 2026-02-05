@@ -12,7 +12,8 @@ use bevy_ecs::system::{Query, Res};
 use bevy_ldtk_asset::prelude::LdtkAsset;
 use bevy_log::debug;
 
-use super::filter::ShieldtankComponentFilter;
+use crate::component::filter::ShieldtankComponentFilter;
+
 use super::layer::ShieldtankLayer;
 use super::level::ShieldtankLevel;
 use super::project::LdtkProject;
@@ -28,20 +29,22 @@ where
     <<Self as SpawnChildren>::Child as AsAssetId>::Asset: LdtkAsset,
 {
     type Child: ShieldtankComponent;
-    type Filter: ShieldtankComponentFilter + Default;
 
-    /// Should only return children which pass its own filter, if any
     fn get_children(
         &self,
         asset: &<Self as AsAssetId>::Asset,
-        filter: Cow<Self::Filter>,
     ) -> impl Iterator<Item = Handle<<Self::Child as AsAssetId>::Asset>>;
 
     #[allow(clippy::type_complexity)]
     fn child_spawn_system(
         assets: Res<Assets<<Self as AsAssetId>::Asset>>,
         query: Query<
-            (Entity, &Self, Option<&Children>, Option<&Self::Filter>),
+            (
+                Entity,
+                &Self,
+                Option<&Children>,
+                Option<&ShieldtankComponentFilter>,
+            ),
             Or<(Changed<Self>, AssetChanged<Self>)>,
         >,
         children_query: Query<&Self::Child>,
@@ -65,14 +68,16 @@ where
                     return;
                 };
 
-                let filter: Cow<Self::Filter> = filter
+                let filter: Cow<ShieldtankComponentFilter> = filter
                     .map(Cow::Borrowed)
-                    .unwrap_or_else(|| Cow::Owned(Self::Filter::default()));
-
-                // let filter = filter.cloned().unwrap_or_default();
+                    .unwrap_or_else(|| Cow::Owned(ShieldtankComponentFilter::default()));
 
                 component
-                    .get_children(asset, filter)
+                    .get_children(asset)
+                    .filter(|child_handle| match child_handle.path() {
+                        Some(path) => filter.should_load(path),
+                        None => false,
+                    })
                     .for_each(|child_handle| {
                         if !spawned_children.contains(&child_handle.id()) {
                             let child_component = Self::Child::new(child_handle.clone());
