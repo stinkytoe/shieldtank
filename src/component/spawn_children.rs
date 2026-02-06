@@ -45,7 +45,11 @@ where
                 Option<&Children>,
                 Option<&ShieldtankComponentFilter>,
             ),
-            Or<(Changed<Self>, AssetChanged<Self>)>,
+            Or<(
+                Changed<ShieldtankComponentFilter>,
+                Changed<Self>,
+                AssetChanged<Self>,
+            )>,
         >,
         children_query: Query<&Self::Child>,
         mut commands: Commands,
@@ -74,9 +78,12 @@ where
 
                 component
                     .get_children(asset)
-                    .filter(|child_handle| match child_handle.path() {
-                        Some(path) => filter.should_load(path),
-                        None => false,
+                    .filter(|child_handle| {
+                        child_handle
+                            .path()
+                            .and_then(|path| path.label())
+                            .map(|label| filter.should_load(label))
+                            .unwrap_or(false)
                     })
                     .for_each(|child_handle| {
                         if !spawned_children.contains(&child_handle.id()) {
