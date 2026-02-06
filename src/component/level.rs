@@ -24,6 +24,7 @@ use super::world_bounds::ShieldtankWorldBounds;
 pub struct ShieldtankLevel {
     pub handle: Handle<LevelAsset>,
     pub level_separation: f32,
+    pub render_background: bool,
 }
 
 impl Default for ShieldtankLevel {
@@ -31,6 +32,7 @@ impl Default for ShieldtankLevel {
         Self {
             handle: Default::default(),
             level_separation: 10.0,
+            render_background: true,
         }
     }
 }
@@ -85,24 +87,26 @@ fn level_insert_components_system(
         .for_each(|(entity, component, transform, asset)| {
             let mut entity_commands = commands.entity(entity);
 
-            match &asset.background {
-                Some(background) => {
-                    let color = asset.bg_color;
-                    let size = asset.size.as_uvec2();
+            if component.render_background {
+                match &asset.background {
+                    Some(background) => {
+                        let color = asset.bg_color;
+                        let size = asset.size.as_uvec2();
 
-                    let background = LevelBackgroundImage::new(color, size, background);
+                        let background = LevelBackgroundImage::new(color, size, background);
 
-                    entity_commands.insert(background);
-                }
-                None => {
-                    let background = ShieldtankLevelBackgroundColor {
-                        color: asset.bg_color,
-                        size: asset.size.as_vec2(),
-                    };
+                        entity_commands.insert(background);
+                    }
+                    None => {
+                        let background = ShieldtankLevelBackgroundColor {
+                            color: asset.bg_color,
+                            size: asset.size.as_vec2(),
+                        };
 
-                    entity_commands.insert(background);
-                }
-            };
+                        entity_commands.insert(background);
+                    }
+                };
+            }
 
             if transform.is_none() {
                 let location = Vec2::new(1.0, -1.0) * asset.location.as_vec2();
