@@ -22,7 +22,7 @@ use super::spawn_children::SpawnChildren;
 use super::world_bounds::ShieldtankWorldBounds;
 
 #[derive(Debug, Component, Reflect)]
-#[require(GlobalTransform, Visibility)]
+#[require(Visibility)]
 pub struct ShieldtankLayer {
     pub handle: Handle<LayerInstance>,
     pub layer_separation: f32,
@@ -113,8 +113,16 @@ fn layer_insert_components_system(
         });
 }
 
+#[allow(clippy::type_complexity)]
 fn layer_global_bounds_system(
-    query: Query<(Entity, &ShieldtankLayer, &GlobalTransform), Changed<GlobalTransform>>,
+    query: Query<
+        (Entity, &ShieldtankLayer, &GlobalTransform),
+        Or<(
+            Changed<ShieldtankLayer>,
+            AssetChanged<ShieldtankLayer>,
+            Changed<GlobalTransform>,
+        )>,
+    >,
     assets: Res<Assets<LayerInstance>>,
     mut commands: Commands,
 ) {

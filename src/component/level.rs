@@ -20,7 +20,7 @@ use super::spawn_children::SpawnChildren;
 use super::world_bounds::ShieldtankWorldBounds;
 
 #[derive(Debug, Component, Reflect)]
-#[require(GlobalTransform, Visibility)]
+#[require(Transform, Visibility)]
 pub struct ShieldtankLevel {
     pub handle: Handle<LevelAsset>,
     pub level_separation: f32,
@@ -119,8 +119,17 @@ fn level_insert_components_system(
         });
 }
 
+#[allow(clippy::type_complexity)]
 fn level_global_bounds_system(
-    query: Query<(Entity, &ShieldtankLevel, &GlobalTransform), Changed<GlobalTransform>>,
+    // query: Query<(Entity, &ShieldtankLevel, &GlobalTransform), Changed<GlobalTransform>>,
+    query: Query<
+        (Entity, &ShieldtankLevel, &GlobalTransform),
+        Or<(
+            Changed<ShieldtankLevel>,
+            AssetChanged<ShieldtankLevel>,
+            Changed<GlobalTransform>,
+        )>,
+    >,
     assets: Res<Assets<LevelAsset>>,
     mut commands: Commands,
 ) {

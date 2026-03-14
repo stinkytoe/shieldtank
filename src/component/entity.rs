@@ -21,7 +21,7 @@ use super::tags::ShieldtankTags;
 use super::tile::ShieldtankTile;
 
 #[derive(Debug, Default, Component, Reflect)]
-#[require(GlobalTransform, Visibility)]
+#[require(Visibility)]
 pub struct ShieldtankEntity {
     pub handle: Handle<EntityInstance>,
 }

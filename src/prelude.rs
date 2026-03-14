@@ -4,6 +4,7 @@ pub use crate::component::level::{ShieldtankLevel, ShieldtankLevelPlugin};
 pub use crate::component::world::{ShieldtankWorld, ShieldtankWorldPlugin};
 
 pub use crate::component::field_instances::ShieldtankFieldInstances;
+pub use crate::component::filter::ShieldtankComponentFilter;
 pub use crate::component::iid::ShieldtankIid;
 pub use crate::component::tile::ShieldtankTile;
 pub use crate::component::world_bounds::ShieldtankWorldBounds;

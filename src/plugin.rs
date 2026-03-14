@@ -17,7 +17,7 @@ use crate::component::tags::TagsPlugin;
 use crate::component::tile::TilePlugin;
 use crate::component::tileset_definition::TilesetDefinitionPlugin;
 use crate::component::world::ShieldtankWorldPlugin;
-use crate::component::world_bounds::GlobalBoundsPlugin;
+use crate::component::world_bounds::WorldBoundsPlugin;
 
 pub struct ShieldtankPlugins;
 
@@ -42,7 +42,7 @@ impl PluginGroup for ShieldtankPlugins {
             // Visual Components
             .add(LayerTilePlugin)
             .add(LevelBackgroundPlugin)
-            .add(GlobalBoundsPlugin)
+            .add(WorldBoundsPlugin)
             .add(GridValuesPlugin)
             .add(TagsPlugin)
             .add(TilePlugin);

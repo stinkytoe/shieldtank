@@ -1,6 +1,3 @@
-#[test]
-fn do_test() {}
-
 use bevy_app::{App, Startup, TaskPoolPlugin};
 use bevy_asset::io::embedded::GetAssetServer as _;
 use bevy_asset::{AssetPlugin, AssetServer, LoadState};
@@ -8,7 +5,7 @@ use bevy_ecs::system::{Commands, Res};
 use bevy_ldtk_asset::plugin::BevyLdtkAssetPlugin;
 use bevy_ldtk_asset::world::World as WorldAsset;
 
-use crate::component::ShieldtankComponent;
+use crate::component::shieldtank_component::ShieldtankComponent;
 use crate::component::world::ShieldtankWorld;
 
 fn spawn_a_world(asset_server: Res<AssetServer>, mut commands: Commands) {

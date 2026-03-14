@@ -101,7 +101,7 @@ unsafe impl<'w, 's, const IID: u128, D: QueryData + 'static, F: QueryFilter + 's
 
     unsafe fn validate_param(
         state: &mut Self::State,
-        _system_meta: &SystemMeta,
+        system_meta: &SystemMeta,
         world: UnsafeWorldCell,
     ) -> Result<(), SystemParamValidationError> {
         let iid = Iid::from_u128(IID);

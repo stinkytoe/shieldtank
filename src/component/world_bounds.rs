@@ -32,8 +32,8 @@ impl From<Rect> for ShieldtankWorldBounds {
     }
 }
 
-pub struct GlobalBoundsPlugin;
-impl Plugin for GlobalBoundsPlugin {
+pub struct WorldBoundsPlugin;
+impl Plugin for WorldBoundsPlugin {
     fn build(&self, app: &mut bevy_app::App) {
         app.register_type::<ShieldtankWorldBounds>();
     }

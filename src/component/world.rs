@@ -5,14 +5,14 @@ use bevy_ecs::component::Component;
 use bevy_ldtk_asset::level::Level as LevelAsset;
 use bevy_ldtk_asset::world::World as WorldAsset;
 use bevy_reflect::Reflect;
-use bevy_transform::components::{GlobalTransform, Transform};
+use bevy_transform::components::Transform;
 
 use super::level::ShieldtankLevel;
 use super::shieldtank_component::{ShieldtankComponent, ShieldtankComponentSystemSet};
 use super::spawn_children::SpawnChildren;
 
 #[derive(Debug, Default, Component, Reflect)]
-#[require(GlobalTransform, Transform, Visibility)]
+#[require(Transform, Visibility)]
 pub struct ShieldtankWorld {
     pub handle: Handle<WorldAsset>,
 }
