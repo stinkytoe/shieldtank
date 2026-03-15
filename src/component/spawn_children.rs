@@ -12,7 +12,7 @@ use bevy_ecs::system::{Query, Res};
 use bevy_ldtk_asset::prelude::LdtkAsset;
 use bevy_log::debug;
 
-use crate::component::filter::ShieldtankComponentFilter;
+use crate::component::filter::ChildAutoloadFilter;
 
 use super::layer::ShieldtankLayer;
 use super::level::ShieldtankLevel;
@@ -43,10 +43,10 @@ where
                 Entity,
                 &Self,
                 Option<&Children>,
-                Option<&ShieldtankComponentFilter>,
+                Option<&ChildAutoloadFilter>,
             ),
             Or<(
-                Changed<ShieldtankComponentFilter>,
+                Changed<ChildAutoloadFilter>,
                 Changed<Self>,
                 AssetChanged<Self>,
             )>,
@@ -72,9 +72,9 @@ where
                     return;
                 };
 
-                let filter: Cow<ShieldtankComponentFilter> = filter
+                let filter: Cow<ChildAutoloadFilter> = filter
                     .map(Cow::Borrowed)
-                    .unwrap_or_else(|| Cow::Owned(ShieldtankComponentFilter::default()));
+                    .unwrap_or_else(|| Cow::Owned(ChildAutoloadFilter::default()));
 
                 component
                     .get_children(asset)

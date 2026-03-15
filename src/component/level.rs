@@ -19,6 +19,7 @@ use super::shieldtank_component::{ShieldtankComponent, ShieldtankComponentSystem
 use super::spawn_children::SpawnChildren;
 use super::world_bounds::ShieldtankWorldBounds;
 
+/// Loads an LDtk level from a project.
 #[derive(Debug, Component, Reflect)]
 #[require(Transform, Visibility)]
 pub struct ShieldtankLevel {
