@@ -1,6 +1,1 @@
-# Shieldtank
-
-<!--toc:start-->
-- [Shieldtank](#shieldtank)
-<!--toc:end-->
-
+Project moved to codeberg! New project home: [shieldtank](https://codeberg.org/stinkytoe/shieldtank)
